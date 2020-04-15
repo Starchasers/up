@@ -18,7 +18,12 @@
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-helmet": "^5.2.1"
+    "react-helmet": "^5.2.1",
+    "react-hot-loader": "^4.12.20",
+    "reset-css": "^5.0.1",
+    "styled-components": "^5.1.0",
+    "styled-components-breakpoints": "^0.1.2",
+    "styled-components-spacing": "^3.1.1"
   },
   "devDependencies": {
     "prettier": "^1.19.1"
