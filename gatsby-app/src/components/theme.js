@@ -1,16 +1,18 @@
 export const theme = {
   colors: {
     primary: {
-      one: '#1A1B1C',
-      two: '#1a247e',
+      one: '#181A1B',
+      two: '#434755',
+      three: '#F48024',
     },
     secondary: {
       one: '#fff',
-      two: '#030303',
+      two: '#1F2229',
     },
     text: {
-      light: '#fff',
-      lightBlue: '#4951a5',
+      one: '#dad7d2',
+      two: '#393939',
+      three: '#7a7c89',
     },
     white: '#fff',
     black: '#000',

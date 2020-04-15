@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
 import GlobalStyles from './globalStyles'
 import { theme } from './theme'
+import { TypographyStyle, GoogleFont } from 'react-typography'
+import typography from '../assets/typography/typography'
 
 const Layout = ({ children }) => (
   <>
@@ -21,6 +23,8 @@ const Layout = ({ children }) => (
       ]}
     />
     <ThemeProvider theme={theme}>
+      <TypographyStyle typography={typography} />
+      <GoogleFont typography={typography} />
       <GlobalStyles />
       {children}
     </ThemeProvider>
