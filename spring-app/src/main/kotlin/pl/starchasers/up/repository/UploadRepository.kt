@@ -1,12 +1,25 @@
 package pl.starchasers.up.repository
 
+import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
+import pl.starchasers.up.data.model.FileContent
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
+import java.nio.file.Paths
 import javax.annotation.PostConstruct
 
 interface UploadRepository {
+    fun save(file: FileContent)
+
+    fun find(key: String): FileContent?
+
+    fun delete(key: String)
+
+    fun exists(key: String): Boolean
 
 }
 
@@ -31,5 +44,57 @@ class UploadRepositoryImpl() : UploadRepository {
         }
     }
 
+    override fun save(fileContent: FileContent) {
+        val file = getFileFromKey(fileContent.key)
 
+        if(file.exists()){
+            if (file.isDirectory || !file.isFile)
+                throwExceptionDataStoreCorrupted(fileContent.key)
+            file.delete()
+        }
+
+        file.mkdirs()
+
+        val outputStream = FileOutputStream(file)
+        IOUtils.copyLarge(fileContent.data, outputStream)
+        IOUtils.closeQuietly(outputStream)
+    }
+
+    override fun find(key: String): FileContent? {
+        if (key.length < 4) throw IllegalArgumentException("Malformed file key")
+
+        val file = getFileFromKey(key)
+
+        if (!file.exists()) return null
+        if (file.isDirectory || !file.isFile)
+            throwExceptionDataStoreCorrupted(key)
+
+        return FileContent(key, FileInputStream(file))
+    }
+
+    override fun delete(key: String) {
+        val file = getFileFromKey(key)
+        if(!file.exists()) return
+
+        if (file.isDirectory || !file.isFile)
+            throwExceptionDataStoreCorrupted(key)
+
+        file.delete()
+    }
+
+    override fun exists(key: String): Boolean {
+        val file = getFileFromKey(key)
+        if (file.isDirectory || !file.isFile)
+            throwExceptionDataStoreCorrupted(key)
+
+        return file.exists()
+    }
+
+    private fun getFileFromKey(key: String): File = Paths.get(dataStorePath,
+            key.substring(0, 2),
+            key.substring(2, 4),
+            key).toFile()
+
+    private fun throwExceptionDataStoreCorrupted(key: String): Nothing =
+            throw IllegalStateException("Requested file $key is not a regular file - datastore corrupted!")
 }
