@@ -8,7 +8,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import pl.starchasers.up.util.ApplicationException
+import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
 @ControllerAdvice

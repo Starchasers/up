@@ -7,13 +7,15 @@ import pl.starchasers.up.data.model.FileContent
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import java.nio.file.Paths
+import java.util.*
 import javax.annotation.PostConstruct
 
 interface UploadRepository {
-    fun save(file: FileContent)
+    fun save(fileContent: FileContent)
 
     fun find(key: String): FileContent?
 
@@ -21,6 +23,7 @@ interface UploadRepository {
 
     fun exists(key: String): Boolean
 
+    fun saveTmp(inputStream: InputStream): File
 }
 
 @Repository
@@ -53,7 +56,7 @@ class UploadRepositoryImpl() : UploadRepository {
             file.delete()
         }
 
-        file.mkdirs()
+        file.parentFile.mkdirs()
 
         val outputStream = FileOutputStream(file)
         IOUtils.copyLarge(fileContent.data, outputStream)
@@ -88,6 +91,15 @@ class UploadRepositoryImpl() : UploadRepository {
             throwExceptionDataStoreCorrupted(key)
 
         return file.exists()
+    }
+
+    override fun saveTmp(inputStream: InputStream): File {
+        val file = Paths.get(dataStorePath, "tmp", UUID.randomUUID().toString()).toFile()
+        file.parentFile.mkdirs()
+        val outputStream = file.outputStream()
+        IOUtils.copyLarge(inputStream, outputStream)
+        IOUtils.closeQuietly(outputStream)
+        return file
     }
 
     private fun getFileFromKey(key: String): File = Paths.get(dataStorePath,

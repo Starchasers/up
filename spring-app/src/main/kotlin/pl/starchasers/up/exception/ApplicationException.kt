@@ -1,4 +1,4 @@
-package pl.starchasers.up.util
+package pl.starchasers.up.exception
 
 import org.springframework.http.HttpStatus
 import java.lang.RuntimeException
