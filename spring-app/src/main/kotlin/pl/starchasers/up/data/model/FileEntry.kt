@@ -15,6 +15,9 @@ class FileEntry(
         @Column(nullable = false, unique = false, length = 1024)
         val filename: String,
 
+        @Column(nullable = false, unique = false, length = 32)
+        val contentType: String,
+
         @Column(nullable = true, unique = false)
         val password: String?,
 
