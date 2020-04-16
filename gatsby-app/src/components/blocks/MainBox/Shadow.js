@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { breakpoint } from 'styled-components-breakpoint'
 
 const Shadow = styled('div')`
   position: absolute;
@@ -10,6 +11,10 @@ const Shadow = styled('div')`
 
   top: ${props => props.theme.spacing[4]};
   left: ${props => props.theme.spacing[4]};
+
+  ${breakpoint('xs', 'sm')`
+    display: none;
+  `}
 `
 
 export default Shadow

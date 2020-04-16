@@ -17,13 +17,6 @@ export const theme = {
     white: '#fff',
     black: '#000',
   },
-  shadows: {
-    strong:
-      '0px 3px 6px #C4C4C4, 0px 4px 6px rgba(0, 0, 0, 0.25), 0px 2px 3px rgba(0, 0, 0, 0.25)',
-    light: '0px 1px 4px rgba(196, 196, 196, 0.2)',
-    main: '0px 4px 4px rgba(196, 196, 196, 0.5), 0px 0px 1px #D2C5B8',
-    text: '0px 1px 2px rgba(0, 0, 0, 0.25)',
-  },
   breakpoints: {
     xs: 0,
     sm: 576,
@@ -39,5 +32,8 @@ export const theme = {
     4: '25px',
     5: '50px',
     6: '150px',
+  },
+  border: {
+    radius: '8px',
   },
 }

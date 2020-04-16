@@ -5,13 +5,15 @@ const ItemList = styled('li')`
   white-space: nowrap;
   position: relative;
 
-  ${ml(4)};
   ${my(0)};
 
-  &:not(:first-child):before {
-    content: '○';
-    position: absolute;
-    left: calc(-${props => props.theme.spacing[3]} - 1px);
+  &:not(:first-child) {
+    ${ml(4)};
+    &:before {
+      content: '○';
+      position: absolute;
+      left: calc(-${props => props.theme.spacing[3]} - 1px);
+    }
   }
 `
 

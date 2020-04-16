@@ -4,15 +4,33 @@ import Layout from '../components/layout'
 import Container from '../components/elements/Container'
 import MainBox from '../components/blocks/MainBox'
 import Grid from 'styled-components-grid'
+import styled, { css } from 'styled-components'
+import { breakpoint } from 'styled-components-breakpoint'
+import { py } from 'styled-components-spacing/dist/cjs'
 
 const starchasers = '© ' + new Date().getFullYear() + ' Starchasers'
+
+const Mobile = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: ${props => props.theme.colors.secondary.two};
+  border-radius: ${props => props.theme.border.radius};
+`
+
+const Row = styled(Grid)`
+  ${py({ xs: 4, sm: 0 })};
+  ${breakpoint('xs', 'sm')`
+    ${() => Mobile};
+  `}
+`
 
 const IndexPage = () => (
   <Layout>
     <Container>
       <MainBox>
-        <MainBox.Box></MainBox.Box>
-        <Grid>
+        <MainBox.Box/>
+        <Row>
           <MainBox.Box square center>
             <MainBox.StyledLink href="https://github.com/HubertBalcerzak/up">
               <MainBox.Text>UP</MainBox.Text>
@@ -37,7 +55,7 @@ const IndexPage = () => (
               </MainBox.ItemList>
             </MainBox.List>
           </MainBox.Text>
-        </Grid>
+        </Row>
         <MainBox.Shadow />
       </MainBox>
     </Container>

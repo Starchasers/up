@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
-import { mr } from 'styled-components-spacing/dist/cjs'
+import { mr, pt } from 'styled-components-spacing/dist/cjs'
 
 const right = css`
   margin-left: auto;
@@ -8,6 +8,11 @@ const right = css`
 
   ${breakpoint('md')`
     ${mr(5)};
+  `};
+
+  ${breakpoint('xs', 'sm')`
+    margin-left: 0;
+    ${pt(4)};
   `}
 `
 
