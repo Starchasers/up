@@ -34,6 +34,7 @@ dependencies {
     implementation("commons-fileupload:commons-fileupload:1.3.3")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    runtimeOnly(project(":gatsby-app"))
 
     testImplementation("com.h2database:h2:1.4.200")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
