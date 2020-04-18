@@ -15,7 +15,7 @@ const MainBox = styled('article')`
   ${px(3)};
 
   ${breakpoint('xs', 'sm')`
-    margin: 50px auto 0;
+    margin: ${props => props.theme.spacing[3]} auto 0;
   `}
 `
 

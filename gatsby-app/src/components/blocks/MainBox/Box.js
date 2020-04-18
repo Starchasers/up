@@ -4,7 +4,6 @@ import { mb, p } from 'styled-components-spacing/dist/cjs'
 const square = css`
   width: 50px;
   height: 50px;
-  min-height: unset;
   margin: 0;
   padding: 0;
 `
@@ -18,7 +17,6 @@ const center = css`
 const Box = styled('div')`
   background-color: ${props => props.theme.colors.primary.two};
   border-radius: 8px;
-  min-height: 500px;
   width: 100%;
 
   ${mb(4)};

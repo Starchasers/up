@@ -5,6 +5,8 @@
   "version": "0.1.0",
   "author": "Kuboczoch <kuboczoch@gmail.com>",
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/react-fontawesome": "^0.1.9",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.2.0",
     "gatsby": "^2.20.12",
     "gatsby-image": "^2.3.1",
@@ -20,6 +22,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-dropzone": "^10.2.2",
     "react-helmet": "^5.2.1",
     "react-hot-loader": "^4.12.20",
     "react-typography": "^0.16.19",

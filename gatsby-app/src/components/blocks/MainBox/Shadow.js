@@ -8,6 +8,7 @@ const Shadow = styled('div')`
   background-color: ${props => props.theme.colors.secondary.two};
   z-index: -1;
   border-radius: 8px;
+  opacity: 70%;
 
   top: ${props => props.theme.spacing[4]};
   left: ${props => props.theme.spacing[4]};
