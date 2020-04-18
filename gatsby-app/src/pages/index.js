@@ -43,7 +43,7 @@ const IndexPage = () => (
         <MainBox.Box>
           <Grid>
             <Grid.Unit size={{ xs: 0, md: 1 / 3 }}>
-              <Decoration/>
+              <Decoration alt='Freepik.com'/>
             </Grid.Unit>
             <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
               <FileUpload/>
