@@ -25,7 +25,7 @@ node('master') {
 
     stage('Document') {
         sh "./gradlew asciidoctor"
-        sh "mv spring-app/build/generated-docs/html5/index.html restDocs.html"
+        sh "mv spring-app/build/generated-docs/index.html restDocs.html"
         archiveArtifacts "restDocs.html"
     }
 }
