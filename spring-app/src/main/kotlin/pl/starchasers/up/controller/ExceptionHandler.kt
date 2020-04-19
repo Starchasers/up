@@ -8,6 +8,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.multipart.MultipartException
+import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
@@ -30,6 +32,15 @@ class ExceptionHandler() {
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =
         ResponseEntity(BasicErrorResponseDTO("Not Found"), HttpStatus.NOT_FOUND)
+
+    @ExceptionHandler(MissingServletRequestPartException::class)
+    fun handleMissingServletRequestException(): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+
+    @ExceptionHandler(MultipartException::class)
+    fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+
 
     @ExceptionHandler(Exception::class)
     fun handleAll(exception: Exception): ResponseEntity<BasicErrorResponseDTO> {

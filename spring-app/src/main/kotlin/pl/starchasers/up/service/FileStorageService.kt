@@ -39,7 +39,7 @@ class FileStorageServiceImpl(
         val fileEntry = FileEntry(0,
                 key,
                 filename,
-                contentType,
+                contentType.let { if (contentType.isBlank()) "application/octet-stream" else contentType },
                 null,
                 false,
                 LocalDateTime.now(),
