@@ -22,8 +22,6 @@ interface UploadRepository {
     fun delete(key: String)
 
     fun exists(key: String): Boolean
-
-    fun saveTmp(inputStream: InputStream): File
 }
 
 @Repository
@@ -91,15 +89,6 @@ class UploadRepositoryImpl() : UploadRepository {
             throwExceptionDataStoreCorrupted(key)
 
         return file.exists()
-    }
-
-    override fun saveTmp(inputStream: InputStream): File {
-        val file = Paths.get(dataStorePath, "tmp", UUID.randomUUID().toString()).toFile()
-        file.parentFile.mkdirs()
-        val outputStream = file.outputStream()
-        IOUtils.copyLarge(inputStream, outputStream)
-        IOUtils.closeQuietly(outputStream)
-        return file
     }
 
     private fun getFileFromKey(key: String): File = Paths.get(dataStorePath,

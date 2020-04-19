@@ -14,9 +14,8 @@ import java.io.InputStream
 import java.time.LocalDateTime
 
 interface FileStorageService {
-    fun storeTemporaryFile(inputStream: InputStream): File
+    fun storeNonPermanentFile(tmpFile: InputStream, filename: String, contentType: String): String
 
-    fun storeNonPermanentFile(tmpFile: File, params: Map<String, String>, filename: String, contentType: String): String
     fun getStoredFileRaw(key: String): Pair<FileEntry, InputStream>
 }
 
@@ -33,12 +32,8 @@ class FileStorageServiceImpl(
 
     private val util = Util()
 
-    override fun storeTemporaryFile(inputStream: InputStream): File {
-        return uploadRepository.saveTmp(inputStream)
-    }
-
     @Transactional
-    override fun storeNonPermanentFile(tmpFile: File, params: Map<String, String>, filename: String, contentType: String): String {
+    override fun storeNonPermanentFile(tmpFile: InputStream, filename: String, contentType: String): String {
         val key = util.secureRandomString(NON_PERMANENT_FILE_KEY_LENGTH)
         //TODO check key already used
         val fileEntry = FileEntry(0,
@@ -52,18 +47,9 @@ class FileStorageServiceImpl(
                 false)
         fileEntryRepository.save(fileEntry)
 
-        val tmpFileInputStream = tmpFile.inputStream()
-        val fileContent = FileContent(key, tmpFileInputStream)
+        val fileContent = FileContent(key, tmpFile)
         uploadRepository.save(fileContent)
 
-
-        //cleanup
-        tmpFileInputStream.close()
-        try {
-            tmpFile.delete()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
 
         return key
     }
