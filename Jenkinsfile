@@ -8,7 +8,7 @@ node('master') {
 
     stage('Build') {
         sh "./gradlew assemble"
-        sh "mv build/libs/*.jar ./"
+        sh "mv spring-app/build/libs/*.jar ./"
         archiveArtifacts '*.jar'
     }
 
