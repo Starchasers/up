@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class AnonymousUploadController(private val fileStorageService: FileStorageService) {
 
+    /**
+     * @param file Uploaded file content
+     */
     //TODO return access token
     @PostMapping("/api/upload")
     fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO {
@@ -20,6 +23,9 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         return UploadCompleteResponseDTO(key, "")
     }
 
+    /**
+     * @param fileKey File key obtained during upload
+     */
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
