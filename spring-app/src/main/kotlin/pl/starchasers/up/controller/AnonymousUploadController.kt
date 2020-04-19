@@ -18,7 +18,8 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
     //TODO return access token
     @PostMapping("/api/upload")
     fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO {
-        val key = fileStorageService.storeNonPermanentFile(file.inputStream, file.originalFilename?:"file", file.contentType
+        val key = fileStorageService.storeNonPermanentFile(file.inputStream, file.originalFilename
+                ?: "file", file.contentType
                 ?: "application/octet-stream")
         return UploadCompleteResponseDTO(key, "")
     }
