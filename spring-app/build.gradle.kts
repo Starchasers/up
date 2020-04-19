@@ -57,19 +57,33 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+val snippetsDir = file("build/generated-snippets")
 
+ext{
+    set("snippetsDir", snippetsDir)
+    set("javadocJsonDir", file("$buildDir/generated-javadoc-json"))
+}
 
 tasks {
     val dokka by getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
+        outputDirectory = file("$buildDir/generated-javadoc-json").toString()
         outputFormat = "auto-restdocs-json"
         includeNonPublic = true
         dokkaFatJar = "capital.scalable:spring-auto-restdocs-dokka-json:2.0.7"
     }
 
     asciidoctor {
+        inputs.dir(snippetsDir)
+        setOutputDir(file("$buildDir/generated-docs"))
+
+        options["backend"] = "html"
+        options["doctype"] = "book"
+
         attributes["source-highlighter"] = "highlightjs"
+        attributes["snippets"] = snippetsDir
 
         dependsOn(test)
+        dependsOn(dokka)
     }
 
     jar {

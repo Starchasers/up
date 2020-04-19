@@ -1,0 +1,4 @@
+:toc: left
+
+include::build/generated-snippets/AnonymousUpload/auto-section.adoc[]
+include::build/generated-snippets/GetAnonymousUpload/auto-section.adoc[]

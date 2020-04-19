@@ -1,57 +1,31 @@
 package pl.starchasers.up.controller
 
-import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.multipart.commons.CommonsMultipartFile
 import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
-import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.service.FileStorageService
-import java.io.File
 import java.io.IOException
-import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AnonymousUploadController(private val fileStorageService: FileStorageService) {
 
+    /**
+     * @param file Uploaded file content
+     */
     //TODO return access token
     @PostMapping("/api/upload")
-    fun anonymousUpload(request: HttpServletRequest): UploadCompleteResponseDTO {
-        val isMultipart = ServletFileUpload.isMultipartContent(request)
-        if (!isMultipart) throw BadRequestException()
-
-        val upload = ServletFileUpload()
-        val iterStream = upload.getItemIterator(request)
-
-        val params = mutableMapOf<String, String>()
-        var file: File? = null
-        var filename: String = ""
-        var contentType: String = ""
-
-        while (iterStream.hasNext()) {
-            val item = iterStream.next()
-            val stream = item.openStream()
-            if (!item.isFormField) {
-                if (file != null) throw BadRequestException()//2 files in the same request
-                if (item.fieldName != "file") throw BadRequestException()//incorrect field name
-
-                file = fileStorageService.storeTemporaryFile(stream)
-                filename = item.name
-                contentType = item.contentType
-            } else {
-                params[item.fieldName]
-            }
-            stream.close()
-        }
-
-        val key = fileStorageService.storeNonPermanentFile(file
-                ?: throw BadRequestException(), params, filename, contentType)
+    fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO {
+        val key = fileStorageService.storeNonPermanentFile(file.inputStream, file.originalFilename?:"file", file.contentType
+                ?: "application/octet-stream")
         return UploadCompleteResponseDTO(key, "")
     }
 
+    /**
+     * @param fileKey File key obtained during upload
+     */
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
