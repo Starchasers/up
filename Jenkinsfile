@@ -19,13 +19,13 @@ node('master') {
             currentBuild.result = 'FAILURE'
             error('Tests failed.')
         } finally {
-            junit "build/test-results/test/*.xml"
+            junit "spring-app/build/test-results/test/*.xml"
         }
     }
 
     stage('Document') {
         sh "./gradlew asciidoctor"
-        sh "mv build/generated-docs/html5/index.html restDocs.html"
+        sh "mv spring-app/build/generated-docs/html5/index.html restDocs.html"
         archiveArtifacts "restDocs.html"
     }
 }
