@@ -19,19 +19,19 @@ class ExceptionHandler() {
 
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(applicationException: ApplicationException): ResponseEntity<BasicErrorResponseDTO> =
-        ResponseEntity(BasicErrorResponseDTO(applicationException.errorMessage), applicationException.responseStatus)
+            ResponseEntity(BasicErrorResponseDTO(applicationException.errorMessage), applicationException.responseStatus)
 
     @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
     fun handleValidationErrors(): ResponseEntity<BasicErrorResponseDTO> =
-        ResponseEntity(BasicErrorResponseDTO("Bad request."), HttpStatus.BAD_REQUEST)
+            ResponseEntity(BasicErrorResponseDTO("Bad request."), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<BasicErrorResponseDTO> =
-        ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.UNAUTHORIZED)
+            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.UNAUTHORIZED)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =
-        ResponseEntity(BasicErrorResponseDTO("Not Found"), HttpStatus.NOT_FOUND)
+            ResponseEntity(BasicErrorResponseDTO("Not Found"), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(MissingServletRequestPartException::class)
     fun handleMissingServletRequestException(): ResponseEntity<BasicErrorResponseDTO> =
