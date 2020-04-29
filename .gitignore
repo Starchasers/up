@@ -72,3 +72,6 @@ gatsby-app/public
 
 # Mac files
 gatsby-app/.DS_Store
+
+#up / project files
+uploads/*
