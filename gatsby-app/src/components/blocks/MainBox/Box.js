@@ -20,7 +20,7 @@ const Box = styled('div')`
   width: 100%;
 
   ${mb(4)};
-  ${p(4)};
+  ${p({ xs: 2, sm: 3, md: 4 })};
 
   ${props => props.square && square};
   ${props => props.center && center};

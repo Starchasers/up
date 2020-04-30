@@ -1,3 +1,5 @@
 html {
     background-color: #1A1B1C;
+    /*Typography is changing overflow-y to scroll*/
+    overflow-y: auto!important;
 }

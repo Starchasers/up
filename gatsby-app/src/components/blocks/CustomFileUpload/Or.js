@@ -10,6 +10,7 @@ const Or = styled('p')`
   display: inline-grid;
   align-items: center;
   font-weight: bold;
+  cursor: default;
   
   &:before, &:after {
     content: '';
