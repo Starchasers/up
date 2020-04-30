@@ -20,7 +20,6 @@ const handleFileUpload = async (props) => {
     })
   } catch (e) {
     console.log(e)
-    props.setLoading(false)
     props.setUpload({ uploaded: false, data: {} })
   } finally {
     props.setLoading(false)
