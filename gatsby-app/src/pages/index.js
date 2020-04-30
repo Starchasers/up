@@ -66,7 +66,7 @@ const IndexPage = () => {
                           >
                             {`${process.env.GATSBY_API_URL
                               ? process.env.GATSBY_API_URL
-                              : window.location.href}/u/` + upload.data.key}
+                              : window.location.origin}/u/` + upload.data.key}
                           </AfterUploadBox.Text>
                         </AfterUploadBox.TextBox>
                         <AfterUploadBox.Back onClick={() => setUpload({ uploaded: false, data: {} })}>
