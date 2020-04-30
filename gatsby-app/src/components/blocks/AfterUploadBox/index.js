@@ -11,7 +11,7 @@ const AfterUploadBox = styled('div')`
   justify-content: center;
   flex-direction: column;
   min-height: 300px;
-  ${pl(4)};
+  ${pl({md: 4})};
   position: relative;
 `
 
