@@ -4,14 +4,14 @@ import Dropzone from 'react-dropzone'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
-const handleFileUpload = (props) => {
+const handleFileUpload = async (props) => {
   try {
     props.setLoading(true)
 
     const data = new FormData()
     data.append('file', props.files[0])
 
-    axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, data, {
+    await axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
