@@ -16,11 +16,7 @@ const handleFileUpload = async (props) => {
         'Content-Type': 'multipart/form-data',
       },
     }).then(res => {
-      if (res.status !== 200) {
-        throw res
-      } else {
-        props.setUpload({ uploaded: true, data: { ...res.data } })
-      }
+      props.setUpload({ uploaded: true, data: { ...res.data } })
     })
   } catch (e) {
     console.log(e)
