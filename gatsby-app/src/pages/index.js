@@ -12,8 +12,6 @@ import AfterUploadBox from '../components/blocks/AfterUploadBox'
 import Loader from '../components/elements/Loader'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 
-const starchasers = '© ' + new Date().getFullYear() + ' Starchasers'
-
 const Mobile = css`
   display: flex;
   flex-direction: column;
@@ -85,14 +83,14 @@ const IndexPage = () => {
           </MainBox.Box>
           <Row>
             <MainBox.Box square center>
-              <MainBox.StyledLink href="https://github.com/HubertBalcerzak/up">
+              <MainBox.StyledLink href="https://github.com/Starchasers/up">
                 <MainBox.Text>UP</MainBox.Text>
               </MainBox.StyledLink>
             </MainBox.Box>
             <MainBox.Text right light>
               <MainBox.List>
                 <MainBox.ItemList>
-                  <MainBox.StyledLink href="https://github.com/HubertBalcerzak/up">
+                  <MainBox.StyledLink href="https://github.com/Starchasers/up">
                     <MainBox.Text light>Github</MainBox.Text>
                   </MainBox.StyledLink>
                 </MainBox.ItemList>
@@ -102,8 +100,8 @@ const IndexPage = () => {
                   </MainBox.StyledLink>
                 </MainBox.ItemList>
                 <MainBox.ItemList>
-                  <MainBox.StyledLink href="https://starchasers.pl">
-                    <MainBox.Text light>{starchasers}</MainBox.Text>
+                  <MainBox.StyledLink href="https://github.com/Starchasers">
+                    <MainBox.Text light>Starchasers</MainBox.Text>
                   </MainBox.StyledLink>
                 </MainBox.ItemList>
               </MainBox.List>
