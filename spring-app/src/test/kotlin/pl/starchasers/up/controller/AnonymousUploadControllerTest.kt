@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
+import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import javax.transaction.Transactional
 
@@ -108,17 +109,17 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
     @OrderTests
     @Nested
     inner class GetAnonymousUpload(
-            @Autowired val fileStorageService: FileStorageService
+            @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
 
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
-            val key = fileStorageService.storeNonPermanentFile(
+            val key = fileService.createFile(
                     "example content".byteInputStream(),
                     "fileName.txt",
                     "text/plain"
-            )
+            ).key
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")

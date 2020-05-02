@@ -5,24 +5,24 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
+import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import java.io.IOException
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-class AnonymousUploadController(private val fileStorageService: FileStorageService) {
+class AnonymousUploadController(private val fileStorageService: FileStorageService,
+                                private val fileService: FileService) {
 
     /**
      * @param file Uploaded file content
      */
     //TODO return access token
     @PostMapping("/api/upload")
-    fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO {
-        val key = fileStorageService.storeNonPermanentFile(file.inputStream, file.originalFilename
-                ?: "file", file.contentType
-                ?: "application/octet-stream")
-        return UploadCompleteResponseDTO(key, "")
-    }
+    fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO =
+            fileService.createFile(file.inputStream,
+                    file.originalFilename ?: "file",
+                    file.contentType ?: "application/octet-stream")
 
     /**
      * @param fileKey File key obtained during upload

@@ -31,5 +31,8 @@ class FileEntry(
         val toDeleteDate: LocalDateTime?,
 
         @Column(nullable = false, unique = false)
-        val permanent: Boolean
+        val permanent: Boolean,
+
+        @Column(nullable = false, unique = false, length = 128)
+        val accessToken: String
 )

@@ -8,13 +8,11 @@ import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.util.Util
-import java.io.File
-import java.io.IOException
 import java.io.InputStream
 import java.time.LocalDateTime
 
 interface FileStorageService {
-    fun storeNonPermanentFile(tmpFile: InputStream, filename: String, contentType: String): String
+    fun storeNonPermanentFile(tmpFile: InputStream, filename: String): String
 
     fun getStoredFileRaw(key: String): Pair<FileEntry, InputStream>
 }
@@ -33,23 +31,10 @@ class FileStorageServiceImpl(
     private val util = Util()
 
     @Transactional
-    override fun storeNonPermanentFile(tmpFile: InputStream, filename: String, contentType: String): String {
-        val key = util.secureRandomString(NON_PERMANENT_FILE_KEY_LENGTH)
-        //TODO check key already used
-        val fileEntry = FileEntry(0,
-                key,
-                filename,
-                contentType.let { if (contentType.isBlank()) "application/octet-stream" else contentType },
-                null,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1),
-                false)
-        fileEntryRepository.save(fileEntry)
-
+    override fun storeNonPermanentFile(tmpFile: InputStream, filename: String): String {
+        val key = util.secureReadableRandomString(NON_PERMANENT_FILE_KEY_LENGTH)
         val fileContent = FileContent(key, tmpFile)
         uploadRepository.save(fileContent)
-
 
         return key
     }
