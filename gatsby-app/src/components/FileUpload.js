@@ -4,7 +4,7 @@ import Dropzone from 'react-dropzone'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
-const handleFileUpload = async (props) => {
+export const handleFileUpload = async (props) => {
   try {
     props.setLoader({ isLoading: true, value: 0 })
 
@@ -16,7 +16,7 @@ const handleFileUpload = async (props) => {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: (value) => {
-        props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100)})
+        props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100) })
       },
     }).then(res => {
       props.setUpload({ uploaded: true, data: { ...res.data } })
