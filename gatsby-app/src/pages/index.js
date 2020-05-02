@@ -34,12 +34,12 @@ const Decoration = styled('div')`
   background-color: ${props => props.theme.colors.secondary.two};
   border-radius: ${props => props.theme.border.radius};
   background-image: url(${foreground});
-  background-position: left;
+  background-position: center;
   background-size: cover;
 `
 
 const IndexPage = () => {
-  const [loading, setLoading] = useState(false)
+  const [loader, setLoader] = useState({ isLoading: false, value: 0 })
   const [upload, setUpload] = useState({ uploaded: false, data: {} })
   return (
     <Layout>
@@ -51,7 +51,7 @@ const IndexPage = () => {
                 <Decoration alt='Freepik.com'/>
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
-                <Loader loading={loading}>
+                <Loader loader={loader}>
                   {
                     upload.uploaded
                       ? <AfterUploadBox>
@@ -73,7 +73,7 @@ const IndexPage = () => {
                         </AfterUploadBox.Back>
                       </AfterUploadBox>
                       : <FileUpload
-                        setLoading={setLoading}
+                        setLoader={setLoader}
                         setUpload={setUpload}
                       />
                   }

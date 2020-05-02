@@ -6,7 +6,7 @@ import axios from 'axios'
 
 const handleFileUpload = async (props) => {
   try {
-    props.setLoading(true)
+    props.setLoader({ isLoading: true, value: 0 })
 
     const data = new FormData()
     data.append('file', props.files[0])
@@ -15,6 +15,9 @@ const handleFileUpload = async (props) => {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress: (value) => {
+        props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100)})
+      },
     }).then(res => {
       props.setUpload({ uploaded: true, data: { ...res.data } })
     })
@@ -22,7 +25,7 @@ const handleFileUpload = async (props) => {
     console.log(e)
     props.setUpload({ uploaded: false, data: {} })
   } finally {
-    props.setLoading(false)
+    props.setLoader({ isLoading: false, value: 100 })
   }
 }
 
