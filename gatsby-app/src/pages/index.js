@@ -43,20 +43,23 @@ const IndexPage = () => {
   const [upload, setUpload] = useState({ uploaded: false, data: {} })
   return (
     <Layout>
-      <Container onPaste={(event) => {
-        const items = event.clipboardData.items
-        let blob = null
-        for (let i = 0; i < items.length; i++) {
-          if (items[i].type.indexOf('image') === 0) {
-            blob = items[i].getAsFile()
+      <Container
+        onPaste={(event) => {
+          if (loader.isLoading || upload.uploaded) return
+          const items = event.clipboardData.items
+          let blob = null
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') === 0) {
+              blob = items[i].getAsFile()
+            }
           }
-        }
-        handleFileUpload({
-          setLoader: setLoader,
-          setUpload: setUpload,
-          files: [blob],
-        })
-      }}>
+          handleFileUpload({
+            setLoader: setLoader,
+            setUpload: setUpload,
+            files: [blob],
+          })
+        }}
+      >
         <MainBox>
           <MainBox.Box>
             <Grid>
