@@ -22,7 +22,7 @@ fun MockMvcData.isError(expectedStatus: HttpStatus) {
     printResponseBody()
     status(expectedStatus)
 //    responseJsonPath("$.success").isFalse()
-    responseJsonPath("$.errorMessage").isNotEmpty()
+    responseJsonPath("$.message").isNotEmpty()
 }
 
 /**
