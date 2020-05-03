@@ -7,7 +7,7 @@ const Shadow = styled('div')`
   height: 100%;
   background-color: ${props => props.theme.colors.secondary.two};
   z-index: -1;
-  border-radius: 8px;
+  border-radius: ${props => props.theme.border.radius};
   opacity: 70%;
 
   top: ${props => props.theme.spacing[4]};

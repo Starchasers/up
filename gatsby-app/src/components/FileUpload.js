@@ -16,13 +16,17 @@ const handleFileUpload = async (props) => {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: (value) => {
-        props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100)})
+        props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100) })
       },
     }).then(res => {
       props.setUpload({ uploaded: true, data: { ...res.data } })
     })
   } catch (e) {
-    console.log(e)
+    props.setError({
+      active: true,
+      message: e.response ? e.response.data.message : e.toString(),
+      status: e.response ? e.response.status : undefined,
+    })
     props.setUpload({ uploaded: false, data: {} })
   } finally {
     props.setLoader({ isLoading: false, value: 100 })

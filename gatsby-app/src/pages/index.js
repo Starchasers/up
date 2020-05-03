@@ -11,6 +11,7 @@ import foreground from '../assets/images/foreground.jpg'
 import AfterUploadBox from '../components/blocks/AfterUploadBox'
 import Loader from '../components/elements/Loader'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
+import ErrorBox from '../components/ErrorBox'
 
 const Mobile = css`
   display: flex;
@@ -41,6 +42,7 @@ const Decoration = styled('div')`
 const IndexPage = () => {
   const [loader, setLoader] = useState({ isLoading: false, value: 0 })
   const [upload, setUpload] = useState({ uploaded: false, data: {} })
+  const [error, setError] = useState({ active: false, message: '' })
   return (
     <Layout>
       <Container>
@@ -52,31 +54,37 @@ const IndexPage = () => {
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
                 <Loader loader={loader}>
-                  {
-                    upload.uploaded
-                      ? <AfterUploadBox>
-                        <AfterUploadBox.TextBox>
-                          <AfterUploadBox.Text
-                            target='_blank'
-                            href={`${process.env.GATSBY_API_URL
-                              ? process.env.GATSBY_API_URL
-                              : ''}/u/` + upload.data.key}
-                          >
-                            {`${process.env.GATSBY_API_URL
-                              ? process.env.GATSBY_API_URL
-                              : window.location.origin}/u/` + upload.data.key}
-                          </AfterUploadBox.Text>
-                        </AfterUploadBox.TextBox>
-                        <AfterUploadBox.Back onClick={() => setUpload({ uploaded: false, data: {} })}>
-                          <AfterUploadBox.Icon icon={faAngleLeft}/>
-                          Go back
-                        </AfterUploadBox.Back>
-                      </AfterUploadBox>
-                      : <FileUpload
-                        setLoader={setLoader}
-                        setUpload={setUpload}
-                      />
-                  }
+                  <ErrorBox
+                    setError={setError}
+                    {...error}
+                  >
+                    {
+                      upload.uploaded
+                        ? <AfterUploadBox>
+                          <AfterUploadBox.TextBox>
+                            <AfterUploadBox.Text
+                              target='_blank'
+                              href={`${process.env.GATSBY_API_URL
+                                ? process.env.GATSBY_API_URL
+                                : ''}/u/` + upload.data.key}
+                            >
+                              {`${process.env.GATSBY_API_URL
+                                ? process.env.GATSBY_API_URL
+                                : window.location.origin}/u/` + upload.data.key}
+                            </AfterUploadBox.Text>
+                          </AfterUploadBox.TextBox>
+                          <AfterUploadBox.Back onClick={() => setUpload({ uploaded: false, data: {} })}>
+                            <AfterUploadBox.Icon icon={faAngleLeft}/>
+                            Go back
+                          </AfterUploadBox.Back>
+                        </AfterUploadBox>
+                        : <FileUpload
+                          setLoader={setLoader}
+                          setUpload={setUpload}
+                          setError={setError}
+                        />
+                    }
+                  </ErrorBox>
                 </Loader>
               </Grid.Unit>
             </Grid>
@@ -91,12 +99,7 @@ const IndexPage = () => {
               <MainBox.List>
                 <MainBox.ItemList>
                   <MainBox.StyledLink href="https://github.com/Starchasers/up">
-                    <MainBox.Text light>Github</MainBox.Text>
-                  </MainBox.StyledLink>
-                </MainBox.ItemList>
-                <MainBox.ItemList>
-                  <MainBox.StyledLink href="https://kuboczoch.pl">
-                    <MainBox.Text light>My Website</MainBox.Text>
+                    <MainBox.Text light>GitHub</MainBox.Text>
                   </MainBox.StyledLink>
                 </MainBox.ItemList>
                 <MainBox.ItemList>
