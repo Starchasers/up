@@ -6,15 +6,17 @@ import Grid from 'styled-components-grid'
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
-import FileUpload from '../components/FileUpload'
 import foreground from '../assets/images/foreground.jpg'
 import AfterUploadBox from '../components/blocks/AfterUploadBox'
 import Loader from '../components/elements/Loader'
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
+import { faAngleLeft, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import ErrorBox from '../components/ErrorBox'
-import { getResponseState } from '../redux/selectors'
+import { getLoadingState, getResponseState } from '../redux/selectors'
 import { connect } from 'react-redux'
-import { setResponse } from '../redux/actions'
+import { setError, setLoading, setResponse } from '../redux/actions'
+import useFileUpload from '../components/useFileUpload'
+import CustomFileUpload from '../components/blocks/CustomFileUpload'
+import Dropzone from 'react-dropzone'
 
 const Mobile = css`
   display: flex;
@@ -42,7 +44,8 @@ const Decoration = styled('div')`
   background-size: cover;
 `
 
-const IndexPage = ({ response, setResponse }) => {
+const IndexPage = (props) => {
+  const fileUpload = useFileUpload(props)
   return (
     <Layout>
       <Container>
@@ -56,18 +59,18 @@ const IndexPage = ({ response, setResponse }) => {
                 <Loader>
                   <ErrorBox>
                     {
-                      response.received
+                      props.response.received
                         ? <AfterUploadBox>
                           <AfterUploadBox.TextBox>
                             <AfterUploadBox.Text
                               target='_blank'
                               href={`${process.env.GATSBY_API_URL
                                 ? process.env.GATSBY_API_URL
-                                : ''}/u/` + response.data.key}
+                                : ''}/u/` + props.response.data.key}
                             >
                               {`${process.env.GATSBY_API_URL
                                 ? process.env.GATSBY_API_URL
-                                : window.location.origin}/u/` + response.data.key}
+                                : window.location.origin}/u/` + props.response.data.key}
                             </AfterUploadBox.Text>
                           </AfterUploadBox.TextBox>
                           <AfterUploadBox.Back onClick={() => setResponse({ received: false, data: {} })}>
@@ -75,7 +78,26 @@ const IndexPage = ({ response, setResponse }) => {
                             Go back
                           </AfterUploadBox.Back>
                         </AfterUploadBox>
-                        : <FileUpload/>
+                        : <Dropzone onDrop={files => fileUpload.handleFileUpload({ files })}>
+                          {({ getRootProps, getInputProps }) => (
+                            <CustomFileUpload onPaste={(event) => fileUpload.handleOnPaste(event)}>
+                              <CustomFileUpload.Container {...getRootProps()} style={{ width: '80%' }}>
+                                <CustomFileUpload.DropZone>
+                                  <CustomFileUpload.Text bold>Drop file here</CustomFileUpload.Text>
+                                </CustomFileUpload.DropZone>
+                                <CustomFileUpload.Input {...getInputProps()}/>
+                              </CustomFileUpload.Container>
+                              <CustomFileUpload.Or>OR</CustomFileUpload.Or>
+                              <CustomFileUpload.Container {...getRootProps()}>
+                                <CustomFileUpload.Button>
+                                  <CustomFileUpload.Icon icon={faFolderOpen} style={{ width: '22.5px' }}/>
+                                  <CustomFileUpload.Text>Choose File</CustomFileUpload.Text>
+                                </CustomFileUpload.Button>
+                                <CustomFileUpload.Input {...getInputProps()}/>
+                              </CustomFileUpload.Container>
+                            </CustomFileUpload>
+                          )}
+                        </Dropzone>
                     }
                   </ErrorBox>
                 </Loader>
@@ -111,8 +133,9 @@ const IndexPage = ({ response, setResponse }) => {
 }
 
 const mapStateToProps = state => {
+  const loading = getLoadingState(state)
   const response = getResponseState(state)
-  return { response }
+  return { loading, response }
 }
 
-export default connect(mapStateToProps, { setResponse })(IndexPage)
+export default connect(mapStateToProps, { setLoading, setError, setResponse })(IndexPage)

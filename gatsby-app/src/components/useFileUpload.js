@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import axios from 'axios'
 
-const useFileUpload = ({ loading, setLoading, setError, setResponse }) => {
+const useFileUpload = ({ loading, response, setLoading, setError, setResponse }) => {
   const handleFileUpload = useCallback(async ({ files }) => {
     try {
       setLoading({ isLoading: true, value: 0 })
@@ -27,11 +27,10 @@ const useFileUpload = ({ loading, setLoading, setError, setResponse }) => {
     } finally {
       setLoading({ isLoading: false, value: 100 })
     }
-  }, [setLoading])
+  }, [setLoading, setError])
 
-  const handleOnPaste = useCallback(({ event }) => {
-    if (loading.isLoading || loading.uploaded) return
-
+  const handleOnPaste = useCallback((event) => {
+    if (loading.isLoading || response.received) return
     const items = event.clipboardData.items
     let blob = null
 
@@ -40,11 +39,15 @@ const useFileUpload = ({ loading, setLoading, setError, setResponse }) => {
         blob = items[i].getAsFile()
       }
     }
-
+    if (!blob) return
     handleFileUpload({
       files: [blob],
     })
-  }, [loading, handleFileUpload])
+  }, [loading, response, handleFileUpload])
+
+  window.addEventListener('paste', (e) => {
+    handleOnPaste(e)
+  }, false)
 
   return {
     handleFileUpload,
