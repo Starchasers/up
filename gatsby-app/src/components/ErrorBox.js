@@ -5,7 +5,7 @@ import { getErrorState } from '../redux/selectors'
 import { connect } from 'react-redux'
 import { setError } from '../redux/actions'
 
-const ErrorBox = ({ children, error, setError }) => (
+const ErrorBox = ({ children, error, dispatch }) => (
   (error.message || !!(error.status))
     ? <CustomErrorBox>
       {
@@ -20,7 +20,7 @@ const ErrorBox = ({ children, error, setError }) => (
           {error.message}
         </CustomErrorBox.Code>
       </CustomErrorBox.Pre>
-      <CustomErrorBox.Back onClick={() => setError({ status: 0, message: '' })}>
+      <CustomErrorBox.Back onClick={() => dispatch(setError({ status: 0, message: '' }))}>
         <CustomErrorBox.Icon icon={faAngleLeft}/>
         Go back
       </CustomErrorBox.Back>
@@ -33,4 +33,4 @@ const mapStateToProps = state => {
   return { error }
 }
 
-export default connect(mapStateToProps, { setError })(ErrorBox)
+export default connect(mapStateToProps)(ErrorBox)

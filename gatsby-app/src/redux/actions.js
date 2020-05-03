@@ -1,4 +1,11 @@
-import { SET_ERROR, SET_LOADING, SET_RESPONSE } from './actionTypes'
+import { SET_ERROR, SET_LOADING, SET_PAGE, SET_RESPONSE } from './actionTypes'
+
+export const setPage = (state) => ({
+  type: SET_PAGE,
+  payload: {
+    ...state,
+  },
+})
 
 export const setLoading = (state) => ({
   type: SET_LOADING,

@@ -1,10 +1,13 @@
 import { useCallback } from 'react'
 import axios from 'axios'
+import { setError, setLoading, setPage, setResponse } from '../redux/actions'
+import { PAGE_ID } from '../redux/constants'
 
-const useFileUpload = ({ loading, response, setLoading, setError, setResponse }) => {
+const useFileUpload = ({ loading, response, dispatch }) => {
   const handleFileUpload = useCallback(async ({ files }) => {
     try {
-      setLoading({ isLoading: true, value: 0 })
+      dispatch(setLoading({ isLoading: true, value: 0 }))
+      dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
 
       const data = new FormData()
       data.append('file', files[0])
@@ -14,18 +17,20 @@ const useFileUpload = ({ loading, response, setLoading, setError, setResponse })
           'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: (value) => {
-          setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) })
+          dispatch(setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) }))
         },
       })
-      setResponse({ received: true, data: { ...response.data } })
+      dispatch(setResponse({ received: true, data: { ...response.data } }))
+      dispatch(setPage({ pageId: PAGE_ID.AFTER_UPLOAD_PAGE }))
     } catch (e) {
       setError({
         message: e.response ? e.response.data.message : e.toString(),
         status: e.response ? e.response.status : undefined,
       })
-      setResponse({ received: false, data: {} })
+      dispatch(setResponse({ received: false, data: {} }))
+      dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
     } finally {
-      setLoading({ isLoading: false, value: 100 })
+      dispatch(setLoading({ isLoading: false, value: 100 }))
     }
   }, [setLoading, setError])
 

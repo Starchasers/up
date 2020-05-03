@@ -7,16 +7,7 @@ import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
 import foreground from '../assets/images/foreground.jpg'
-import AfterUploadBox from '../components/blocks/AfterUploadBox'
-import Loader from '../components/elements/Loader'
-import { faAngleLeft, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
-import ErrorBox from '../components/ErrorBox'
-import { getLoadingState, getResponseState } from '../redux/selectors'
-import { connect } from 'react-redux'
-import { setError, setLoading, setResponse } from '../redux/actions'
-import useFileUpload from '../components/useFileUpload'
-import CustomFileUpload from '../components/blocks/CustomFileUpload'
-import Dropzone from 'react-dropzone'
+import SwitchBox from '../components/SwitchBox'
 
 const Mobile = css`
   display: flex;
@@ -44,8 +35,7 @@ const Decoration = styled('div')`
   background-size: cover;
 `
 
-const IndexPage = (props) => {
-  const fileUpload = useFileUpload(props)
+const IndexPage = () => {
   return (
     <Layout>
       <Container>
@@ -56,51 +46,7 @@ const IndexPage = (props) => {
                 <Decoration alt='Freepik.com'/>
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
-                <Loader>
-                  <ErrorBox>
-                    {
-                      props.response.received
-                        ? <AfterUploadBox>
-                          <AfterUploadBox.TextBox>
-                            <AfterUploadBox.Text
-                              target='_blank'
-                              href={`${process.env.GATSBY_API_URL
-                                ? process.env.GATSBY_API_URL
-                                : ''}/u/` + props.response.data.key}
-                            >
-                              {`${process.env.GATSBY_API_URL
-                                ? process.env.GATSBY_API_URL
-                                : window.location.origin}/u/` + props.response.data.key}
-                            </AfterUploadBox.Text>
-                          </AfterUploadBox.TextBox>
-                          <AfterUploadBox.Back onClick={() => setResponse({ received: false, data: {} })}>
-                            <AfterUploadBox.Icon icon={faAngleLeft}/>
-                            Go back
-                          </AfterUploadBox.Back>
-                        </AfterUploadBox>
-                        : <Dropzone onDrop={files => fileUpload.handleFileUpload({ files })}>
-                          {({ getRootProps, getInputProps }) => (
-                            <CustomFileUpload onPaste={(event) => fileUpload.handleOnPaste(event)}>
-                              <CustomFileUpload.Container {...getRootProps()} style={{ width: '80%' }}>
-                                <CustomFileUpload.DropZone>
-                                  <CustomFileUpload.Text bold>Drop file here</CustomFileUpload.Text>
-                                </CustomFileUpload.DropZone>
-                                <CustomFileUpload.Input {...getInputProps()}/>
-                              </CustomFileUpload.Container>
-                              <CustomFileUpload.Or>OR</CustomFileUpload.Or>
-                              <CustomFileUpload.Container {...getRootProps()}>
-                                <CustomFileUpload.Button>
-                                  <CustomFileUpload.Icon icon={faFolderOpen} style={{ width: '22.5px' }}/>
-                                  <CustomFileUpload.Text>Choose File</CustomFileUpload.Text>
-                                </CustomFileUpload.Button>
-                                <CustomFileUpload.Input {...getInputProps()}/>
-                              </CustomFileUpload.Container>
-                            </CustomFileUpload>
-                          )}
-                        </Dropzone>
-                    }
-                  </ErrorBox>
-                </Loader>
+                <SwitchBox/>
               </Grid.Unit>
             </Grid>
           </MainBox.Box>
@@ -132,10 +78,4 @@ const IndexPage = (props) => {
   )
 }
 
-const mapStateToProps = state => {
-  const loading = getLoadingState(state)
-  const response = getResponseState(state)
-  return { loading, response }
-}
-
-export default connect(mapStateToProps, { setLoading, setError, setResponse })(IndexPage)
+export default IndexPage
