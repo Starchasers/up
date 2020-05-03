@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Layout from '../components/layout'
 import Container from '../components/elements/Container'
 import MainBox from '../components/blocks/MainBox'
@@ -6,12 +6,15 @@ import Grid from 'styled-components-grid'
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
-import FileUpload, { handleOnPaste } from '../components/FileUpload'
+import FileUpload from '../components/FileUpload'
 import foreground from '../assets/images/foreground.jpg'
 import AfterUploadBox from '../components/blocks/AfterUploadBox'
 import Loader from '../components/elements/Loader'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import ErrorBox from '../components/ErrorBox'
+import { getResponseState } from '../redux/selectors'
+import { connect } from 'react-redux'
+import { setResponse } from '../redux/actions'
 
 const Mobile = css`
   display: flex;
@@ -39,21 +42,10 @@ const Decoration = styled('div')`
   background-size: cover;
 `
 
-const IndexPage = () => {
-  const [loader, setLoader] = useState({ isLoading: false, value: 0 })
-  const [upload, setUpload] = useState({ uploaded: false, data: {} })
-  const [error, setError] = useState({ active: false, message: '' })
+const IndexPage = ({ response, setResponse }) => {
   return (
     <Layout>
-      <Container
-        onPaste={(event) => handleOnPaste({
-          event: event,
-          setLoader: setLoader,
-          setUpload: setUpload,
-          ...loader,
-          ...upload,
-        })}
-      >
+      <Container>
         <MainBox>
           <MainBox.Box>
             <Grid>
@@ -61,36 +53,29 @@ const IndexPage = () => {
                 <Decoration alt='Freepik.com'/>
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
-                <Loader loader={loader}>
-                  <ErrorBox
-                    setError={setError}
-                    {...error}
-                  >
+                <Loader>
+                  <ErrorBox>
                     {
-                      upload.uploaded
+                      response.received
                         ? <AfterUploadBox>
                           <AfterUploadBox.TextBox>
                             <AfterUploadBox.Text
                               target='_blank'
                               href={`${process.env.GATSBY_API_URL
                                 ? process.env.GATSBY_API_URL
-                                : ''}/u/` + upload.data.key}
+                                : ''}/u/` + response.data.key}
                             >
                               {`${process.env.GATSBY_API_URL
                                 ? process.env.GATSBY_API_URL
-                                : window.location.origin}/u/` + upload.data.key}
+                                : window.location.origin}/u/` + response.data.key}
                             </AfterUploadBox.Text>
                           </AfterUploadBox.TextBox>
-                          <AfterUploadBox.Back onClick={() => setUpload({ uploaded: false, data: {} })}>
+                          <AfterUploadBox.Back onClick={() => setResponse({ received: false, data: {} })}>
                             <AfterUploadBox.Icon icon={faAngleLeft}/>
                             Go back
                           </AfterUploadBox.Back>
                         </AfterUploadBox>
-                        : <FileUpload
-                          setLoader={setLoader}
-                          setUpload={setUpload}
-                          setError={setError}
-                        />
+                        : <FileUpload/>
                     }
                   </ErrorBox>
                 </Loader>
@@ -125,4 +110,9 @@ const IndexPage = () => {
   )
 }
 
-export default IndexPage
+const mapStateToProps = state => {
+  const response = getResponseState(state)
+  return { response }
+}
+
+export default connect(mapStateToProps, { setResponse })(IndexPage)
