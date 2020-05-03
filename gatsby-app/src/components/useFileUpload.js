@@ -32,7 +32,7 @@ const useFileUpload = ({ loading, response, dispatch }) => {
     } finally {
       dispatch(setLoading({ isLoading: false, value: 100 }))
     }
-  }, [setLoading, setError])
+  }, [dispatch])
 
   const handleOnPaste = useCallback((event) => {
     if (loading.isLoading || response.received) return
