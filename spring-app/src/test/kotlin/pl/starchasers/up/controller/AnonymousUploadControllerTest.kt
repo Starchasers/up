@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.mockmvc.extensions.responseHeader
 import no.skatteetaten.aurora.mockmvc.extensions.responseJsonPath
 import org.apache.commons.fileupload.util.Streams
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -51,6 +52,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 isSuccess()
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
+                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
                 }
             }
 
@@ -60,6 +62,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals("exampleTextFile.txt", fileEntry.filename)
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
+                assertTrue(fileEntry.accessToken.isNotBlank())
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))
@@ -88,6 +91,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 isSuccess()
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
+                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
                 }
             }
 
@@ -97,6 +101,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals("exampleTextFile.txt", fileEntry.filename)
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
+                assertTrue(fileEntry.accessToken.isNotBlank())
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))
