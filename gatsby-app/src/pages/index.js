@@ -6,7 +6,7 @@ import Grid from 'styled-components-grid'
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
-import FileUpload, { handleFileUpload } from '../components/FileUpload'
+import FileUpload, { handleOnPaste } from '../components/FileUpload'
 import foreground from '../assets/images/foreground.jpg'
 import AfterUploadBox from '../components/blocks/AfterUploadBox'
 import Loader from '../components/elements/Loader'
@@ -44,21 +44,13 @@ const IndexPage = () => {
   return (
     <Layout>
       <Container
-        onPaste={(event) => {
-          if (loader.isLoading || upload.uploaded) return
-          const items = event.clipboardData.items
-          let blob = null
-          for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') === 0) {
-              blob = items[i].getAsFile()
-            }
-          }
-          handleFileUpload({
-            setLoader: setLoader,
-            setUpload: setUpload,
-            files: [blob],
-          })
-        }}
+        onPaste={(event) => handleOnPaste({
+          event: event,
+          setLoader: setLoader,
+          setUpload: setUpload,
+          ...loader,
+          ...upload,
+        })}
       >
         <MainBox>
           <MainBox.Box>

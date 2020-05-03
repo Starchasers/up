@@ -4,23 +4,41 @@ import Dropzone from 'react-dropzone'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
-export const handleFileUpload = async (props) => {
+export const handleOnPaste = (props) => {
+  if (props.isLoading || props.uploaded) return
+
+  const items = props.event.clipboardData.items
+  let blob = null
+
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') === 0) {
+      blob = items[i].getAsFile()
+    }
+  }
+
+  handleFileUpload({
+    setLoader: props.setLoader,
+    setUpload: props.setUpload,
+    files: [blob],
+  })
+}
+
+const handleFileUpload = async (props) => {
   try {
     props.setLoader({ isLoading: true, value: 0 })
 
     const data = new FormData()
     data.append('file', props.files[0])
 
-    await axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, data, {
+    const response = await axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: (value) => {
         props.setLoader({ isLoading: true, value: Math.round(value.loaded / value.total * 100) })
       },
-    }).then(res => {
-      props.setUpload({ uploaded: true, data: { ...res.data } })
     })
+    props.setUpload({ uploaded: true, data: { ...response.data } })
   } catch (e) {
     console.log(e)
     props.setUpload({ uploaded: false, data: {} })
