@@ -17,6 +17,8 @@ interface FileService {
 
     fun verifyFileAccess(fileKey: String, accessToken: String): Boolean
 
+    fun findFileEntry(fileKey: String): FileEntry?
+
 }
 
 @Service
@@ -57,6 +59,8 @@ class FileServiceImpl(
             fileEntryRepository
                     .findExistingFileByKey(fileKey)
                     ?.let { it.accessToken.isNotBlank() && it.accessToken == accessToken } ?: false
+
+    override fun findFileEntry(fileKey: String): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
 
 
     private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)

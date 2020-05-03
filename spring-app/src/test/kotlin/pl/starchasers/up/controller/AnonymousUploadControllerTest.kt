@@ -1,16 +1,15 @@
 package pl.starchasers.up.controller
 
-import no.skatteetaten.aurora.mockmvc.extensions.Path
-import no.skatteetaten.aurora.mockmvc.extensions.get
-import no.skatteetaten.aurora.mockmvc.extensions.responseHeader
-import no.skatteetaten.aurora.mockmvc.extensions.responseJsonPath
+import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.annotation.DirtiesContext
@@ -18,7 +17,7 @@ import pl.starchasers.up.*
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.FileService
-import pl.starchasers.up.service.FileStorageService
+import java.lang.IllegalStateException
 import javax.transaction.Transactional
 
 
@@ -139,5 +138,73 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 isError(HttpStatus.NOT_FOUND)
             }
         }
+    }
+
+    @Transactional
+    @OrderTests
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class VerifyFileAccess(
+            @Autowired val fileService: FileService,
+            @Autowired val fileEntryRepository: FileEntryRepository
+    ) : MockMvcTestBase() {
+        private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
+
+        private lateinit var fileKey: String;
+        private lateinit var fileAccessToken: String;
+
+        @BeforeAll
+        fun setup() {
+            fileKey = fileService.createFile("file content".byteInputStream(),
+                    "filename.txt",
+                    "text/plain").key
+
+            fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
+                    ?: throw IllegalStateException()
+        }
+
+        @Test
+        @DocumentResponse
+        fun `Given valid access token, should return 200`() {
+            mockMvc.post(path = verifyRequestPath(fileKey),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = mapper.writeValueAsString(object {
+                        val accessToken = fileAccessToken
+                    })) {
+                isSuccess()
+            }
+        }
+
+        @Test
+        fun `Given invalid access token, should return 403`() {
+            mockMvc.post(path = verifyRequestPath(fileKey),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = fileAccessToken + "qwe"
+                    }) {
+                isError(HttpStatus.FORBIDDEN)
+            }
+        }
+
+        @Test
+        fun `Given missing access token, should return 400`() {
+            mockMvc.post(path = verifyRequestPath(fileKey),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {}) {
+                isError(HttpStatus.BAD_REQUEST)
+            }
+        }
+
+        @Test
+        fun `Given invalid file key, should return 404`() {
+            mockMvc.post(path = verifyRequestPath("qweasd"),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = fileAccessToken
+                    }) {
+                isError(HttpStatus.NOT_FOUND)
+            }
+        }
+
     }
 }
