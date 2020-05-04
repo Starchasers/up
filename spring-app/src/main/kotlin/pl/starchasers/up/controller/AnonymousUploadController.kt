@@ -41,6 +41,9 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
             e.printStackTrace()
         } finally {
             stream.close()
+
+
+
         }
     }
 
