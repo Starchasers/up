@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
@@ -50,9 +50,11 @@ const useFileUpload = ({ loading, response, dispatch }) => {
     })
   }, [loading, response, handleFileUpload])
 
-  window.addEventListener('paste', (e) => {
-    handleOnPaste(e)
-  }, false)
+  useEffect(() => {
+    window.addEventListener('paste', (e) => {
+      handleOnPaste(e)
+    }, false)
+  })
 
   return {
     handleFileUpload,
