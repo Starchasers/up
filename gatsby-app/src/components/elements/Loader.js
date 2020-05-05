@@ -30,16 +30,14 @@ const CustomLoader = styled(CircularProgressbar)`
   }
 `
 
-const Loader = ({ loading, children }) => (
-  loading.isLoading
-    ? <AfterUploadBox>
-      <CustomLoader
-        value={loading.value}
-        text={`${loading.value === 100 ? 'Saving...' : loading.value + '%'}`}
-        background
-      />
-    </AfterUploadBox>
-    : children
+const Loader = ({ loading }) => (
+  <AfterUploadBox>
+    <CustomLoader
+      value={loading.value}
+      text={`${loading.value === 100 ? 'Saving...' : loading.value + '%'}`}
+      background
+    />
+  </AfterUploadBox>
 )
 
 const mapStateToProps = state => {
