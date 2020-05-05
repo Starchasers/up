@@ -3,7 +3,8 @@ import CustomErrorBox from './blocks/CustomErrorBox'
 import { faAngleLeft, faBug } from '@fortawesome/free-solid-svg-icons'
 import { getErrorState } from '../redux/selectors'
 import { connect } from 'react-redux'
-import { setError } from '../redux/actions'
+import { setError, setPage } from '../redux/actions'
+import { PAGE_ID } from '../redux/constants'
 
 const ErrorBox = ({ children, error, dispatch }) => (
   (error.message || !!(error.status))
@@ -20,7 +21,11 @@ const ErrorBox = ({ children, error, dispatch }) => (
           {error.message}
         </CustomErrorBox.Code>
       </CustomErrorBox.Pre>
-      <CustomErrorBox.Back onClick={() => dispatch(setError({ status: 0, message: '' }))}>
+      <CustomErrorBox.Back onClick={() => {
+        dispatch(setError({ status: 0, message: '' }))
+        dispatch(setPage({ pageId: PAGE_ID.MAIN_PAGE }))
+      }}
+      >
         <CustomErrorBox.Icon icon={faAngleLeft}/>
         Go back
       </CustomErrorBox.Back>
