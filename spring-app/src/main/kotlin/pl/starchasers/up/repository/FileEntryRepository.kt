@@ -10,4 +10,11 @@ interface FileEntryRepository : JpaRepository<FileEntry, Long> {
         from FileEntry f where f.key=:key 
     """)
     fun findExistingFileByKey(key: String): FileEntry?
+
+    @Query("""
+        from FileEntry f
+        where f.permanent = false
+            and f.toDeleteDate < current_timestamp
+    """)
+    fun findExpiredFiles(): Set<FileEntry>
 }

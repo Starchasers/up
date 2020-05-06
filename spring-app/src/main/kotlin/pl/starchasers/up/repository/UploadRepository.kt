@@ -7,11 +7,9 @@ import pl.starchasers.up.data.model.FileContent
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import java.nio.file.Paths
-import java.util.*
 import javax.annotation.PostConstruct
 
 interface UploadRepository {
@@ -48,7 +46,7 @@ class UploadRepositoryImpl() : UploadRepository {
     override fun save(fileContent: FileContent) {
         val file = getFileFromKey(fileContent.key)
 
-        if(file.exists()){
+        if (file.exists()) {
             if (file.isDirectory || !file.isFile)
                 throwExceptionDataStoreCorrupted(fileContent.key)
             file.delete()
@@ -75,12 +73,14 @@ class UploadRepositoryImpl() : UploadRepository {
 
     override fun delete(key: String) {
         val file = getFileFromKey(key)
-        if(!file.exists()) return
+        if (!file.exists()) return
 
         if (file.isDirectory || !file.isFile)
             throwExceptionDataStoreCorrupted(key)
 
         file.delete()
+        deleteDirIfEmpty(file.parentFile)
+        deleteDirIfEmpty(file.parentFile.parentFile)
     }
 
     override fun exists(key: String): Boolean {
@@ -98,4 +98,10 @@ class UploadRepositoryImpl() : UploadRepository {
 
     private fun throwExceptionDataStoreCorrupted(key: String): Nothing =
             throw IllegalStateException("Requested file $key is not a regular file - datastore corrupted!")
+
+    private fun deleteDirIfEmpty(file: File) {
+        if (file.listFiles()?.isEmpty() ?: throw IllegalArgumentException("Not a directory!")) {
+            file.delete()
+        }
+    }
 }
