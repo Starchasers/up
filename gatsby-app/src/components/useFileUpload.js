@@ -49,7 +49,7 @@ const useFileUpload = () => {
       if (!blob) return
       data.append('file', blob)
     } else {
-      const file = new File([event.clipboardData.getData('text')], 'text', {
+      const file = new File([event.clipboardData.getData('text')], 'paste.txt', {
         type: 'text/plain',
       })
       data.append('file', file)
