@@ -6,6 +6,7 @@ import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.util.Util
 import java.io.InputStream
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -33,7 +34,6 @@ class FileServiceImpl(
     override fun createFile(tmpFile: InputStream, filename: String, contentType: String): UploadCompleteResponseDTO {
         val key = fileStorageService.storeNonPermanentFile(tmpFile, filename)
         //TODO check key already used
-
         val accessToken = generateFileAccessToken()
         val fileEntry = FileEntry(0,
                 key,
@@ -41,8 +41,8 @@ class FileServiceImpl(
                 contentType.let { if (contentType.isBlank()) "application/octet-stream" else contentType },
                 null,
                 false,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1),
+                Timestamp.valueOf(LocalDateTime.now()),
+                Timestamp.valueOf(LocalDateTime.now().plusDays(1)),
                 false,
                 accessToken)
 
