@@ -79,7 +79,7 @@ class FileServiceImpl(
                         it.key,
                         it.filename,
                         it.permanent,
-                        if (it.permanent) it.toDeleteDate?.toLocalDateTime()
+                        if (!it.permanent) it.toDeleteDate?.toLocalDateTime()
                                 ?: throw IllegalStateException("Not permanent file without delete date! FileKey: ${it.key}")
                         else null,
                         it.size,

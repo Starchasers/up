@@ -217,4 +217,48 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         }
 
     }
+
+    @Transactional
+    @OrderTests
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetFileDetails(
+            @Autowired val fileService: FileService,
+            @Autowired val fileEntryRepository: FileEntryRepository
+    ) : MockMvcTestBase() {
+
+        private fun getRequestPath(key: String): Path = Path("/api/u/$key/details")
+        private val content = "example content"
+        private lateinit var fileKey: String;
+        private val filename: String = "filename.txt"
+        private val contentType: String = "text/plain"
+
+        @BeforeAll
+        fun setup() {
+            fileKey = fileService.createFile(content.byteInputStream(),
+                    filename,
+                    contentType,
+                    content.byteInputStream().readAllBytes().size.toLong()).key
+        }
+
+        @Test
+        @DocumentResponse
+        fun `Given correct key, should return file details`() {
+            mockMvc.get(path = getRequestPath(fileKey)) {
+                responseJsonPath("$.key").equalsValue(fileKey)
+                responseJsonPath("$.name").equalsValue(filename)
+                responseJsonPath("$.permanent").equalsValue(false)//TODO support permanent files
+                responseJsonPath("$.expirationDate").isNotEmpty()//TODO fix objectMapper
+                responseJsonPath("$.size").equalsValue(content.byteInputStream().readAllBytes().size.toLong())
+                responseJsonPath("$.type").equalsValue(contentType)
+            }
+        }
+
+        @Test
+        fun `Given incorrect key, should return 404`() {
+            mockMvc.get(path = getRequestPath("incorrectKey")) {
+                isError(HttpStatus.NOT_FOUND)
+            }
+        }
+    }
 }
