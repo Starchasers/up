@@ -7,7 +7,7 @@ class UploadCompleteResponseDTO(
         val key: String,
 
         /**
-         * File access token, allows modifying file properties after upload (not yet implemented)
+         * File access token, allows modifying file properties after upload
          */
         val accessToken: String
 )
