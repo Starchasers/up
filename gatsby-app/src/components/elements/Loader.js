@@ -4,6 +4,7 @@ import AfterUploadBox from '../blocks/AfterUploadBox'
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
 const CustomLoader = styled(CircularProgressbar)`
   max-width: 50%;
@@ -28,16 +29,17 @@ const CustomLoader = styled(CircularProgressbar)`
   }
 `
 
-const Loader = ({ loader, children }) => (
-  loader.isLoading
-    ? <AfterUploadBox>
+const Loader = () => {
+  const loadingValue = useSelector(state => state.loading.value)
+  return (
+    <AfterUploadBox>
       <CustomLoader
-        value={loader.value}
-        text={`${loader.value === 100 ? 'Saving...' : loader.value + '%'}`}
+        value={loadingValue}
+        text={`${loadingValue === 100 ? 'Saving...' : loadingValue + '%'}`}
         background
       />
     </AfterUploadBox>
-    : children
-)
+  )
+}
 
 export default Loader
