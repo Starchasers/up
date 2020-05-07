@@ -37,6 +37,7 @@ const useFileUpload = () => {
 
   const handleOnPaste = useCallback((event) => {
     const items = event.clipboardData.items
+    const data = new FormData()
     if (event.clipboardData.getData('text') === '') {
       let blob = null
 
@@ -46,23 +47,16 @@ const useFileUpload = () => {
         }
       }
       if (!blob) return
-      const data = new FormData()
       data.append('file', blob)
-
-      handleFileUpload({
-        file: data,
-      })
     } else {
       const file = new File([event.clipboardData.getData('text')], 'text', {
         type: 'text/plain',
       })
-      const data = new FormData()
       data.append('file', file)
-
-      handleFileUpload({
-        file: data,
-      })
     }
+    handleFileUpload({
+      file: data,
+    })
   }, [handleFileUpload])
 
   useEffect(() => {
