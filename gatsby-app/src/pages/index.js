@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Layout from '../components/layout'
 import Container from '../components/elements/Container'
 import MainBox from '../components/blocks/MainBox'
@@ -6,12 +6,8 @@ import Grid from 'styled-components-grid'
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
-import FileUpload, { handleOnPaste } from '../components/FileUpload'
 import foreground from '../assets/images/foreground.jpg'
-import AfterUploadBox from '../components/blocks/AfterUploadBox'
-import Loader from '../components/elements/Loader'
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
-import ErrorBox from '../components/ErrorBox'
+import SwitchBox from '../components/SwitchBox'
 
 const Mobile = css`
   display: flex;
@@ -40,20 +36,9 @@ const Decoration = styled('div')`
 `
 
 const IndexPage = () => {
-  const [loader, setLoader] = useState({ isLoading: false, value: 0 })
-  const [upload, setUpload] = useState({ uploaded: false, data: {} })
-  const [error, setError] = useState({ active: false, message: '' })
   return (
     <Layout>
-      <Container
-        onPaste={(event) => handleOnPaste({
-          event: event,
-          setLoader: setLoader,
-          setUpload: setUpload,
-          ...loader,
-          ...upload,
-        })}
-      >
+      <Container>
         <MainBox>
           <MainBox.Box>
             <Grid>
@@ -61,39 +46,7 @@ const IndexPage = () => {
                 <Decoration alt='Freepik.com'/>
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
-                <Loader loader={loader}>
-                  <ErrorBox
-                    setError={setError}
-                    {...error}
-                  >
-                    {
-                      upload.uploaded
-                        ? <AfterUploadBox>
-                          <AfterUploadBox.TextBox>
-                            <AfterUploadBox.Text
-                              target='_blank'
-                              href={`${process.env.GATSBY_API_URL
-                                ? process.env.GATSBY_API_URL
-                                : ''}/u/` + upload.data.key}
-                            >
-                              {`${process.env.GATSBY_API_URL
-                                ? process.env.GATSBY_API_URL
-                                : window.location.origin}/u/` + upload.data.key}
-                            </AfterUploadBox.Text>
-                          </AfterUploadBox.TextBox>
-                          <AfterUploadBox.Back onClick={() => setUpload({ uploaded: false, data: {} })}>
-                            <AfterUploadBox.Icon icon={faAngleLeft}/>
-                            Go back
-                          </AfterUploadBox.Back>
-                        </AfterUploadBox>
-                        : <FileUpload
-                          setLoader={setLoader}
-                          setUpload={setUpload}
-                          setError={setError}
-                        />
-                    }
-                  </ErrorBox>
-                </Loader>
+                <SwitchBox/>
               </Grid.Unit>
             </Grid>
           </MainBox.Box>
