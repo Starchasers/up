@@ -3,11 +3,9 @@ import Dropzone from 'react-dropzone'
 import CustomFileUpload from './blocks/CustomFileUpload'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
-import { getLoadingState, getResponseState } from '../redux/selectors'
-import { connect } from 'react-redux'
 
-const MainPageBox = (props) => {
-  const fileUpload = useFileUpload(props)
+const MainPageBox = () => {
+  const fileUpload = useFileUpload()
   return (
     <Dropzone onDrop={files => fileUpload.handleFileUpload({ files })}>
       {({ getRootProps, getInputProps }) => (
@@ -32,10 +30,4 @@ const MainPageBox = (props) => {
   )
 }
 
-const mapStateToProps = store => {
-  const loading = getLoadingState(store)
-  const response = getResponseState(store)
-  return { loading, response }
-}
-
-export default connect(mapStateToProps)(MainPageBox)
+export default MainPageBox

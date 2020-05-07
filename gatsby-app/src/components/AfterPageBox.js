@@ -1,12 +1,13 @@
 import AfterUploadBox from './blocks/AfterUploadBox'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
-import { getResponseState } from '../redux/selectors'
-import { connect } from 'react-redux'
 import { setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
+import { useDispatch, useSelector } from 'react-redux'
 
-const AfterPageBox = ({ response, dispatch }) => {
+const AfterPageBox = () => {
+  const dispatch = useDispatch()
+  const responseDataKey = useSelector(state => state.response.data.key)
   const hrefLink = (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : '') + '/u/'
   const displayLink = (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/'
   return (
@@ -14,9 +15,9 @@ const AfterPageBox = ({ response, dispatch }) => {
       <AfterUploadBox.TextBox>
         <AfterUploadBox.Text
           target='_blank'
-          href={hrefLink + response.data.key}
+          href={hrefLink + responseDataKey}
         >
-          {displayLink + response.data.key}
+          {displayLink + responseDataKey}
         </AfterUploadBox.Text>
       </AfterUploadBox.TextBox>
       <AfterUploadBox.Back
@@ -31,9 +32,4 @@ const AfterPageBox = ({ response, dispatch }) => {
   )
 }
 
-const mapStateToProps = store => {
-  const response = getResponseState(store)
-  return { response }
-}
-
-export default connect(mapStateToProps)(AfterPageBox)
+export default AfterPageBox

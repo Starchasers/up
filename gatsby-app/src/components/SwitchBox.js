@@ -1,14 +1,14 @@
 import { PAGE_ID } from '../redux/constants'
 import React from 'react'
-import { getPageState } from '../redux/selectors'
-import { connect } from 'react-redux'
+import { useSelector } from 'react-redux'
 import Loader from './elements/Loader'
 import ErrorBox from './ErrorBox'
 import MainPageBox from './MainPageBox'
 import AfterPageBox from './AfterPageBox'
 
-const SwitchBox = ({ page }) => {
-  switch (page.pageId) {
+const SwitchBox = () => {
+  const pageId = useSelector(state => state.page.pageId)
+  switch (pageId) {
     case PAGE_ID.MAIN_PAGE:
       return <MainPageBox/>
     case PAGE_ID.AFTER_UPLOAD_PAGE:
@@ -22,9 +22,4 @@ const SwitchBox = ({ page }) => {
   }
 }
 
-const mapStateToProps = store => {
-  const page = getPageState(store)
-  return { page }
-}
-
-export default connect(mapStateToProps)(SwitchBox)
+export default SwitchBox

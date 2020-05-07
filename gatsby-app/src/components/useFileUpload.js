@@ -2,8 +2,10 @@ import { useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
+import { useDispatch } from 'react-redux'
 
-const useFileUpload = ({ loading, response, dispatch }) => {
+const useFileUpload = () => {
+  const dispatch = useDispatch()
   const handleFileUpload = useCallback(async ({ files }) => {
     try {
       dispatch(setLoading({ isLoading: true, value: 0 }))
@@ -37,7 +39,6 @@ const useFileUpload = ({ loading, response, dispatch }) => {
   }, [dispatch])
 
   const handleOnPaste = useCallback((event) => {
-    if (loading.isLoading || response.received) return
     const items = event.clipboardData.items
     let blob = null
 
@@ -50,7 +51,7 @@ const useFileUpload = ({ loading, response, dispatch }) => {
     handleFileUpload({
       files: [blob],
     })
-  }, [loading, response, handleFileUpload])
+  }, [handleFileUpload])
 
   useEffect(() => {
     window.addEventListener('paste', handleOnPaste, false)
