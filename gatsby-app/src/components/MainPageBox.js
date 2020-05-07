@@ -9,7 +9,7 @@ const MainPageBox = () => {
   return (
     <Dropzone onDrop={files => fileUpload.handleFileUpload({ files })}>
       {({ getRootProps, getInputProps }) => (
-        <CustomFileUpload onPaste={(event) => fileUpload.handleOnPaste(event)}>
+        <CustomFileUpload>
           <CustomFileUpload.Container {...getRootProps()} style={{ width: '80%' }}>
             <CustomFileUpload.DropZone>
               <CustomFileUpload.Text bold>Drop file here</CustomFileUpload.Text>
