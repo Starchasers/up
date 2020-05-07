@@ -2,8 +2,7 @@ package pl.starchasers.up.controller
 
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -18,6 +17,7 @@ import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.FileService
 import java.lang.IllegalStateException
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 
@@ -52,6 +52,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
                     responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
@@ -62,6 +63,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
                 assertTrue(fileEntry.accessToken.isNotBlank())
+                assertNotNull(fileEntry.toDeleteDate)
+                assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))
@@ -91,6 +94,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
                     responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
@@ -101,6 +105,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
                 assertTrue(fileEntry.accessToken.isNotBlank())
+                assertNotNull(fileEntry.toDeleteDate)
+                assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))

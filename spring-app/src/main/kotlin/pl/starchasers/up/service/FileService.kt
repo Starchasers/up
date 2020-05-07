@@ -35,6 +35,7 @@ class FileServiceImpl(
         val key = fileStorageService.storeNonPermanentFile(tmpFile, filename)
         //TODO check key already used
         val accessToken = generateFileAccessToken()
+        val toDeleteDate = Timestamp.valueOf(LocalDateTime.now().plusDays(1))
         val fileEntry = FileEntry(0,
                 key,
                 filename,
@@ -42,14 +43,14 @@ class FileServiceImpl(
                 null,
                 false,
                 Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now().plusDays(1)),
+                toDeleteDate,
                 false,
                 accessToken)
 
         fileEntryRepository.save(fileEntry)
 
 
-        return UploadCompleteResponseDTO(key, accessToken)
+        return UploadCompleteResponseDTO(key, accessToken, toDeleteDate.toLocalDateTime())
     }
 
     override fun verifyFileAccess(fileEntry: FileEntry, accessToken: String): Boolean =
