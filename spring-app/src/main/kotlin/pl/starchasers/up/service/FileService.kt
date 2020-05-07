@@ -60,7 +60,7 @@ class FileServiceImpl(
         fileEntryRepository.save(fileEntry)
 
 
-        return UploadCompleteResponseDTO(key, accessToken, toDeleteDate.toLocalDateTime())
+        return UploadCompleteResponseDTO(key, accessToken, toDeleteDate)
     }
 
     override fun verifyFileAccess(fileEntry: FileEntry, accessToken: String): Boolean =
@@ -79,7 +79,7 @@ class FileServiceImpl(
                         it.key,
                         it.filename,
                         it.permanent,
-                        if (!it.permanent) it.toDeleteDate?.toLocalDateTime()
+                        if (!it.permanent) it.toDeleteDate
                                 ?: throw IllegalStateException("Not permanent file without delete date! FileKey: ${it.key}")
                         else null,
                         it.size,

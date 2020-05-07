@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.dto
 
-import java.time.LocalDateTime
+import java.sql.Timestamp
 
 class FileDetailsDTO(
 
@@ -19,7 +19,7 @@ class FileDetailsDTO(
         /**
          * File will expire at this date and download link will no longer work. Can be null, if file is permanent
          */
-        val expirationDate: LocalDateTime?,
+        val expirationDate: Timestamp?,
         /**
          * File size in bytes
          */

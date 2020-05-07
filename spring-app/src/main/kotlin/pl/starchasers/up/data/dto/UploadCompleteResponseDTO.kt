@@ -1,7 +1,7 @@
 package pl.starchasers.up.data.dto
 
 import java.sql.Timestamp
-import java.time.LocalDateTime
+
 
 class UploadCompleteResponseDTO(
         /**
@@ -17,5 +17,5 @@ class UploadCompleteResponseDTO(
         /**
          * Date and time after which file will be deleted
          */
-        val toDelete: LocalDateTime
+        val toDelete: Timestamp
 )
