@@ -53,10 +53,9 @@ const useFileUpload = ({ loading, response, dispatch }) => {
   }, [loading, response, handleFileUpload])
 
   useEffect(() => {
-    window.addEventListener('paste', (e) => {
-      handleOnPaste(e)
-    }, false)
-  })
+    window.addEventListener('paste', handleOnPaste, false)
+    return () => window.removeEventListener('paste', handleOnPaste)
+  }, [handleOnPaste])
 
   return {
     handleFileUpload,
