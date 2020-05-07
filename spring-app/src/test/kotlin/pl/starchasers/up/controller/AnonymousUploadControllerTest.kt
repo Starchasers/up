@@ -121,14 +121,16 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
     inner class GetAnonymousUpload(
             @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
+        private val content = "example content"
 
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
             val key = fileService.createFile(
-                    "example content".byteInputStream(),
+                    content.byteInputStream(),
                     "fileName.txt",
-                    "text/plain"
+                    "text/plain",
+                    content.byteInputStream().readAllBytes().size.toLong()
             ).key
 
             mockMvc.get(path = Path("/u/$key")) {
@@ -155,15 +157,17 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
             @Autowired val fileEntryRepository: FileEntryRepository
     ) : MockMvcTestBase() {
         private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
+        private val content = "example content"
 
         private lateinit var fileKey: String;
         private lateinit var fileAccessToken: String;
 
         @BeforeAll
         fun setup() {
-            fileKey = fileService.createFile("file content".byteInputStream(),
+            fileKey = fileService.createFile(content.byteInputStream(),
                     "filename.txt",
-                    "text/plain").key
+                    "text/plain",
+                    content.byteInputStream().readAllBytes().size.toLong()).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
                     ?: throw IllegalStateException()
