@@ -7,7 +7,11 @@ import React from 'react'
 const MainPageBox = () => {
   const fileUpload = useFileUpload()
   return (
-    <Dropzone onDrop={files => fileUpload.handleFileUpload({ files })}>
+    <Dropzone onDrop={files => {
+      const data = new FormData()
+      data.append('file', files[0])
+      fileUpload.handleFileUpload({ file: data })
+    }}>
       {({ getRootProps, getInputProps }) => (
         <CustomFileUpload>
           <CustomFileUpload.Container {...getRootProps()} style={{ width: '80%' }}>
