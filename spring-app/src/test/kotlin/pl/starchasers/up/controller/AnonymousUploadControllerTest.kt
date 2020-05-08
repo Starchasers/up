@@ -2,8 +2,7 @@ package pl.starchasers.up.controller
 
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -18,6 +17,7 @@ import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.FileService
 import java.lang.IllegalStateException
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 
@@ -52,6 +52,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
                     responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
@@ -62,6 +63,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
                 assertTrue(fileEntry.accessToken.isNotBlank())
+                assertNotNull(fileEntry.toDeleteDate)
+                assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))
@@ -91,6 +94,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     responseJsonPath("$.key").equalsValue(fileEntry.key)
                     responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
@@ -101,6 +105,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
                 assertTrue(fileEntry.accessToken.isNotBlank())
+                assertNotNull(fileEntry.toDeleteDate)
+                assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
                 uploadRepository.find(fileEntry.key)?.let { fileContent ->
                     assertEquals("example content", Streams.asString(fileContent.data))
@@ -115,14 +121,16 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
     inner class GetAnonymousUpload(
             @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
+        private val content = "example content"
 
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
             val key = fileService.createFile(
-                    "example content".byteInputStream(),
+                    content.byteInputStream(),
                     "fileName.txt",
-                    "text/plain"
+                    "text/plain",
+                    content.byteInputStream().readAllBytes().size.toLong()
             ).key
 
             mockMvc.get(path = Path("/u/$key")) {
@@ -149,15 +157,17 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
             @Autowired val fileEntryRepository: FileEntryRepository
     ) : MockMvcTestBase() {
         private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
+        private val content = "example content"
 
         private lateinit var fileKey: String;
         private lateinit var fileAccessToken: String;
 
         @BeforeAll
         fun setup() {
-            fileKey = fileService.createFile("file content".byteInputStream(),
+            fileKey = fileService.createFile(content.byteInputStream(),
                     "filename.txt",
-                    "text/plain").key
+                    "text/plain",
+                    content.byteInputStream().readAllBytes().size.toLong()).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
                     ?: throw IllegalStateException()
@@ -206,5 +216,49 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
             }
         }
 
+    }
+
+    @Transactional
+    @OrderTests
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetFileDetails(
+            @Autowired val fileService: FileService,
+            @Autowired val fileEntryRepository: FileEntryRepository
+    ) : MockMvcTestBase() {
+
+        private fun getRequestPath(key: String): Path = Path("/api/u/$key/details")
+        private val content = "example content"
+        private lateinit var fileKey: String;
+        private val filename: String = "filename.txt"
+        private val contentType: String = "text/plain"
+
+        @BeforeAll
+        fun setup() {
+            fileKey = fileService.createFile(content.byteInputStream(),
+                    filename,
+                    contentType,
+                    content.byteInputStream().readAllBytes().size.toLong()).key
+        }
+
+        @Test
+        @DocumentResponse
+        fun `Given correct key, should return file details`() {
+            mockMvc.get(path = getRequestPath(fileKey)) {
+                responseJsonPath("$.key").equalsValue(fileKey)
+                responseJsonPath("$.name").equalsValue(filename)
+                responseJsonPath("$.permanent").equalsValue(false)//TODO support permanent files
+                responseJsonPath("$.expirationDate").isNotEmpty()//TODO fix objectMapper
+                responseJsonPath("$.size").equalsValue(content.byteInputStream().readAllBytes().size.toLong())
+                responseJsonPath("$.type").equalsValue(contentType)
+            }
+        }
+
+        @Test
+        fun `Given incorrect key, should return 404`() {
+            mockMvc.get(path = getRequestPath("incorrectKey")) {
+                isError(HttpStatus.NOT_FOUND)
+            }
+        }
     }
 }

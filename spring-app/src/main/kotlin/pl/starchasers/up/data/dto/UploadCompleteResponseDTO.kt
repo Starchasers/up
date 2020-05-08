@@ -1,5 +1,8 @@
 package pl.starchasers.up.data.dto
 
+import java.sql.Timestamp
+
+
 class UploadCompleteResponseDTO(
         /**
          * File identifier
@@ -9,5 +12,10 @@ class UploadCompleteResponseDTO(
         /**
          * File access token, allows modifying file properties after upload
          */
-        val accessToken: String
+        val accessToken: String,
+
+        /**
+         * Date and time after which file will be deleted
+         */
+        val toDelete: Timestamp
 )

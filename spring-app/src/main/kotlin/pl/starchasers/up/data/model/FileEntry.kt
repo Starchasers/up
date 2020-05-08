@@ -34,5 +34,8 @@ class FileEntry(
         val permanent: Boolean,
 
         @Column(nullable = false, unique = false, length = 128)
-        val accessToken: String
+        val accessToken: String,
+
+        @Column(nullable = false, unique = false)
+        val size: Long
 )

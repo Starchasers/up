@@ -1,12 +1,11 @@
 package pl.starchasers.up.controller
 
 import org.apache.commons.io.IOUtils
-import org.hibernate.annotations.NotFound
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.multipart.commons.CommonsMultipartFile
 import pl.starchasers.up.data.dto.AuthorizedOperationDTO
+import pl.starchasers.up.data.dto.FileDetailsDTO
 import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
@@ -28,7 +27,8 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
     fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO =
             fileService.createFile(file.inputStream,
                     file.originalFilename ?: "file",
-                    file.contentType ?: "application/octet-stream")
+                    file.contentType ?: "application/octet-stream",
+                    file.size)
 
     /**
      * @param fileKey File key obtained during upload
@@ -59,5 +59,8 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
         return BasicResponseDTO()
     }
+
+    @GetMapping("/api/u/{fileKey}/details")
+    fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(fileKey)
 
 }
