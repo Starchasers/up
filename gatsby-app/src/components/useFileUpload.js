@@ -6,12 +6,14 @@ import { useDispatch } from 'react-redux'
 
 const useFileUpload = () => {
   const dispatch = useDispatch()
+  const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
+
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
       dispatch(setLoading({ isLoading: true, value: 0 }))
       dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
 
-      const checkSize = await axios.get(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/verifyUpload?size=${file.get('file').size}`)
+      const checkSize = await axios.get(`${backendURL}/api/verifyUpload?size=${file.get('file').size}`)
       if (!checkSize.data.valid) {
         dispatch(setError({
           message: 'File is too big than the set limit',
@@ -22,7 +24,7 @@ const useFileUpload = () => {
         dispatch(setLoading({ isLoading: true, value: 0 }))
         return
       }
-      const response = await axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, file, {
+      const response = await axios.post(`${backendURL}/api/upload`, file, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
