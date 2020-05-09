@@ -11,6 +11,17 @@ const useFileUpload = () => {
       dispatch(setLoading({ isLoading: true, value: 0 }))
       dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
 
+      const checkSize = await axios.get(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/verifyUpload?size=${file.get('file').size}`)
+      if (!checkSize.data.valid) {
+        dispatch(setError({
+          message: 'File is too big than the set limit',
+          status: 413,
+        }))
+        dispatch(setResponse({ received: false, data: {} }))
+        dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+        dispatch(setLoading({ isLoading: true, value: 0 }))
+        return
+      }
       const response = await axios.post(`${process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''}/api/upload`, file, {
         headers: {
           'Content-Type': 'multipart/form-data',
