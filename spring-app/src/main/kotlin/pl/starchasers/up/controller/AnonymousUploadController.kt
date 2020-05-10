@@ -28,9 +28,6 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                     file.contentType ?: "application/octet-stream",
                     file.size)
 
-    /**
-     * @param size file size in bytes
-     */
     @PostMapping("/api/verifyUpload")
     fun verifyUploadSize(@RequestBody verifyUploadSizeDTO: VerifyUploadSizeDTO): VerifyUploadSizeResponseDTO {
         return VerifyUploadSizeResponseDTO(fileService.verifyUploadSize(verifyUploadSizeDTO.size))
