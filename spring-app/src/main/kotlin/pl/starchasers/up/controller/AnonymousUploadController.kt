@@ -30,7 +30,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
 
     @PostMapping("/api/verifyUpload")
     fun verifyUploadSize(@RequestBody verifyUploadSizeDTO: VerifyUploadSizeDTO): VerifyUploadSizeResponseDTO {
-        return VerifyUploadSizeResponseDTO(fileService.verifyUploadSize(verifyUploadSizeDTO.size))
+        return fileService.verifyUploadSize(verifyUploadSizeDTO.size)
     }
 
     /**

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
@@ -270,6 +271,10 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
         private val verifyUploadSizeRequestPath = Path("/api/verifyUpload")
 
+        @Value("\${up.max-file-size}")
+        private val maxUploadSize: Long = 0;
+
+
         @Test
         @DocumentResponse
         fun `Given valid upload size, should return true`() {
@@ -277,11 +282,12 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     path = verifyUploadSizeRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {
-                        val size = 100
+                        val size = maxUploadSize
                     }
             ) {
                 isSuccess()
                 responseJsonPath("$.valid").isTrue()
+                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
             }
         }
 
@@ -291,11 +297,12 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     path = verifyUploadSizeRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {
-                        val size = 101
+                        val size = maxUploadSize + 1
                     }
             ) {
                 isSuccess()
                 responseJsonPath("$.valid").isFalse()
+                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
             }
         }
 
