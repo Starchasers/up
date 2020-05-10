@@ -13,10 +13,10 @@ const useFileUpload = () => {
       dispatch(setLoading({ isLoading: true, value: 0 }))
       dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
 
-      const checkSize = await axios.get(`${backendURL}/api/verifyUpload?size=${file.get('file').size}`)
+      const checkSize = await axios.post(`${backendURL}/api/verifyUpload`, { size: file.get('file').size })
       if (!checkSize.data.valid) {
         dispatch(setError({
-          message: 'File is too big than the set limit',
+          message: 'File is too large',
           status: 413,
         }))
         dispatch(setResponse({ received: false, data: {} }))

@@ -268,12 +268,18 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class VerifyUploadSize() : MockMvcTestBase() {
 
-        private fun  verifyUploadSizeRequestPath(size: Long) = Path("/api/verifyUpload?size=$size")
+        private val verifyUploadSizeRequestPath = Path("/api/verifyUpload")
 
         @Test
         @DocumentResponse
         fun `Given valid upload size, should return true`() {
-            mockMvc.get(path = verifyUploadSizeRequestPath(100)){
+            mockMvc.post(
+                    path = verifyUploadSizeRequestPath,
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val size = 100
+                    }
+            ) {
                 isSuccess()
                 responseJsonPath("$.valid").isTrue()
             }
@@ -281,7 +287,13 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given too big upload size, should return false`() {
-            mockMvc.get(path = verifyUploadSizeRequestPath(101)){
+            mockMvc.post(
+                    path = verifyUploadSizeRequestPath,
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val size = 101
+                    }
+            ) {
                 isSuccess()
                 responseJsonPath("$.valid").isFalse()
             }
@@ -289,7 +301,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given missing size parameter, should return 400`() {
-            mockMvc.get(path =  Path("/api/verifyUpload")){
+            mockMvc.post(path = Path("/api/verifyUpload")) {
                 isError(HttpStatus.BAD_REQUEST)
             }
         }
