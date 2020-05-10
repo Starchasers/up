@@ -12,8 +12,6 @@ import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 
-private const val ROLE_PREFIX = "ROLE_"
-
 class JwtTokenFilter(
         private val tokenService: JwtTokenService
 ) : GenericFilterBean() {
@@ -25,8 +23,8 @@ class JwtTokenFilter(
             val claims = tokenService.parseToken(token.removePrefix("Bearer "))
 
             val authorities = mutableListOf<GrantedAuthority>()
-            authorities.add(SimpleGrantedAuthority(getRoleString(Role.USER)))
-            if (claims[ROLE_KEY] == Role.ADMIN) authorities.add(SimpleGrantedAuthority(getRoleString(Role.ADMIN)))
+            authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
+            if (claims[ROLE_KEY] == Role.ADMIN) authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
 
 
             SecurityContextHolder.getContext().authentication =
@@ -38,6 +36,5 @@ class JwtTokenFilter(
         chain.doFilter(request, response)
     }
 
-    private fun getRoleString(role: Role): String = ROLE_PREFIX + role
 
 }

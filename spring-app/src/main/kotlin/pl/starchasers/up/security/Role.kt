@@ -2,5 +2,7 @@ package pl.starchasers.up.security
 
 enum class Role {
     USER,
-    ADMIN
+    ADMIN;
+
+    fun roleString(): String = "ROLE_$this"
 }
