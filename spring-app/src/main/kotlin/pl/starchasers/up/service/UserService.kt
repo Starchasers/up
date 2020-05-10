@@ -3,6 +3,7 @@ package pl.starchasers.up.service
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
@@ -17,6 +18,8 @@ interface UserService {
     fun findUser(username: String): User?
 
     fun createUser(username: String, password: String, email: String?, role: Role): User
+
+    fun getUserFromCredentials(username: String, password: String): User
 }
 
 @Service
@@ -46,5 +49,8 @@ class UserServiceImpl(
         return user
     }
 
+    override fun getUserFromCredentials(username: String, password: String): User =
+            findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
+                    ?: throw AccessDeniedException("Incorrect username or password")
 
 }

@@ -4,9 +4,9 @@ import org.apache.commons.io.IOUtils
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import pl.starchasers.up.data.dto.AuthorizedOperationDTO
-import pl.starchasers.up.data.dto.FileDetailsDTO
-import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
+import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
+import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
