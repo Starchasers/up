@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.FileDetailsDTO
 import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
+import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
 import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
@@ -26,7 +27,7 @@ interface FileService {
 
     fun getFileDetails(fileKey: String): FileDetailsDTO
 
-    fun verifyUploadSize(size: Long): Boolean
+    fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO
 
 }
 
@@ -94,7 +95,8 @@ class FileServiceImpl(
             } ?: throw NotFoundException()
 
 
-    override fun verifyUploadSize(size: Long): Boolean = size <= maxUploadSize
+    override fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO =
+            VerifyUploadSizeResponseDTO(size <= maxUploadSize, maxUploadSize)
 
     private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)
 }
