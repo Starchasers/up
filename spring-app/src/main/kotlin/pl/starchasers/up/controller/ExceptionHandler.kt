@@ -6,6 +6,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MultipartException
@@ -35,6 +36,10 @@ class ExceptionHandler() {
 
     @ExceptionHandler(MissingServletRequestPartException::class)
     fun handleMissingServletRequestException(): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    fun handleMissingServletRequestParameterException(): ResponseEntity<BasicErrorResponseDTO> =
             ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MultipartException::class)

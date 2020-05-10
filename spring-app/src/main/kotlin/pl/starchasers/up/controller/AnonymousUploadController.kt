@@ -4,9 +4,7 @@ import org.apache.commons.io.IOUtils
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import pl.starchasers.up.data.dto.AuthorizedOperationDTO
-import pl.starchasers.up.data.dto.FileDetailsDTO
-import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
+import pl.starchasers.up.data.dto.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
@@ -29,6 +27,11 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                     file.originalFilename ?: "file",
                     file.contentType ?: "application/octet-stream",
                     file.size)
+
+    @PostMapping("/api/verifyUpload")
+    fun verifyUploadSize(@RequestBody verifyUploadSizeDTO: VerifyUploadSizeDTO): VerifyUploadSizeResponseDTO {
+        return VerifyUploadSizeResponseDTO(fileService.verifyUploadSize(verifyUploadSizeDTO.size))
+    }
 
     /**
      * @param fileKey File key obtained during upload
