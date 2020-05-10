@@ -20,10 +20,6 @@ repositories {
     jcenter()
 }
 
-configurations {
-    "jsondoclet"
-}
-
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -32,6 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("commons-fileupload:commons-fileupload:1.3.3")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     runtimeOnly(project(":gatsby-app"))

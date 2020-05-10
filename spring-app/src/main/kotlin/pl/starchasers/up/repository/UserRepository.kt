@@ -8,5 +8,5 @@ import pl.starchasers.up.data.model.User
 interface UserRepository : JpaRepository<User, Int> {
     fun findFirstByUsername(username: String): User?
 
-    fun findFirstById(id: Int): User?
+    fun findFirstById(id: Long): User?
 }
