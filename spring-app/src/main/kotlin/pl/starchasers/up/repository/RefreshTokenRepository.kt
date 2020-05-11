@@ -7,6 +7,8 @@ import pl.starchasers.up.data.model.User
 interface RefreshTokenRepository : JpaRepository<RefreshToken, Long> {
     fun findFirstByTokenAndUser(token: String, user: User): RefreshToken?
 
+    fun findAllByUser(user: User): List<RefreshToken>
+
     fun deleteAllByUser(user: User)
 
     fun deleteAllByToken(token: String)

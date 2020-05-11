@@ -39,7 +39,7 @@ class JwtTokenServiceImpl(
         private val userService: UserService
 ) : JwtTokenService {
 
-    @Value("\${jwt.secret}")
+    @Value("\${up.jwt-secret}")
     private val secret = ""
 
     private val refreshTokenValidTime: Long = 7 * 24 * 60 * 60 * 1000

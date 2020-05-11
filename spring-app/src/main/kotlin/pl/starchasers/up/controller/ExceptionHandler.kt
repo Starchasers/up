@@ -28,7 +28,7 @@ class ExceptionHandler() {
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.UNAUTHORIZED)
+            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.FORBIDDEN)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =

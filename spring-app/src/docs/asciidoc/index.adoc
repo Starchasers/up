@@ -1,6 +1,16 @@
 :toc: left
 
+== Anonymous upload Controller
 include::build/generated-snippets/AnonymousUpload/auto-section.adoc[]
 include::build/generated-snippets/GetAnonymousUpload/auto-section.adoc[]
 include::build/generated-snippets/VerifyFileAccess/auto-section.adoc[]
 include::build/generated-snippets/GetFileDetails/auto-section.adoc[]
+
+== Authentication Controller
+include::build/generated-snippets/Login/auto-section.adoc[]
+'''
+include::build/generated-snippets/LogOut/auto-section.adoc[]
+'''
+include::build/generated-snippets/GetAccessToken/auto-section.adoc[]
+'''
+include::build/generated-snippets/RefreshRefreshToken/auto-section.adoc[]

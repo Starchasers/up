@@ -26,16 +26,16 @@ class AuthenticationController(
     }
 
     @IsUser
-    @PostMapping
+    @PostMapping("/logout")
     fun logout(principal: Principal) {
         jwtTokenService.invalidateUser(userService.getUser(principal.name.toLong()))
     }
 
-    @PostMapping("getAccessToken")
+    @PostMapping("/getAccessToken")
     fun getAccessToken(@Validated @RequestBody tokenDTO: TokenDTO): TokenDTO =
             TokenDTO(jwtTokenService.issueAccessToken(tokenDTO.token))
 
-    @PostMapping("refreshToken")
+    @PostMapping("/refreshToken")
     fun refreshToken(@Validated @RequestBody tokenDTO: TokenDTO): TokenDTO =
             TokenDTO(jwtTokenService.refreshRefreshToken(tokenDTO.token))
 }
