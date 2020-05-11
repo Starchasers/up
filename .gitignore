@@ -47,9 +47,11 @@ gatsby-app/*.pid.lock
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 gatsby-app/build/
+react-admin/build/
 
 # Dependency directories
 gatsby-app/node_modules/
+react-admin/node_modules/
 
 # Optional npm cache directory
 gatsby-app/.npm
@@ -69,6 +71,10 @@ gatsby-app/.env*
 # gatsby files
 gatsby-app/.cache/
 gatsby-app/public
+
+# react-admin files
+react-admin/.cache/
+react-admin/public
 
 # Mac files
 gatsby-app/.DS_Store
