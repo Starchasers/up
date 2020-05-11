@@ -25,7 +25,7 @@ class Initializer(
         if (user == null) {
             val password = util.secureAlphanumericRandomString(16)
             userService.createUser("root", password, null, Role.ADMIN)
-            logger.info("Root account not found. Creating new one. Username: root Password: $password")
+            logger.info("Root account not found. Creating new one.\n\nUsername: root Password: $password\n")
         }
     }
 }
