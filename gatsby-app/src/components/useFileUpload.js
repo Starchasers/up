@@ -16,7 +16,7 @@ const useFileUpload = () => {
       const checkSize = await axios.post(`${backendURL}/api/verifyUpload`, { size: file.get('file').size })
       if (!checkSize.data.valid) {
         dispatch(setError({
-          message: 'File is too large',
+          message: 'File is too large. Maximum size: ' + checkSize.data.maxUploadSize / 1000 + ' MB',
           status: 413,
         }))
         dispatch(setResponse({ received: false, data: {} }))
