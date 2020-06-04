@@ -1,8 +1,8 @@
-import AfterUploadBox from './blocks/AfterUploadBox'
+import AfterUploadBox from '../blocks/AfterUploadBox'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
-import { setPage, setResponse } from '../redux/actions'
-import { PAGE_ID } from '../redux/constants'
+import { setPage, setResponse } from '../../redux/actions'
+import { PAGE_ID } from '../../redux/constants'
 import { useDispatch, useSelector } from 'react-redux'
 
 const AfterPageBox = () => {
