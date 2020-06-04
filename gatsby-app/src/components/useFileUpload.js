@@ -46,7 +46,7 @@ const useFileUpload = () => {
     } finally {
       dispatch(setLoading({ isLoading: false, value: 100 }))
     }
-  }, [dispatch])
+  }, [dispatch, backendURL])
 
   const handleOnPaste = useCallback((event) => {
     const items = event.clipboardData.items
