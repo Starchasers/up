@@ -7,7 +7,7 @@ import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
 import foreground from '../assets/images/foreground.jpg'
-import SwitchBox from '../components/SwitchBox'
+import Boxes from '../components/boxes'
 
 const Mobile = css`
   display: flex;
@@ -46,7 +46,7 @@ const IndexPage = () => {
                 <Decoration alt='Freepik.com'/>
               </Grid.Unit>
               <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
-                <SwitchBox/>
+                <Boxes/>
               </Grid.Unit>
             </Grid>
           </MainBox.Box>

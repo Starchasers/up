@@ -1,9 +1,9 @@
 import React from 'react'
-import CustomErrorBox from './blocks/CustomErrorBox'
+import CustomErrorBox from '../blocks/CustomErrorBox'
 import { faAngleLeft, faBug } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
-import { setError, setPage } from '../redux/actions'
-import { PAGE_ID } from '../redux/constants'
+import { setError, setPage } from '../../redux/actions'
+import { PAGE_ID } from '../../redux/constants'
 
 const ErrorBox = () => {
   const dispatch = useDispatch()

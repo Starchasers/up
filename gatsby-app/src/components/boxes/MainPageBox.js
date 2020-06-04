@@ -1,6 +1,6 @@
-import useFileUpload from './useFileUpload'
+import useFileUpload from '../useFileUpload'
 import Dropzone from 'react-dropzone'
-import CustomFileUpload from './blocks/CustomFileUpload'
+import CustomFileUpload from '../blocks/CustomFileUpload'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 
