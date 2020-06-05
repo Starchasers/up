@@ -1,9 +1,12 @@
 import styled from 'styled-components'
 import { pl } from 'styled-components-spacing/dist/cjs'
 import TextBox from './TextBox'
-import Text from './Text'
+import Link from './Link'
 import Back from './Back'
 import Icon from './Icon'
+import CopyButton from './CopyButton'
+import Tooltip from './Tooltip'
+import Center from './Center'
 
 const AfterUploadBox = styled('div')`
   width: 100%;
@@ -15,9 +18,13 @@ const AfterUploadBox = styled('div')`
   position: relative;
 `
 
-AfterUploadBox.TextBox = TextBox
-AfterUploadBox.Text = Text
 AfterUploadBox.Back = Back
+AfterUploadBox.Center = Center
+AfterUploadBox.CopyButton = CopyButton
 AfterUploadBox.Icon = Icon
+AfterUploadBox.Icon = Icon
+AfterUploadBox.Link = Link
+AfterUploadBox.TextBox = TextBox
+AfterUploadBox.Tooltip = Tooltip
 
 export default AfterUploadBox
