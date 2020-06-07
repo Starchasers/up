@@ -96,7 +96,7 @@ class FileServiceImpl(
 
 
     override fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO =
-            VerifyUploadSizeResponseDTO(size <= maxUploadSize, maxUploadSize)
+            VerifyUploadSizeResponseDTO(size <= maxUploadSize * 1000, maxUploadSize)
 
     private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)
 }
