@@ -282,7 +282,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     path = verifyUploadSizeRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {
-                        val size = maxUploadSize
+                        val size = maxUploadSize * 1000
                     }
             ) {
                 isSuccess()
@@ -297,7 +297,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     path = verifyUploadSizeRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {
-                        val size = maxUploadSize + 1
+                        val size = maxUploadSize * 1000 + 1
                     }
             ) {
                 isSuccess()
