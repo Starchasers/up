@@ -4,7 +4,10 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 const InfoButton = () => (
   <Info>
-    <Info.Icon icon={faInfoCircle}/>
+    <Info.Icon
+      icon={faInfoCircle}
+      style={{ maxWidth: '30px' }}
+    />
     <Info.TransitionDiv>
       <Info.Popup>
         <Info.Text>
