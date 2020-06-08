@@ -1,6 +1,7 @@
 package pl.starchasers.up.controller
 
 import org.apache.commons.io.IOUtils
+import org.springframework.http.ContentDisposition
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -11,6 +12,7 @@ import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.util.BasicResponseDTO
 import java.io.IOException
+import java.nio.charset.Charset
 import javax.servlet.http.HttpServletResponse
 
 @RestController
@@ -20,7 +22,6 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
     /**
      * @param file Uploaded file content
      */
-    //TODO return access token
     @PostMapping("/api/upload")
     fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO =
             fileService.createFile(file.inputStream,
@@ -39,10 +40,14 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
-
         response.contentType = fileEntry.contentType
-        response.addHeader("Content-Disposition", "inline; filename=${fileEntry.filename}")
 
+        response.addHeader("Content-Disposition",
+                ContentDisposition
+                        .builder("inline")
+                        .filename(fileEntry.filename, Charset.forName("UTF-8"))
+                        .build()
+                        .toString())
         try {
             IOUtils.copyLarge(stream, response.outputStream)
             response.outputStream.flush()
