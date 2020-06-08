@@ -6,7 +6,7 @@ const metaTags = [
     content: 'UP - Easy to use private file hosting',
   },
   {
-    name: 'charSet',
+    name: 'charset',
     content: 'utf-8',
   },
   {
