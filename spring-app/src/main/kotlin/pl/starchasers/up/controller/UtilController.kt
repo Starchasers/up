@@ -14,7 +14,7 @@ class UtilController {
     fun sharexConfig(): String = """
         {
           "Version": "13.1.0",
-          "Name": "up.snet.ovh",
+          "Name": "UP file hosting",
           "DestinationType": "ImageUploader, TextUploader, FileUploader",
           "RequestMethod": "POST",
           "RequestURL": "https://up.snet.ovh/api/upload",
