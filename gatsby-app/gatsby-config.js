@@ -71,7 +71,12 @@ module.exports = {
         displayName: false,
       },
     },
-    'gatsby-plugin-offline',
+    {
+      resolve: `gatsby-plugin-offline`,
+      options: {
+        globPatterns: ['**/*.{jpg,png,css}'],
+      },
+    },
   ],
 }
 
