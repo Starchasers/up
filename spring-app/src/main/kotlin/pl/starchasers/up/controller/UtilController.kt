@@ -17,7 +17,7 @@ class UtilController {
           "Name": "UP file hosting",
           "DestinationType": "ImageUploader, TextUploader, FileUploader",
           "RequestMethod": "POST",
-          "RequestURL": "https://up.snet.ovh/api/upload",
+          "RequestURL": "${domain}/api/upload",
           "Body": "MultipartFormData",
           "FileFormName": "file",
           "URL": "${domain}/u/${'$'}json:key${'$'}"
