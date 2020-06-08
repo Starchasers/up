@@ -51,7 +51,7 @@ const IndexPage = () => (
           </Grid>
         </MainBox.Box>
         <Row>
-          <MainBox.Box square center>
+          <MainBox.Box square center as={styled('div')``}>
             <MainBox.StyledLink href="https://github.com/Starchasers/up">
               <MainBox.Text>UP</MainBox.Text>
             </MainBox.StyledLink>

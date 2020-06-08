@@ -4,28 +4,18 @@ import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
 import GlobalStyles from './globalStyles'
 import { theme } from './theme'
-import { TypographyStyle, GoogleFont } from 'react-typography'
-import typography from '../assets/typography/typography'
+import metaTags from './elements/metaTags'
 
 const Layout = ({ children }) => (
   <>
     <Helmet
       title="UP | Share your dreams"
-      meta={[
-        {
-          name: 'description',
-          content: 'UP Website',
-        },
-        {
-          name: 'charSet',
-          content: 'utf-8',
-        },
-      ]}
-    />
+      meta={metaTags}
+    >
+      <html lang='en-US'/>
+    </Helmet>
     <ThemeProvider theme={theme}>
-      <TypographyStyle typography={typography} />
-      <GoogleFont typography={typography} />
-      <GlobalStyles />
+      <GlobalStyles/>
       {children}
     </ThemeProvider>
   </>

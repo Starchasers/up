@@ -36,8 +36,9 @@ module.exports = {
         short_name: 'up',
         start_url: '/',
         background_color: '#1A1B1C',
-        theme_color: '#2c369a',
+        theme_color: '#434755',
         icon: 'src/assets/images/favicon.png',
+        display: 'standalone',
       },
     },
     {
@@ -45,10 +46,9 @@ module.exports = {
       options: {
         logo: './src/assets/images/favicon.png',
         appDescription: 'Private file hosting',
-        developerName: 'Kuboczoch',
+        developerName: 'Starchasers',
         lang: 'en-US',
-        background: '#fff',
-        theme_color: '#fff',
+        theme_color: '#434755',
         display: 'standalone',
         orientation: 'any',
         version: '1.0',
