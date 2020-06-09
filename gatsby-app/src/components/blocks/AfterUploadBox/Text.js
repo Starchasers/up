@@ -6,6 +6,7 @@ const focused = css`
 `
 
 const Text = styled('span')`
+  padding: 4px 0;
   ${props => props.focused && focused};
 `
 
