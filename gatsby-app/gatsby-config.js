@@ -71,6 +71,13 @@ module.exports = {
         displayName: false,
       },
     },
+    {
+      resolve: 'gatsby-plugin-copy',
+      options: {
+        verbose: true,
+        'static/robots.txt': 'robots.txt',
+      },
+    },
     'gatsby-plugin-offline',
   ],
 }
