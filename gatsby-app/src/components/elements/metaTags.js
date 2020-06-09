@@ -31,7 +31,7 @@ const metaTags = [
   },
   {
     name: 'author',
-    content: 'Starchasers, kuboczoch@gmail.com',
+    content: 'Starchasers',
   },
   {
     name: 'og:title',
