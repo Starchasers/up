@@ -1,7 +1,11 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { pr } from 'styled-components-spacing/dist/cjs'
 
-const Link = styled('input')`
+const focused = css`
+  background-color: red;
+`
+
+const Link = styled('a')`
   color: ${props => props.theme.colors.text.one};
   text-decoration: none;
   line-height: 25px;
@@ -14,6 +18,8 @@ const Link = styled('input')`
   border: unset;
   outline: none;
   cursor: pointer;
+
+  ${props => props.focused && focused};
 `
 
 export default Link

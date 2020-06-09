@@ -10,6 +10,7 @@
     "@fortawesome/react-fontawesome": "^0.1.9",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.2.0",
     "axios": "^0.19.2",
+    "copy-to-clipboard": "^3.3.1",
     "dotenv": "^8.2.0",
     "gatsby": "^2.20.12",
     "gatsby-image": "^2.3.1",

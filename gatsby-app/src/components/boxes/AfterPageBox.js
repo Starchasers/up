@@ -4,29 +4,39 @@ import React, { useEffect, useState } from 'react'
 import { setPage, setResponse } from '../../redux/actions'
 import { PAGE_ID } from '../../redux/constants'
 import { useDispatch, useSelector } from 'react-redux'
+import copy from 'copy-to-clipboard'
 
 const AfterPageBox = () => {
   const [showCopied, setShowCopied] = useState(false)
+  const [showSelected, setShowSelected] = useState(true)
   const dispatch = useDispatch()
   const responseDataKey = useSelector(state => state.response.data.key)
   const displayLink = (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/'
-  const textRef = React.createRef()
 
-  useEffect(() => {
-    textRef.current.focus()
-  }, [textRef])
-
-  const handleOnClick = () => {
+  const handleOnClick = (event) => {
+    event.preventDefault()
     setShowCopied(true)
-    textRef.current.focus()
-    document.execCommand('copy')
-
+    copy(displayLink + responseDataKey)
     setTimeout(() => setShowCopied(false), 1000)
   }
+  useEffect(() => {
+    const selectLink = (event) => {
+      setShowSelected(event.path[0].classList && event.path[1].classList
+        && (event.path[0].classList.contains('focusable') || event.path[1].classList.contains('focusable')))
+    }
+    window.addEventListener('click', selectLink, false)
+    return () => window.removeEventListener('click', selectLink)
+  }, [])
 
-  const handleOnFocus = (event) => {
-    event.target.select()
-  }
+  useEffect(() => {
+    const copyText = (event) => {
+      event.preventDefault()
+      event.clipboardData.setData('text/plain', showSelected ? displayLink + responseDataKey : document.getSelection())
+    }
+
+    window.addEventListener('copy', copyText, false)
+    return () => window.removeEventListener('copy', copyText)
+  }, [displayLink, responseDataKey, showSelected])
 
   return (
     <AfterUploadBox>
@@ -34,16 +44,25 @@ const AfterPageBox = () => {
         <AfterUploadBox.TextBox active={showCopied}>
           <AfterUploadBox.Link
             onClick={handleOnClick}
-            value={displayLink + responseDataKey}
-            spellCheck='false'
-            ref={textRef}
-            onFocus={handleOnFocus}
-            onChange={() => {
-              return false
-            }}
-          />
-          <AfterUploadBox.CopyButton onClick={handleOnClick}>
-            <AfterUploadBox.Icon icon={faCopy} style={{ margin: '0 10px' }}/>
+            href={displayLink + responseDataKey}
+            className='focusable'
+          >
+            <AfterUploadBox.Text
+              className='focusable'
+              focused={showSelected}
+            >
+              {displayLink + responseDataKey}
+            </AfterUploadBox.Text>
+          </AfterUploadBox.Link>
+          <AfterUploadBox.CopyButton
+            className='focusable'
+            onClick={handleOnClick}
+          >
+            <AfterUploadBox.Icon
+              icon={faCopy}
+              className='focusable'
+              style={{ margin: '0 10px' }}
+            />
           </AfterUploadBox.CopyButton>
         </AfterUploadBox.TextBox>
         <AfterUploadBox.Tooltip active={showCopied}>
