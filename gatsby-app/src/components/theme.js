@@ -12,7 +12,7 @@ export const theme = {
     text: {
       one: '#dad7d2',
       two: '#393939',
-      three: '#7a7c89',
+      three: '#848898',
     },
     white: '#fff',
     black: '#000',
