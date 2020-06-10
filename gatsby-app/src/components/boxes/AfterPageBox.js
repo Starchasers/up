@@ -1,6 +1,6 @@
 import AfterUploadBox from '../blocks/AfterUploadBox'
 import { faAngleLeft, faCopy } from '@fortawesome/free-solid-svg-icons'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { setPage, setResponse } from '../../redux/actions'
 import { PAGE_ID } from '../../redux/constants'
 import { useDispatch, useSelector } from 'react-redux'
@@ -19,14 +19,15 @@ const AfterPageBox = () => {
     copy(displayLink + responseDataKey)
     setTimeout(() => setShowCopied(false), 1000)
   }
+  const selectLink = useCallback((event) => {
+    setShowSelected(event.path[0].classList && event.path[1].classList
+      && (event.path[0].classList.contains('focusable') || event.path[1].classList.contains('focusable')))
+  }, [])
+
   useEffect(() => {
-    const selectLink = (event) => {
-      setShowSelected(event.path[0].classList && event.path[1].classList
-        && (event.path[0].classList.contains('focusable') || event.path[1].classList.contains('focusable')))
-    }
     window.addEventListener('click', selectLink, false)
     return () => window.removeEventListener('click', selectLink)
-  }, [])
+  }, [selectLink])
 
   useEffect(() => {
     const copyText = (event) => {
