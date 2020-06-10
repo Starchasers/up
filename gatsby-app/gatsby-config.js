@@ -76,6 +76,7 @@ module.exports = {
       options: {
         verbose: true,
         'static/robots.txt': 'robots.txt',
+        'static/favicon.ico': 'favicon.ico',
       },
     },
     'gatsby-plugin-offline',
