@@ -7,15 +7,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import copy from 'copy-to-clipboard'
 
 const AfterPageBox = () => {
-  const [showCopied, setShowCopied] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
   const dispatch = useDispatch()
   const responseDataKey = useSelector(state => state.response.data.key)
-  const displayLink = (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/'
   const linkNode = useRef(null)
 
   const resourceLink = useMemo(() => {
-    return displayLink + responseDataKey
-  }, [displayLink, responseDataKey])
+    return (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/' + responseDataKey
+  }, [responseDataKey])
 
   const selectLink = () => {
     try {
@@ -32,9 +31,9 @@ const AfterPageBox = () => {
 
   const handleCopyButton = (event) => {
     event.preventDefault()
-    setShowCopied(true)
+    setShowTooltip(true)
     copy(resourceLink)
-    setTimeout(() => setShowCopied(false), 1000)
+    setTimeout(() => setShowTooltip(false), 1000)
   }
 
   const handleLinkClick = (event) => {
@@ -82,7 +81,7 @@ const AfterPageBox = () => {
             />
           </AfterUploadBox.CopyButton>
         </AfterUploadBox.TextBox>
-        <AfterUploadBox.Tooltip active={showCopied}>
+        <AfterUploadBox.Tooltip active={showTooltip}>
           Copied!
         </AfterUploadBox.Tooltip>
       </AfterUploadBox.Center>
