@@ -7,7 +7,6 @@ import Icon from './Icon'
 import CopyButton from './CopyButton'
 import Tooltip from './Tooltip'
 import Center from './Center'
-import HiddenInput from './HiddenInput'
 import Text from './Text'
 
 const AfterUploadBox = styled('div')`
@@ -29,6 +28,5 @@ AfterUploadBox.Link = Link
 AfterUploadBox.Text = Text
 AfterUploadBox.TextBox = TextBox
 AfterUploadBox.Tooltip = Tooltip
-AfterUploadBox.HiddenInput = HiddenInput
 
 export default AfterUploadBox
