@@ -1,5 +1,3 @@
-import logo from '../../assets/images/favicon.png'
-
 const metaTags = [
   {
     name: 'description',
@@ -43,11 +41,11 @@ const metaTags = [
   },
   {
     name: 'og:image',
-    content: { logo },
+    content: '/icons/icon-96x96.png',
   },
   {
     name: 'og:description',
-    content: 'UP - Easy to use private file hosting',
+    content: 'UP - Share your files using our website!',
   },
 ]
 
