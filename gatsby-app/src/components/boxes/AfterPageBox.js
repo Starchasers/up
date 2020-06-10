@@ -1,6 +1,6 @@
 import AfterUploadBox from '../blocks/AfterUploadBox'
 import { faAngleLeft, faCopy } from '@fortawesome/free-solid-svg-icons'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { setPage, setResponse } from '../../redux/actions'
 import { PAGE_ID } from '../../redux/constants'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,60 +8,76 @@ import copy from 'copy-to-clipboard'
 
 const AfterPageBox = () => {
   const [showCopied, setShowCopied] = useState(false)
-  const [showSelected, setShowSelected] = useState(true)
   const dispatch = useDispatch()
   const responseDataKey = useSelector(state => state.response.data.key)
   const displayLink = (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/'
+  const linkNode = useRef(null)
 
-  const handleOnClick = (event) => {
+  const resourceLink = useMemo(() => {
+    return displayLink + responseDataKey
+  }, [displayLink, responseDataKey])
+
+  const selectLink = () => {
+    try {
+      const range = new Range()
+      range.setStart(linkNode.current, 0)
+      range.setEndAfter(linkNode.current)
+      const selection = window.getSelection()
+      selection.removeAllRanges()
+      selection.addRange(range)
+    } catch (e) {
+      console.log('Your browser is outdated', e)
+    }
+  }
+
+  const handleCopyButton = (event) => {
     event.preventDefault()
     setShowCopied(true)
-    copy(displayLink + responseDataKey)
+    copy(resourceLink)
     setTimeout(() => setShowCopied(false), 1000)
   }
-  const selectLink = useCallback((event) => {
-    setShowSelected(event.path[0].classList && event.path[1].classList
-      && (event.path[0].classList.contains('focusable') || event.path[1].classList.contains('focusable')))
-  }, [])
 
-  useEffect(() => {
-    window.addEventListener('click', selectLink, false)
-    return () => window.removeEventListener('click', selectLink)
-  }, [selectLink])
+  const handleLinkClick = (event) => {
+    event.preventDefault()
+    selectLink()
+  }
 
   useEffect(() => {
     const copyText = (event) => {
       event.preventDefault()
-      event.clipboardData.setData('text/plain', showSelected ? displayLink + responseDataKey : document.getSelection())
+      const select = window.getSelection()
+      if (!select.isCollapsed) {
+        return
+      }
+      selectLink()
+      event.clipboardData.setData('text/plain', resourceLink)
     }
 
-    window.addEventListener('copy', copyText, false)
+    selectLink()
+
+    window.addEventListener('copy', copyText)
     return () => window.removeEventListener('copy', copyText)
-  }, [displayLink, responseDataKey, showSelected])
+  }, [resourceLink])
 
   return (
     <AfterUploadBox>
       <AfterUploadBox.Center>
-        <AfterUploadBox.TextBox active={showCopied}>
+        <AfterUploadBox.TextBox>
           <AfterUploadBox.Link
-            onClick={handleOnClick}
-            href={displayLink + responseDataKey}
-            className='focusable'
+            onClick={handleLinkClick}
+            href={resourceLink}
           >
             <AfterUploadBox.Text
-              className='focusable'
-              focused={showSelected}
+              ref={linkNode}
             >
-              {displayLink + responseDataKey}
+              {resourceLink}
             </AfterUploadBox.Text>
           </AfterUploadBox.Link>
           <AfterUploadBox.CopyButton
-            className='focusable'
-            onClick={handleOnClick}
+            onClick={handleCopyButton}
           >
             <AfterUploadBox.Icon
               icon={faCopy}
-              className='focusable'
               style={{ margin: '0 10px' }}
             />
           </AfterUploadBox.CopyButton>
