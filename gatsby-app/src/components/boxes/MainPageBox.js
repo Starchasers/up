@@ -3,15 +3,31 @@ import Dropzone from 'react-dropzone'
 import CustomFileUpload from '../blocks/CustomFileUpload'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
+import { useDispatch } from 'react-redux'
+import { setError, setPage, setResponse } from '../../redux/actions'
+import { PAGE_ID } from '../../redux/constants'
 
 const MainPageBox = () => {
   const fileUpload = useFileUpload()
+  const dispatch = useDispatch()
+
   return (
     <Dropzone
       onDrop={files => {
-        const data = new FormData()
-        data.append('file', files[0])
-        fileUpload.handleFileUpload({ file: data })
+        if (files.length > 0) {
+          const data = new FormData()
+          data.append('file', files[0])
+          fileUpload.handleFileUpload({ file: data })
+        } else {
+          dispatch(
+            setError({
+              message: 'Invalid input, please make sure to upload valid file',
+              status: undefined,
+            }),
+          )
+          dispatch(setResponse({ received: false, data: {} }))
+          dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+        }
       }}
       multiple={false}
     >
