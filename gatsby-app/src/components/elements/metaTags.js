@@ -1,7 +1,7 @@
 const metaTags = [
   {
     name: 'description',
-    content: 'UP - Easy to use private file hosting',
+    content: 'Access & share your files from any device with a link that automatically expires, to ensure your important files don’t stay online forever.',
   },
   {
     name: 'charset',
@@ -45,7 +45,7 @@ const metaTags = [
   },
   {
     name: 'og:description',
-    content: 'UP - Share your files using our website!',
+    content: 'Access & share your files from any device with a link that automatically expires, to ensure your important files don’t stay online forever.',
   },
 ]
 
