@@ -21,7 +21,7 @@ const MainPageBox = () => {
         } else {
           dispatch(
             setError({
-              message: 'Invalid input, please make sure to upload valid file',
+              message: 'Invalid input, please make sure to upload a valid file',
               status: undefined,
             }),
           )
