@@ -1,12 +1,12 @@
-import { PAGE_ID } from '../redux/constants'
+import { PAGE_ID } from '../../redux/constants'
 import React from 'react'
 import { useSelector } from 'react-redux'
-import Loader from './elements/Loader'
+import Loader from '../elements/Loader'
 import ErrorBox from './ErrorBox'
 import MainPageBox from './MainPageBox'
 import AfterPageBox from './AfterPageBox'
 
-const SwitchBox = () => {
+const Boxes = () => {
   const pageId = useSelector(state => state.page.pageId)
   switch (pageId) {
     case PAGE_ID.MAIN_PAGE:
@@ -22,4 +22,4 @@ const SwitchBox = () => {
   }
 }
 
-export default SwitchBox
+export default Boxes

@@ -1,0 +1,44 @@
+import styled from 'styled-components'
+import { breakpoint } from 'styled-components-breakpoint'
+import Popup from './Popup'
+import Icon from './Icon'
+import Text from './Text'
+import TransitionDiv from './TransitionDiv'
+
+const Info = styled('div')`
+  position: absolute;
+  left: 15px;
+  bottom: 15px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  
+  &:hover {
+    > ${TransitionDiv} {
+      width: 280px;
+      height: 170px;
+    }
+  }
+  
+  &::before {
+    position: absolute;
+    content: '';
+    width: 50%;
+    height: 60%;
+    margin: auto;
+    background-color: ${props => props.theme.colors.text.one};
+    z-index: -1;
+  }
+  
+  ${breakpoint('md')`
+    display: flex;
+  `}
+`
+
+Info.Icon = Icon
+Info.Popup = Popup
+Info.Text = Text
+Info.TransitionDiv = TransitionDiv
+
+export default Info

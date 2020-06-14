@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
@@ -258,6 +259,57 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         fun `Given incorrect key, should return 404`() {
             mockMvc.get(path = getRequestPath("incorrectKey")) {
                 isError(HttpStatus.NOT_FOUND)
+            }
+        }
+    }
+
+    @Transactional
+    @OrderTests
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class VerifyUploadSize() : MockMvcTestBase() {
+
+        private val verifyUploadSizeRequestPath = Path("/api/verifyUpload")
+
+        @Value("\${up.max-file-size}")
+        private val maxUploadSize: Long = 0;
+
+
+        @Test
+        @DocumentResponse
+        fun `Given valid upload size, should return true`() {
+            mockMvc.post(
+                    path = verifyUploadSizeRequestPath,
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val size = maxUploadSize * 1000
+                    }
+            ) {
+                isSuccess()
+                responseJsonPath("$.valid").isTrue()
+                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
+            }
+        }
+
+        @Test
+        fun `Given too big upload size, should return false`() {
+            mockMvc.post(
+                    path = verifyUploadSizeRequestPath,
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val size = maxUploadSize * 1000 + 1
+                    }
+            ) {
+                isSuccess()
+                responseJsonPath("$.valid").isFalse()
+                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
+            }
+        }
+
+        @Test
+        fun `Given missing size parameter, should return 400`() {
+            mockMvc.post(path = Path("/api/verifyUpload")) {
+                isError(HttpStatus.BAD_REQUEST)
             }
         }
     }

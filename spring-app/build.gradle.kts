@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "pl.starchasers"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -82,9 +82,12 @@ tasks {
         dependsOn(test)
         dependsOn(dokka)
     }
-
     jar {
         dependsOn(asciidoctor)
+    }
+
+    withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+        archiveBaseName.set("up")
     }
 
     test {

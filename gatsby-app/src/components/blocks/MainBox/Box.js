@@ -14,7 +14,7 @@ const center = css`
   align-content: center;
 `
 
-const Box = styled('div')`
+const Box = styled('main')`
   background-color: ${props => props.theme.colors.primary.two};
   border-radius: 8px;
   width: 100%;
