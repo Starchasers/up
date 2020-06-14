@@ -1,7 +1,7 @@
 const metaTags = [
   {
     name: 'description',
-    content: 'Access & share your files from any device with a link that automatically expires, to ensure your important files don’t stay online forever.',
+    content: 'Upload and share files from any device easily!',
   },
   {
     name: 'charset',
@@ -45,7 +45,7 @@ const metaTags = [
   },
   {
     name: 'og:description',
-    content: 'Access & share your files from any device with a link that automatically expires, to ensure your important files don’t stay online forever.',
+    content: 'Upload and share files from any device easily!',
   },
 ]
 
