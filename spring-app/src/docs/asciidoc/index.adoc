@@ -2,9 +2,14 @@
 
 == Anonymous upload Controller
 include::build/generated-snippets/AnonymousUpload/auto-section.adoc[]
+'''
 include::build/generated-snippets/GetAnonymousUpload/auto-section.adoc[]
+'''
 include::build/generated-snippets/VerifyFileAccess/auto-section.adoc[]
+'''
 include::build/generated-snippets/GetFileDetails/auto-section.adoc[]
+'''
+include::build/generated-snippets/VerifyUploadSize/auto-section.adoc[]
 
 == Authentication Controller
 include::build/generated-snippets/Login/auto-section.adoc[]

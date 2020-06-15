@@ -3,6 +3,7 @@ export const theme = {
     primary: {
       one: '#181A1B',
       two: '#434755',
+      three: '#5678a6' // Need to change it to our main color in the future
     },
     secondary: {
       one: '#fff',
@@ -11,7 +12,7 @@ export const theme = {
     text: {
       one: '#dad7d2',
       two: '#393939',
-      three: '#7a7c89',
+      three: '#848898',
     },
     white: '#fff',
     black: '#000',

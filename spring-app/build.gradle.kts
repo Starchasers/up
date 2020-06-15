@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "pl.starchasers"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -31,7 +31,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-    runtimeOnly(project(":gatsby-app"))
+    runtimeOnly(files("../gatsby-app/build/artifact/gatsby-app.jar"))
 
     testImplementation("com.h2database:h2:1.4.200")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -82,9 +82,12 @@ tasks {
         dependsOn(test)
         dependsOn(dokka)
     }
-
     jar {
         dependsOn(asciidoctor)
+    }
+
+    withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+        archiveBaseName.set("up")
     }
 
     test {

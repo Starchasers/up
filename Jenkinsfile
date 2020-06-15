@@ -6,8 +6,12 @@ node('master') {
         sh "./gradlew clean"
     }
 
-    stage('Build') {
-        sh "./gradlew assemble"
+    stage('Build Gatsby') {
+        sh "./gradlew :gatsby-app:build"
+    }
+
+    stage('Build  Spring') {
+        sh "./gradlew bootjar"
         sh "mv spring-app/build/libs/*.jar ./"
         archiveArtifacts '*.jar'
     }
