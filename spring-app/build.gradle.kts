@@ -31,7 +31,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-    runtimeOnly(project(":gatsby-app"))
+    runtimeOnly(files("../gatsby-app/build/artifact/gatsby-app.jar"))
 
     testImplementation("com.h2database:h2:1.4.200")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
