@@ -32,8 +32,8 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
-        name: 'up-website',
-        short_name: 'up',
+        name: 'UP | File hosting',
+        short_name: 'UP Hosting',
         start_url: '/',
         background_color: '#1A1B1C',
         theme_color: '#434755',
