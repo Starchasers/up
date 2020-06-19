@@ -47,9 +47,9 @@ const AfterPageBox = () => {
       if (!select.isCollapsed) {
         return
       }
-      event.preventDefault()
       selectLink()
       event.clipboardData.setData('text/plain', resourceLink)
+      event.preventDefault()
     }
 
     selectLink()
