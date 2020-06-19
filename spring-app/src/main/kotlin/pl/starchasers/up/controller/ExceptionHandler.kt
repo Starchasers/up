@@ -1,5 +1,6 @@
 package pl.starchasers.up.controller
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pl.starchasers.up.exception.ApplicationException
+import pl.starchasers.up.exception.BadRangeException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
@@ -22,6 +24,17 @@ class ExceptionHandler() {
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(applicationException: ApplicationException): ResponseEntity<BasicErrorResponseDTO> =
             ResponseEntity(BasicErrorResponseDTO(applicationException.errorMessage), applicationException.responseStatus)
+
+    @ExceptionHandler(BadRangeException::class)
+    fun handleBadRangeException(badRangeException: BadRangeException): ResponseEntity<BasicErrorResponseDTO> {
+        val httpHeaders = HttpHeaders()
+        httpHeaders.set(HttpHeaders.CONTENT_RANGE, "bytes */${badRangeException.fileSize}")
+        return ResponseEntity(
+                BasicErrorResponseDTO(badRangeException.errorMessage),
+                httpHeaders,
+                badRangeException.responseStatus
+        )
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
     fun handleValidationErrors(): ResponseEntity<BasicErrorResponseDTO> =
