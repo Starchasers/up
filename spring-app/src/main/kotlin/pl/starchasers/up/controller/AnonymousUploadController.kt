@@ -1,7 +1,9 @@
 package pl.starchasers.up.controller
 
 import org.apache.commons.io.IOUtils
+import org.slf4j.LoggerFactory
 import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -11,13 +13,18 @@ import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.util.BasicResponseDTO
+import pl.starchasers.up.util.RequestRangeParser
 import java.io.IOException
 import java.nio.charset.Charset
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AnonymousUploadController(private val fileStorageService: FileStorageService,
-                                private val fileService: FileService) {
+                                private val fileService: FileService,
+                                private val requestRangeParser: RequestRangeParser) {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * @param file Uploaded file content
@@ -38,7 +45,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
      * @param fileKey File key obtained during upload
      */
     @GetMapping("/u/{fileKey}")
-    fun getAnonymousUpload(@PathVariable fileKey: String, response: HttpServletResponse) {
+    fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
         response.contentType = fileEntry.contentType
 
@@ -49,10 +56,19 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                         .build()
                         .toString())
         try {
-            IOUtils.copyLarge(stream, response.outputStream)
+            val range = requestRangeParser(request.getHeader("Range"), fileEntry.size)
+
+            if (range.partial) {
+                response.addHeader(HttpHeaders.CONTENT_RANGE, "bytes ${range.from}-${range.to}/${fileEntry.size}")
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, range.responseSize.toString())
+                response.status = 206
+                IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
+            } else {
+                IOUtils.copyLarge(stream, response.outputStream)
+            }
             response.outputStream.flush()
         } catch (e: IOException) {
-            e.printStackTrace()
+            logger.debug(e.toString())
         } finally {
             stream.close()
         }
