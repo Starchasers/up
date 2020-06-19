@@ -3,6 +3,7 @@ package pl.starchasers.up.util
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import pl.starchasers.up.exception.BadRangeException
+import kotlin.math.min
 
 interface RequestRangeParser {
     operator fun invoke(header: String?, fileSize: Long): RequestRange
@@ -26,7 +27,7 @@ class RequestRangeParserImpl : RequestRangeParser {
 
         val from = parsedHeader[0].toLong()
         val to = if (parsedHeader[1].isEmpty()) {
-            java.lang.Long.min(from + chunkSize, fileSize - 1)
+            min(from + chunkSize, fileSize - 1)
         } else {
             parsedHeader[1].toLong()
         }
