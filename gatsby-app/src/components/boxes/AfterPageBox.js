@@ -43,11 +43,11 @@ const AfterPageBox = () => {
 
   useEffect(() => {
     const copyText = (event) => {
-      event.preventDefault()
       const select = window.getSelection()
       if (!select.isCollapsed) {
         return
       }
+      event.preventDefault()
       selectLink()
       event.clipboardData.setData('text/plain', resourceLink)
     }
