@@ -52,7 +52,8 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
-        response.contentType = fileEntry.contentType
+        response.contentType = if (fileEntry.contentType == "text/plain") "text/plain; charset=utf-8"
+        else fileEntry.contentType
 
         response.addHeader("Content-Disposition",
                 ContentDisposition

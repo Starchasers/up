@@ -123,19 +123,23 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
     ) : MockMvcTestBase() {
         private val content = "example content"
 
+        private fun createFile(contentType: String = "text/plain; charset=utf-8"): String {
+            return fileService.createFile(
+                    content.byteInputStream(),
+                    "fileName.txt",
+                    contentType,
+                    content.byteInputStream().readAllBytes().size.toLong()
+            ).key
+        }
+
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong()
-            ).key
+            val key = createFile()
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")
-                responseHeader("Content-Type").equals("text/plain")
+                responseHeader("Content-Type").equals("text/plain; charset=utf-8")
             }
 
         }
@@ -143,19 +147,14 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         @Test
         fun `Given valid Range header, should return 206`() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize
-            ).key
+            val key = createFile()
 
             val headers = HttpHeaders()
             headers.set(HttpHeaders.RANGE, "bytes=0-")
 
             mockMvc.get(path = Path("/u/$key"), headers = headers) {
                 status(HttpStatus.PARTIAL_CONTENT)
-                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize-1}/$contentSize")
+                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize - 1}/$contentSize")
                 responseHeader(HttpHeaders.CONTENT_LENGTH).equals("$contentSize")
             }
         }
@@ -163,12 +162,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         @Test
         fun `Given invalid Range header, should return 200`() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize
-            ).key
+            val key = createFile()
 
             val headers = HttpHeaders()
             headers.set(HttpHeaders.RANGE, "mb=-1024")
@@ -182,6 +176,29 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         fun `Given incorrect key, should return 404`() {
             mockMvc.get(path = Path("/u/qweasd")) {
                 isError(HttpStatus.NOT_FOUND)
+            }
+        }
+
+        @Test
+        fun `Given unspecified text file encoding, should default to utf-8`() {
+            val key = createFile("text/plain")
+
+            mockMvc.get(path = Path("/u/$key")) {
+                isSuccess()
+                responseJsonPath("$").equalsValue("example content")
+                responseHeader("Content-Type").equals("text/plain; charset=utf-8")
+            }
+        }
+
+        @Test
+        fun `Given specified text file encoding, should preserve it`() {
+            val contentType = "text/plain; charset=us-ascii"
+            val key = createFile(contentType)
+
+            mockMvc.get(path = Path("/u/$key")) {
+                isSuccess()
+                responseJsonPath("$").equalsValue("example content")
+                responseHeader("Content-Type").equals(contentType)
             }
         }
     }
