@@ -46,13 +46,13 @@ abstract class MockMvcTestBase {
     protected lateinit var mockMvc: MockMvc
 
 
-//    @Autowired
-//    private lateinit var springSecurityFilterChain: Filter
+    @Autowired
+    private lateinit var springSecurityFilterChain: Filter
 
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-//                .addFilters<DefaultMockMvcBuilder>(springSecurityFilterChain)//TODO enable security
+                .addFilters<DefaultMockMvcBuilder>(springSecurityFilterChain)
                 .alwaysDo<DefaultMockMvcBuilder>(JacksonResultHandlers.prepareJackson(mapper))
                 .alwaysDo<DefaultMockMvcBuilder>(commonDocumentation())
                 .apply<DefaultMockMvcBuilder>(

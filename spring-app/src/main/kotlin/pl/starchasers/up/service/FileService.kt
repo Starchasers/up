@@ -2,9 +2,9 @@ package pl.starchasers.up.service
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import pl.starchasers.up.data.dto.FileDetailsDTO
-import pl.starchasers.up.data.dto.UploadCompleteResponseDTO
 import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
+import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository

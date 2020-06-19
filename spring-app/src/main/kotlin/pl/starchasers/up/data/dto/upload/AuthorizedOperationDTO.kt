@@ -1,4 +1,4 @@
-package pl.starchasers.up.data.dto
+package pl.starchasers.up.data.dto.upload
 
 import javax.validation.constraints.NotEmpty
 

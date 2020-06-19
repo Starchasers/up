@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.exception.BadRangeException
+import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
 @ControllerAdvice
@@ -41,7 +42,7 @@ class ExceptionHandler() {
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.UNAUTHORIZED)
+            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.FORBIDDEN)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =
@@ -58,6 +59,10 @@ class ExceptionHandler() {
     @ExceptionHandler(MultipartException::class)
     fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
             ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+
+    @ExceptionHandler(UserException::class)
+    fun handleUserException(): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.FORBIDDEN)
 
 
     @ExceptionHandler(Exception::class)

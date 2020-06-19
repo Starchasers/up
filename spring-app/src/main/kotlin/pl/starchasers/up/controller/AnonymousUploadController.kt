@@ -7,7 +7,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import pl.starchasers.up.data.dto.*
+import pl.starchasers.up.data.dto.VerifyUploadSizeDTO
+import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
+import pl.starchasers.up.data.dto.upload.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
