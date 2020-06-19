@@ -4,12 +4,15 @@ import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import pl.starchasers.up.data.dto.VerifyUploadSizeDTO
 import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
-import pl.starchasers.up.data.dto.upload.*
+import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
+import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
@@ -63,7 +66,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
             if (range.partial) {
                 response.addHeader(HttpHeaders.CONTENT_RANGE, "bytes ${range.from}-${range.to}/${fileEntry.size}")
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, range.responseSize.toString())
-                response.status = 206
+                response.status = HttpStatus.PARTIAL_CONTENT.value()
                 IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
             } else {
                 IOUtils.copyLarge(stream, response.outputStream)

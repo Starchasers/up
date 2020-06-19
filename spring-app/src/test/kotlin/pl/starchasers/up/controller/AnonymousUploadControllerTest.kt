@@ -17,7 +17,6 @@ import pl.starchasers.up.*
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.FileService
-import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -139,6 +138,44 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 responseHeader("Content-Type").equals("text/plain")
             }
 
+        }
+
+        @Test
+        fun `Given valid Range header, should return 206`() {
+            val contentSize = content.byteInputStream().readAllBytes().size.toLong()
+            val key = fileService.createFile(
+                    content.byteInputStream(),
+                    "fileName.txt",
+                    "text/plain",
+                    contentSize
+            ).key
+
+            val headers = HttpHeaders()
+            headers.set(HttpHeaders.RANGE, "bytes=0-")
+
+            mockMvc.get(path = Path("/u/$key"), headers = headers) {
+                status(HttpStatus.PARTIAL_CONTENT)
+                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize-1}/$contentSize")
+                responseHeader(HttpHeaders.CONTENT_LENGTH).equals("$contentSize")
+            }
+        }
+
+        @Test
+        fun `Given invalid Range header, should return 200`() {
+            val contentSize = content.byteInputStream().readAllBytes().size.toLong()
+            val key = fileService.createFile(
+                    content.byteInputStream(),
+                    "fileName.txt",
+                    "text/plain",
+                    contentSize
+            ).key
+
+            val headers = HttpHeaders()
+            headers.set(HttpHeaders.RANGE, "mb=-1024")
+
+            mockMvc.get(path = Path("/u/$key"), headers = headers) {
+                statusIsOk()
+            }
         }
 
         @Test
