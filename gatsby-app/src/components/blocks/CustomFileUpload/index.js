@@ -6,6 +6,7 @@ import Icon from './Icon'
 import DropZone from './DropZone'
 import Or from './Or'
 import Button from './Button'
+import { pl } from 'styled-components-spacing/dist/cjs'
 
 const CustomFileUpload = styled('div')`
   width: 100%;
@@ -13,6 +14,7 @@ const CustomFileUpload = styled('div')`
   justify-content: center;
   flex-direction: column;
   min-height: 300px;
+  ${pl({md: 4})};
 `
 
 CustomFileUpload.Input = Input
