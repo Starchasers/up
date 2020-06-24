@@ -20,6 +20,11 @@ const Mobile = css`
 
 const Row = styled(Grid)`
   ${py({ xs: 4, sm: 0 })};
+  width: calc(100% - 50px);
+  margin: 0 auto;
+  position: relative;
+  align-items: center;
+  
   ${breakpoint('xs', 'sm')`
     ${() => Mobile};
   `}
@@ -51,6 +56,7 @@ const IndexPage = () => (
           </Grid>
         </MainBox.Box>
         <Row>
+          <InfoButton/>
           <MainBox.Text right light>
             <MainBox.List>
               <MainBox.ItemList>
@@ -69,7 +75,6 @@ const IndexPage = () => (
         <MainBox.Shadow/>
       </MainBox>
     </Container>
-    <InfoButton/>
   </Layout>
 )
 
