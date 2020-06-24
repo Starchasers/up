@@ -5,11 +5,13 @@ import { setPage, setResponse } from '../../redux/actions'
 import { PAGE_ID } from '../../redux/constants'
 import { useDispatch, useSelector } from 'react-redux'
 import copy from 'copy-to-clipboard'
+import Countdown from 'react-countdown'
 
 const AfterPageBox = () => {
   const [showTooltip, setShowTooltip] = useState(false)
   const dispatch = useDispatch()
   const responseDataKey = useSelector(state => state.response.data.key)
+  const responseDeleteTime = useSelector(state => state.response.data.toDelete)
   const linkNode = useRef(null)
 
   const resourceLink = useMemo(() => {
@@ -41,6 +43,19 @@ const AfterPageBox = () => {
     selectLink()
   }
 
+  const dateRenderer = ({ days, hours, minutes, seconds }) => (
+    <AfterUploadBox.DateFormat>
+      {
+        days !== 0
+          ? <span className='date'>{days + (days === 1 ? ' day,' : ' days,')}</span>
+          : null
+      }
+      <span>{hours < 10 ? `0${hours}:` : `${hours}:`}</span>
+      <span>{minutes < 10 ? `0${minutes}:` : `${minutes}:`}</span>
+      <span>{seconds < 10 ? `0${seconds}` : `${seconds}`}</span>
+    </AfterUploadBox.DateFormat>
+  )
+
   useEffect(() => {
     const copyText = (event) => {
       const select = window.getSelection()
@@ -60,7 +75,7 @@ const AfterPageBox = () => {
 
   return (
     <AfterUploadBox>
-      <AfterUploadBox.Center>
+      <AfterUploadBox.Area background>
         <AfterUploadBox.TextBox>
           <AfterUploadBox.Link
             onClick={handleLinkClick}
@@ -72,19 +87,30 @@ const AfterPageBox = () => {
               {resourceLink}
             </AfterUploadBox.Text>
           </AfterUploadBox.Link>
-          <AfterUploadBox.CopyButton
+          <AfterUploadBox.Button
+            top
             onClick={handleCopyButton}
           >
             <AfterUploadBox.Icon
               icon={faCopy}
               style={{ margin: '0 10px' }}
             />
-          </AfterUploadBox.CopyButton>
+            <AfterUploadBox.Tooltip active={showTooltip}>
+              Copied!
+            </AfterUploadBox.Tooltip>
+          </AfterUploadBox.Button>
         </AfterUploadBox.TextBox>
-        <AfterUploadBox.Tooltip active={showTooltip}>
-          Copied!
-        </AfterUploadBox.Tooltip>
-      </AfterUploadBox.Center>
+      </AfterUploadBox.Area>
+      <AfterUploadBox.DeleteTimeArea>
+        <AfterUploadBox.DeleteTime>
+          <span>Expires in:</span>
+          <Countdown
+            date={responseDeleteTime}
+            zeroPadTime={2}
+            renderer={dateRenderer}
+          />
+        </AfterUploadBox.DeleteTime>
+      </AfterUploadBox.DeleteTimeArea>
       <AfterUploadBox.Back
         onClick={() => {
           dispatch(setResponse({ received: false, data: {} }))
