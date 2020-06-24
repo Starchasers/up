@@ -28,6 +28,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-circular-progressbar": "^2.0.3",
+    "react-countdown": "^2.2.1",
     "react-dom": "^16.12.0",
     "react-dropzone": "^10.2.2",
     "react-helmet": "^5.2.1",
