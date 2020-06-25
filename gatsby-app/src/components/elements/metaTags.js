@@ -41,7 +41,15 @@ const metaTags = [
   },
   {
     name: 'og:image',
-    content: '/icons/icon-96x96.png',
+    content: '/icons/icon-256x256.png',
+  },
+  {
+    name: 'og:image:width',
+    content: '256',
+  },
+  {
+    name: 'og:image:height',
+    content: '256',
   },
   {
     name: 'og:description',
