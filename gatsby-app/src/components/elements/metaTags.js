@@ -32,27 +32,27 @@ const metaTags = [
     content: 'Starchasers',
   },
   {
-    name: 'og:title',
+    property: 'og:title',
     content: 'UP - Private file hosting',
   },
   {
-    name: 'og:type',
+    property: 'og:type',
     content: 'website',
   },
   {
-    name: 'og:image',
+    property: 'og:image',
     content: '/icons/icon-256x256.png',
   },
   {
-    name: 'og:image:width',
+    property: 'og:image:width',
     content: '256',
   },
   {
-    name: 'og:image:height',
+    property: 'og:image:height',
     content: '256',
   },
   {
-    name: 'og:description',
+    property: 'og:description',
     content: 'Upload and share files from any device easily!',
   },
 ]
