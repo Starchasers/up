@@ -7,8 +7,7 @@ import TransitionDiv from './TransitionDiv'
 
 const Info = styled('div')`
   position: absolute;
-  left: 15px;
-  bottom: 15px;
+  left: 0;
   display: none;
   justify-content: center;
   align-items: center;
@@ -28,7 +27,7 @@ const Info = styled('div')`
     height: 60%;
     margin: auto;
     background-color: ${props => props.theme.colors.text.one};
-    z-index: -1;
+    z-index: 1;
   }
   
   ${breakpoint('md')`

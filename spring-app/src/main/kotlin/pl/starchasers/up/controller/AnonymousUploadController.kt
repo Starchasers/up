@@ -57,7 +57,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         response.addHeader("Content-Disposition",
                 ContentDisposition
                         .builder("inline")
-                        .filename(fileEntry.filename, Charset.forName("UTF-8"))
+                        .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
                         .build()
                         .toString())
         try {
