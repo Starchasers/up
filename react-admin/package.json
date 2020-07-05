@@ -1,6 +1,6 @@
 {
   "name": "react-admin",
-  "description": "Admin panel for up application",
+  "description": "Admin panel for UP application",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
@@ -10,6 +10,7 @@
     "history": "^4.10.1",
     "prop-types": "^15.7.2",
     "ra-data-json-server": "^3.5.0",
+    "ra-data-simple-rest": "^3.5.5",
     "react": "^16.13.1",
     "react-admin": "^3.5.0",
     "react-dom": "^16.13.1",
