@@ -3,7 +3,8 @@ import { useDispatch } from 'react-redux'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
 import axios from 'axios'
-import { useDropzone } from 'react-dropzone'
+import DropZone, { useDropzone } from 'react-dropzone'
+import Offset from '../components/elements/Offset'
 
 const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
 
@@ -91,7 +92,11 @@ const FileUploadProvider = ({ children }) => {
     }
   }, [dispatch, handleFileUpload])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onDrop, multiple: false })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: onDrop,
+    multiple: false,
+    onDragEnter: (a) => console.log(a),
+  })
 
   useEffect(() => {
     window.addEventListener('paste', handleOnPaste, false)
@@ -112,7 +117,13 @@ const FileUploadProvider = ({ children }) => {
 
   return (
     <FileUploadContext.Provider value={value}>
-      {children}
+      <DropZone onDrop={onDrop}>
+        {({ getRootProps }) => (
+          <Offset {...getRootProps()}>
+            {children}
+          </Offset>
+        )}
+      </DropZone>
     </FileUploadContext.Provider>
   )
 }
