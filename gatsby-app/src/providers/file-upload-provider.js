@@ -1,12 +1,16 @@
-import { useCallback, useEffect } from 'react'
-import axios from 'axios'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import { useDispatch } from 'react-redux'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
-import { useDispatch } from 'react-redux'
+import axios from 'axios'
+import { useDropzone } from 'react-dropzone'
 
-const useFileUpload = () => {
+const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
+
+export const FileUploadContext = React.createContext({})
+
+const FileUploadProvider = ({ children }) => {
   const dispatch = useDispatch()
-  const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
 
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
@@ -46,7 +50,7 @@ const useFileUpload = () => {
     } finally {
       dispatch(setLoading({ isLoading: false, value: 100 }))
     }
-  }, [dispatch, backendURL])
+  }, [dispatch])
 
   const handleOnPaste = useCallback((event) => {
     const items = event.clipboardData.items
@@ -72,15 +76,45 @@ const useFileUpload = () => {
     })
   }, [handleFileUpload])
 
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 0) {
+      const data = new FormData()
+      data.append('file', acceptedFiles[0])
+      handleFileUpload({ file: data })
+    } else {
+      dispatch(setError({
+        message: 'Invalid input, please make sure to upload a valid file',
+        status: undefined,
+      }))
+      dispatch(setResponse({ received: false, data: {} }))
+      dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+    }
+  }, [dispatch, handleFileUpload])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onDrop, multiple: false })
+
   useEffect(() => {
     window.addEventListener('paste', handleOnPaste, false)
     return () => window.removeEventListener('paste', handleOnPaste)
   }, [handleOnPaste])
 
-  return {
+  const value = useMemo(() => ({
     handleFileUpload,
-    handleOnPaste,
-  }
+    getRootProps,
+    getInputProps,
+    isDragActive,
+  }), [
+    handleFileUpload,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+  ])
+
+  return (
+    <FileUploadContext.Provider value={value}>
+      {children}
+    </FileUploadContext.Provider>
+  )
 }
 
-export default useFileUpload
+export default FileUploadProvider

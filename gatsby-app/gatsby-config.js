@@ -79,6 +79,12 @@ module.exports = {
         'static/favicon.ico': 'favicon.ico',
       },
     },
+    {
+      resolve: `gatsby-plugin-layout`,
+      options: {
+        component: require.resolve(`./src/providers`),
+      },
+    },
     'gatsby-plugin-offline',
   ],
 }
