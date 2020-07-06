@@ -22,7 +22,7 @@ const FileUploadProvider = ({ children }) => {
       if (!checkSize.data.valid) {
         dispatch(setError({
           message: 'File is too large. Maximum size: ' + checkSize.data.maxUploadSize / 1000 + ' MB',
-          status: 413,
+          status: 413
         }))
         dispatch(setResponse({ received: false, data: {} }))
         dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
@@ -31,11 +31,11 @@ const FileUploadProvider = ({ children }) => {
       }
       const response = await axios.post(`${backendURL}/api/upload`, file, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (value) => {
           dispatch(setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) }))
-        },
+        }
       })
       dispatch(setResponse({ received: true, data: { ...response.data } }))
       dispatch(setPage({ pageId: PAGE_ID.AFTER_UPLOAD_PAGE }))
@@ -43,8 +43,8 @@ const FileUploadProvider = ({ children }) => {
       dispatch(
         setError({
           message: e.response ? e.response.data.message : e.toString(),
-          status: e.response ? e.response.status : undefined,
-        }),
+          status: e.response ? e.response.status : undefined
+        })
       )
       dispatch(setResponse({ received: false, data: {} }))
       dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
@@ -68,12 +68,12 @@ const FileUploadProvider = ({ children }) => {
       data.append('file', blob)
     } else {
       const file = new File([event.clipboardData.getData('text')], 'paste.txt', {
-        type: 'text/plain',
+        type: 'text/plain'
       })
       data.append('file', file)
     }
     handleFileUpload({
-      file: data,
+      file: data
     })
   }, [handleFileUpload])
 
@@ -85,7 +85,7 @@ const FileUploadProvider = ({ children }) => {
     } else {
       dispatch(setError({
         message: 'Invalid input, please make sure to upload a valid file',
-        status: undefined,
+        status: undefined
       }))
       dispatch(setResponse({ received: false, data: {} }))
       dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
@@ -94,8 +94,7 @@ const FileUploadProvider = ({ children }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDrop,
-    multiple: false,
-    onDragEnter: (a) => console.log(a),
+    multiple: false
   })
 
   useEffect(() => {
@@ -107,17 +106,17 @@ const FileUploadProvider = ({ children }) => {
     handleFileUpload,
     getRootProps,
     getInputProps,
-    isDragActive,
+    isDragActive
   }), [
     handleFileUpload,
     getRootProps,
     getInputProps,
-    isDragActive,
+    isDragActive
   ])
 
   return (
     <FileUploadContext.Provider value={value}>
-      <DropZone onDrop={onDrop}>
+      <DropZone onDrop={onDrop} multiple={false}>
         {({ getRootProps }) => (
           <Offset {...getRootProps()}>
             {children}
