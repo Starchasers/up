@@ -8,6 +8,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "history": "^4.10.1",
+    "jwt-decode": "^2.2.0",
     "prop-types": "^15.7.2",
     "ra-data-json-server": "^3.5.0",
     "ra-data-simple-rest": "^3.5.5",
