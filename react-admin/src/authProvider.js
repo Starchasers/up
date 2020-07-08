@@ -44,12 +44,13 @@ export default {
     if (typeof refreshToken !== 'string') return Promise.reject({ redirectTo: '/login' })
     if (jwt_decode(refreshToken).exp * 1000 <= Date.now()) {
       localStorage.removeItem('refresh_token')
+      localStorage.removeItem('access_token')
       return Promise.reject({ redirectTo: '/login' })
     }
 
-    let accessToken = localStorage.getItem('access_token')
+    const accessToken = localStorage.getItem('access_token')
 
-    if (typeof accessToken !== 'string') {
+    if (typeof accessToken !== 'string' || jwt_decode(accessToken).exp * 1000 <= Date.now()) {
       const request = new Request(`${process.env.REACT_APP_API_URL}/auth/getAccessToken`, {
         method: 'POST',
         body: JSON.stringify({ token: refreshToken }),
@@ -65,15 +66,6 @@ export default {
         .then(({ token }) => {
           localStorage.setItem('access_token', token)
         })
-    }
-
-    accessToken = localStorage.getItem('access_token')
-
-    if (typeof accessToken !== 'string') return Promise.reject({ redirectTo: '/login' })
-
-    if (jwt_decode(accessToken).exp * 1000 <= Date.now()) {
-      localStorage.removeItem('refresh_token')
-      return Promise.reject({ redirectTo: '/login' })
     }
 
     return Promise.resolve()
