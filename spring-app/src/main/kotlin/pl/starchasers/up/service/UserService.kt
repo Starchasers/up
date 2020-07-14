@@ -1,9 +1,12 @@
 package pl.starchasers.up.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.exception.AccessDeniedException
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
@@ -20,6 +23,10 @@ interface UserService {
     fun createUser(username: String, password: String, email: String?, role: Role): User
 
     fun getUserFromCredentials(username: String, password: String): User
+
+    fun listUsers(pageable: Pageable): Page<User>
+
+    fun updateUser(userId: Long, email: String?, password: String?, role: Role)
 }
 
 @Service
@@ -38,6 +45,8 @@ class UserServiceImpl(
     override fun findUser(username: String): User? = userRepository.findFirstByUsername(username)
 
     override fun createUser(username: String, password: String, email: String?, role: Role): User {
+        val oldUser = findUser(username)
+        if (oldUser != null) throw BadRequestException()
         val user = User(
                 0,
                 username,
@@ -52,5 +61,17 @@ class UserServiceImpl(
     override fun getUserFromCredentials(username: String, password: String): User =
             findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
                     ?: throw AccessDeniedException("Incorrect username or password")
+
+    override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
+
+    override fun updateUser(userId: Long, email: String?, password: String?, role: Role) {
+        val user = findUser(userId) ?: throw BadRequestException()
+
+        user.email = email
+        if (password != null) user.password = passwordEncoder.encode(password)
+        user.role = role
+
+        userRepository.save(user)
+    }
 
 }
