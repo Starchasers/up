@@ -1,12 +1,17 @@
-import { useCallback, useEffect } from 'react'
-import axios from 'axios'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import { useDispatch } from 'react-redux'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
-import { useDispatch } from 'react-redux'
+import axios from 'axios'
+import DropZone, { useDropzone } from 'react-dropzone'
+import Offset from '../components/elements/Offset'
 
-const useFileUpload = () => {
+const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
+
+export const FileUploadContext = React.createContext({})
+
+const FileUploadProvider = ({ children }) => {
   const dispatch = useDispatch()
-  const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
 
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
@@ -17,7 +22,7 @@ const useFileUpload = () => {
       if (!checkSize.data.valid) {
         dispatch(setError({
           message: 'File is too large. Maximum size: ' + checkSize.data.maxUploadSize / 1000 + ' MB',
-          status: 413,
+          status: 413
         }))
         dispatch(setResponse({ received: false, data: {} }))
         dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
@@ -26,11 +31,11 @@ const useFileUpload = () => {
       }
       const response = await axios.post(`${backendURL}/api/upload`, file, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (value) => {
           dispatch(setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) }))
-        },
+        }
       })
       dispatch(setResponse({ received: true, data: { ...response.data } }))
       dispatch(setPage({ pageId: PAGE_ID.AFTER_UPLOAD_PAGE }))
@@ -38,15 +43,15 @@ const useFileUpload = () => {
       dispatch(
         setError({
           message: e.response ? e.response.data.message : e.toString(),
-          status: e.response ? e.response.status : undefined,
-        }),
+          status: e.response ? e.response.status : undefined
+        })
       )
       dispatch(setResponse({ received: false, data: {} }))
       dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
     } finally {
       dispatch(setLoading({ isLoading: false, value: 100 }))
     }
-  }, [dispatch, backendURL])
+  }, [dispatch])
 
   const handleOnPaste = useCallback((event) => {
     const items = event.clipboardData.items
@@ -63,24 +68,63 @@ const useFileUpload = () => {
       data.append('file', blob)
     } else {
       const file = new File([event.clipboardData.getData('text')], 'paste.txt', {
-        type: 'text/plain',
+        type: 'text/plain'
       })
       data.append('file', file)
     }
     handleFileUpload({
-      file: data,
+      file: data
     })
   }, [handleFileUpload])
+
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 0) {
+      const data = new FormData()
+      data.append('file', acceptedFiles[0])
+      handleFileUpload({ file: data })
+    } else {
+      dispatch(setError({
+        message: 'Invalid input, please make sure to upload a valid file',
+        status: undefined
+      }))
+      dispatch(setResponse({ received: false, data: {} }))
+      dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+    }
+  }, [dispatch, handleFileUpload])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: onDrop,
+    multiple: false
+  })
 
   useEffect(() => {
     window.addEventListener('paste', handleOnPaste, false)
     return () => window.removeEventListener('paste', handleOnPaste)
   }, [handleOnPaste])
 
-  return {
+  const value = useMemo(() => ({
     handleFileUpload,
-    handleOnPaste,
-  }
+    getRootProps,
+    getInputProps,
+    isDragActive
+  }), [
+    handleFileUpload,
+    getRootProps,
+    getInputProps,
+    isDragActive
+  ])
+
+  return (
+    <FileUploadContext.Provider value={value}>
+      <DropZone onDrop={onDrop} multiple={false}>
+        {({ getRootProps }) => (
+          <Offset {...getRootProps()}>
+            {children}
+          </Offset>
+        )}
+      </DropZone>
+    </FileUploadContext.Provider>
+  )
 }
 
-export default useFileUpload
+export default FileUploadProvider
