@@ -10,7 +10,7 @@ import { breakpoint } from 'styled-components-breakpoint'
 
 const MainBox = styled('article')`
   max-width: 768px;
-  margin: 18vh auto 0;
+  margin: 0 auto;
   position: relative;
   ${px(3)};
 
