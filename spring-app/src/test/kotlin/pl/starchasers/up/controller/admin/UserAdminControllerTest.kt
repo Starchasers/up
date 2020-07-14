@@ -88,7 +88,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             userService.createUser("username4", "password2", "email2@gmail.com", Role.USER)
         }
 
-        private val getOnePath: Path = Path("/api/admin/users/")
+        private val getOnePath: Path = Path("/api/admin/users")
 
         @DocumentResponse
         @Test
