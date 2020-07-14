@@ -28,6 +28,8 @@ include::build/generated-snippets/UsersList/auto-section.adoc[]
 include::build/generated-snippets/UsersCreate/auto-section.adoc[]
 '''
 include::build/generated-snippets/UsersUpdate/auto-section.adoc[]
+'''
+include::build/generated-snippets/UsersDelete/auto-section.adoc[]
 
 [[overview-pagination]]
 == Pagination
