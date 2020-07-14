@@ -1,16 +1,18 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
 import axios from 'axios'
 import DropZone, { useDropzone } from 'react-dropzone'
 import Offset from '../components/elements/Offset'
+import GlobalDropZone from '../components/blocks/GlobalDropZone'
 
 const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
 
 export const FileUploadContext = React.createContext({})
 
 const FileUploadProvider = ({ children }) => {
+  const [dragActive, setDragActive] = useState(false)
   const dispatch = useDispatch()
 
   const handleFileUpload = useCallback(async ({ file }) => {
@@ -116,11 +118,28 @@ const FileUploadProvider = ({ children }) => {
 
   return (
     <FileUploadContext.Provider value={value}>
-      <DropZone onDrop={onDrop} multiple={false}>
+      <DropZone
+        onDrop={data => {
+          setDragActive(false)
+          onDrop(data)
+        }}
+        multiple={false}
+        onDragEnter={() => setDragActive(true)}
+        onDragLeave={() => setDragActive(false)}
+      >
         {({ getRootProps }) => (
-          <Offset {...getRootProps()}>
-            {children}
-          </Offset>
+          <>
+            <Offset blur={dragActive} {...getRootProps()}>
+              {children}
+            </Offset>
+            <GlobalDropZone active={dragActive} {...getRootProps()}>
+              <GlobalDropZone.Container>
+                <GlobalDropZone.Text>
+                  Drop file here
+                </GlobalDropZone.Text>
+              </GlobalDropZone.Container>
+            </GlobalDropZone>
+          </>
         )}
       </DropZone>
     </FileUploadContext.Provider>
