@@ -3,6 +3,7 @@ package pl.starchasers.up.controller.admin
 import assertk.assertAll
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.*
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -18,9 +19,8 @@ import pl.starchasers.up.data.model.User
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
+import pl.starchasers.up.service.JwtTokenService
 
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -234,30 +234,68 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
     @Nested
     inner class UsersDelete : MockMvcTestBase() {
 
-//        @Test
-//        @DocumentResponse
+        @Autowired
+        private lateinit var userService: UserService
+
+        @Autowired
+        private lateinit var jwtTokenService: JwtTokenService
+
+        private fun getDeleteUserPath(id: Long) = Path("/api/admin/users/$id")
+
+        @Test
+        @DocumentResponse
         fun `Given valid request, should delete user`() {
+            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
 
+            mockMvc.delete(path = getDeleteUserPath(user.id),
+                    headers = HttpHeaders().authorization(getAdminAccessToken())) {
+                isSuccess()
+            }
+            flush()
+            assertNull(userService.findUser(user.id))
         }
 
-//        @Test
+        @Test
         fun `Given unauthorized user, should throw 403`() {
+            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
 
+            mockMvc.delete(path = getDeleteUserPath(user.id)) {
+                isError(HttpStatus.FORBIDDEN)
+            }
+            flush()
+            assertNotNull(userService.findUser(user.id))
         }
 
-//        @Test
+        @Test
         fun `Given wrong userId, should return 400`() {
+            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
 
+            mockMvc.delete(path = getDeleteUserPath(user.id + 123),
+                    headers = HttpHeaders().authorization(getAdminAccessToken())) {
+                isError(HttpStatus.BAD_REQUEST)
+            }
         }
 
-//        @Test
+        @Test
         fun `Given root account, should return 403`() {
+            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.ADMIN)
+            val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
+            mockMvc.delete(path = getDeleteUserPath(userService.getUser("root").id),
+                    headers = HttpHeaders().authorization(accessToken)) {
+                isError(HttpStatus.FORBIDDEN)
+            }
         }
 
-//        @Test
+        @Test
         fun `Given current account, should return 400`() {
+            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.ADMIN)
+            val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
+            mockMvc.delete(path = getDeleteUserPath(user.id),
+                    headers = HttpHeaders().authorization(accessToken)) {
+                isError(HttpStatus.BAD_REQUEST)
+            }
         }
     }
 

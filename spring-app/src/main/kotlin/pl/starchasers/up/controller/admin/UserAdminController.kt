@@ -8,10 +8,11 @@ import pl.starchasers.up.data.dto.users.CreateUserDTO
 import pl.starchasers.up.data.dto.users.UpdateUserDTO
 import pl.starchasers.up.data.dto.users.UserDTO
 import pl.starchasers.up.data.model.User
-import pl.starchasers.up.exception.BadRequestException
+import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.security.IsAdmin
 import pl.starchasers.up.service.UserService
+import java.security.Principal
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -43,6 +44,12 @@ class UserAdminController(
     @PutMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
         userService.updateUser(userId, nullIfBlank(userDTO.email), nullIfBlank(userDTO.password), userDTO.role)
+    }
+
+    @IsAdmin
+    @DeleteMapping("/{userId}")
+    fun delete(@PathVariable userId: Long, principal: Principal) {
+        userService.deleteUser(userId, principal.name.toLongOrNull() ?: throw AccessDeniedException())
     }
 
     private fun nullIfBlank(string: String?): String? = string?.takeIf { string.isNotBlank() }

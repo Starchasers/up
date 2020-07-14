@@ -10,6 +10,9 @@ import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
+import javax.persistence.Access
+
+const val ROOT_USER_NAME = "root"
 
 interface UserService {
     fun getUser(id: Long): User
@@ -27,6 +30,8 @@ interface UserService {
     fun listUsers(pageable: Pageable): Page<User>
 
     fun updateUser(userId: Long, email: String?, password: String?, role: Role)
+
+    fun deleteUser(userId: Long, thisUserId: Long)
 }
 
 @Service
@@ -72,6 +77,14 @@ class UserServiceImpl(
         user.role = role
 
         userRepository.save(user)
+    }
+
+    override fun deleteUser(userId: Long, thisUserId: Long) {
+        if (userId == thisUserId) throw BadRequestException()
+        if (findUser(userId)?.username == ROOT_USER_NAME) throw AccessDeniedException()
+
+        val toDelete = findUser(userId) ?: throw BadRequestException()
+        userRepository.delete(toDelete)
     }
 
 }
