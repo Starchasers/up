@@ -1,10 +1,14 @@
 import React from 'react'
 import FileUploadProvider from './file-upload-provider'
+import { theme } from '../components/theme'
+import { ThemeProvider } from 'styled-components'
 
 const Providers = ({ children }) => (
-  <FileUploadProvider>
-    {children}
-  </FileUploadProvider>
+  <ThemeProvider theme={theme}>
+    <FileUploadProvider>
+      {children}
+    </FileUploadProvider>
+  </ThemeProvider>
 )
 
 export default Providers
