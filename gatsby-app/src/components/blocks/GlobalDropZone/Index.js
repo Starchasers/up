@@ -4,6 +4,7 @@ import Text from './Text'
 
 const active = css`
   display: block;
+  animation: display-dropzone 300ms linear;
 `
 
 const GlobalDropZone = styled('div')`
@@ -14,6 +15,16 @@ const GlobalDropZone = styled('div')`
   left: 0;
   bottom: 0;
   padding: 8px;
+  
+  @keyframes display-dropzone {
+    0% {
+      opacity: 0;
+    }
+    100% {
+     opacity: 1;
+    }
+  }
+  
   
   ${props => props.active && active};
 `
