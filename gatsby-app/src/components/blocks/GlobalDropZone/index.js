@@ -25,7 +25,6 @@ const GlobalDropZone = styled('div')`
     }
   }
   
-  
   ${props => props.active && active};
 `
 
