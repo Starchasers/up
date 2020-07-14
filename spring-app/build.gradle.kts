@@ -29,11 +29,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("commons-fileupload:commons-fileupload:1.3.3")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
+    runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     runtimeOnly(files("../gatsby-app/build/artifact/gatsby-app.jar"))
 
-    testImplementation("com.h2database:h2:1.4.200")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
@@ -56,7 +56,7 @@ tasks.withType<KotlinCompile> {
 
 val snippetsDir = file("build/generated-snippets")
 
-ext{
+ext {
     set("snippetsDir", snippetsDir)
     set("javadocJsonDir", file("$buildDir/generated-javadoc-json"))
 }
@@ -93,5 +93,16 @@ tasks {
     test {
         useJUnitPlatform()
         dependsOn(dokka)
+    }
+
+    register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDev") {
+        group = "Application"
+        val bootJar by getting(org.springframework.boot.gradle.tasks.bundling.BootJar::class)
+        doFirst {
+            main = bootJar.mainClassName
+            classpath = sourceSets["main"].runtimeClasspath
+            systemProperty("UP_DEV_CORS", "true")
+            systemProperty("UP_JWT_SECRET", "devSecret")
+        }
     }
 }

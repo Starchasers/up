@@ -3,6 +3,7 @@ package pl.starchasers.up.service
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,9 +11,11 @@ import pl.starchasers.up.data.model.RefreshToken
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.exception.JwtTokenException
 import pl.starchasers.up.repository.RefreshTokenRepository
+import pl.starchasers.up.util.Util
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
+import javax.annotation.PostConstruct
 
 const val TOKEN_ID_KEY = "tokenId"
 const val ROLE_KEY = "role"
@@ -40,10 +43,19 @@ class JwtTokenServiceImpl(
 ) : JwtTokenService {
 
     @Value("\${up.jwt-secret}")
-    private val secret = ""
+    private var secret = ""
 
     private val refreshTokenValidTime: Long = 7 * 24 * 60 * 60 * 1000
     private val accessTokenValidTime: Long = 15 * 60 * 1000
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    @PostConstruct
+    private fun generateSecret() {
+        if (secret.isBlank()) {
+            logger.info("JWT secret not defined. Generating random secret...")
+            secret = Util().secureAlphanumericRandomString(64)
+        }
+    }
 
     override fun issueRefreshToken(user: User): String {
         val claims = Jwts.claims().setSubject(user.id.toString())
