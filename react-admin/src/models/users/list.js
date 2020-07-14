@@ -12,7 +12,16 @@ export default (props) => (
   >
     <Datagrid>
       <TextField
-        source='_id'
+        source='id'
+      />
+      <TextField
+        source='username'
+      />
+      <TextField
+        source='email'
+      />
+      <TextField
+        source='role'
       />
       <EditButton />
     </Datagrid>
