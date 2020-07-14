@@ -96,6 +96,7 @@ tasks {
     }
 
     register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDev") {
+        dependsOn("bootJar")
         group = "Application"
         val bootJar by getting(org.springframework.boot.gradle.tasks.bundling.BootJar::class)
         doFirst {
