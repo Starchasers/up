@@ -20,16 +20,6 @@ const Info = styled('div')`
     }
   }
   
-  &::before {
-    position: absolute;
-    content: '';
-    width: 50%;
-    height: 60%;
-    margin: auto;
-    background-color: ${props => props.theme.colors.text.one};
-    z-index: 1;
-  }
-  
   ${breakpoint('md')`
     display: flex;
   `}
