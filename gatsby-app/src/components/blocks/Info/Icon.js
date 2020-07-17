@@ -1,10 +1,12 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
 
-const Icon = styled(FontAwesomeIcon)`
-  color: ${props => props.theme.colors.primary.two};
-  font-size: 30px;
-  z-index: 10;
-`
-
+const Icon = styled.span`
+    background: #434755;
+    color: #fff;
+    padding: 3px 10px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 20px;
+    font-family: 'Bree Serif', serif;
+    `
 export default Icon

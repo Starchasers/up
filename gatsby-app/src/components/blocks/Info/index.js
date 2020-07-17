@@ -26,7 +26,6 @@ const Info = styled('div')`
     width: 50%;
     height: 60%;
     margin: auto;
-    background-color: ${props => props.theme.colors.text.one};
     z-index: 1;
   }
   

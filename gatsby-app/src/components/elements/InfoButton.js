@@ -1,13 +1,9 @@
 import React from 'react'
 import Info from '../blocks/Info'
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 const InfoButton = () => (
   <Info>
-    <Info.Icon
-      icon={faInfoCircle}
-      style={{ maxWidth: '30px' }}
-    />
+    <Info.Icon>i</Info.Icon>
     <Info.TransitionDiv>
       <Info.Popup>
         <Info.Text>
