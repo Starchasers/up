@@ -29,7 +29,7 @@ const ImageContainer = styled('div')`
 
 const MainImage = () => (
   <ProgressiveImage src={foreground} placeholder={tinyForeground}>
-    {(src, loading) => <ImageContainer><Decoration src={src} style={{ opacity: loading ? 0.75 : 1 }}/></ImageContainer>}
+    {(src, loading) => <ImageContainer><Decoration src={src} alt='Main image' style={{ opacity: loading ? 0.75 : 1 }}/></ImageContainer>}
   </ProgressiveImage>
 )
 
