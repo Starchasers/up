@@ -42,12 +42,12 @@ jobs:
         -H 'Content-Type: multipart/form-data' \
         -H 'secret: ${{ secrets.CD_DOCUMENTATION_SECRET }}' \
         -F 'app=2' \
-        -F 'key=${GITHUB_REF##*/}' \
+        -F 'key=${{ github.head_ref }}' \
         -F 'file=@spring-app/build/generated-docs/index.html;type=text/html'
         
         curl 'https://cd.snet.ovh/api/pub/spring/add' -i -X POST \
         -H 'Content-Type: multipart/form-data' \
         -H 'secret: ${{ secrets.CD_DEPLOY_SECRET }}' \
         -F 'app=1' \
-        -F 'key=${GITHUB_REF##*/}' \
+        -F 'key=${{ github.head_ref }}' \
         -F 'file=@spring-app/build/libs/up-1.0.jar;type=application/octet-stream' 
