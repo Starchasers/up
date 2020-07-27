@@ -1,0 +1,32 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.4.0
+      with:
+        java-version: 11
+
+    - name: Build Gatsby app
+      run: gradlew :gatsby-app:build
+
+    - name: Build Spring app
+      run: gradlew bootjar
+      
+    - name: Test
+      run: gradlew test
+      
+    - name: Generate documentation
+      run: gradlew asciidoctor
