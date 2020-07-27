@@ -22,5 +22,7 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
-      run: echo ${{ github.ref }#refs/heads/}
+      run: |
+        branch=${{ github.ref }}
+        echo ${branch#refs/heads/} 
 
