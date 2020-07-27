@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 on:
@@ -20,13 +18,13 @@ jobs:
         java-version: 11
 
     - name: Build Gatsby app
-      run: gradlew :gatsby-app:build
+      run: ./gradlew :gatsby-app:build
 
     - name: Build Spring app
-      run: gradlew bootjar
+      run: ./gradlew bootjar
       
     - name: Test
-      run: gradlew test
+      run: ./gradlew test
       
     - name: Generate documentation
-      run: gradlew asciidoctor
+      run: ./gradlew asciidoctor
