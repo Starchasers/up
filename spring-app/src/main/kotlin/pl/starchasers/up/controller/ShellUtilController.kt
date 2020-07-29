@@ -5,11 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class ShellUtilController() {
-
-    @Value("\${up.domain}")
-    private val domain: String = ""
-
+class ShellUtilController(
+        @Value("\${up.domain}")
+        private val domain: String
+) {
     @GetMapping("/sh")
     fun bashUploadUtil(): String {
         return getBashUploadScript()
