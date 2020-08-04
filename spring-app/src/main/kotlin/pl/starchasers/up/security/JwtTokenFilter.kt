@@ -24,7 +24,7 @@ class JwtTokenFilter(
 
             val authorities = mutableListOf<GrantedAuthority>()
             authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
-            if (claims[ROLE_KEY] == Role.ADMIN) authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
+            if (claims[ROLE_KEY] == Role.ADMIN.toString()) authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
 
 
             SecurityContextHolder.getContext().authentication =

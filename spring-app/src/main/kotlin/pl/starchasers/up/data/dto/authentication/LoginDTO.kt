@@ -2,7 +2,7 @@ package pl.starchasers.up.data.dto.authentication
 
 import javax.validation.constraints.NotBlank
 
-class LoginDTO(
+data class LoginDTO(
         /**
          * User's username
          */
