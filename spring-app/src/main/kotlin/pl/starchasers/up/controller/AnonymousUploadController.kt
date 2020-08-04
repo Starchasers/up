@@ -60,6 +60,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                         .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
                         .build()
                         .toString())
+        response.addHeader("Content-Length", fileEntry.size.toString())
         try {
             val range = requestRangeParser(request.getHeader("Range"), fileEntry.size)
 
