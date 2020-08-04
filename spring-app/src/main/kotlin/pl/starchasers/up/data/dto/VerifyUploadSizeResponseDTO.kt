@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.dto
 
-class VerifyUploadSizeResponseDTO(
+data class VerifyUploadSizeResponseDTO(
         /**
          * True, if file can be uploaded
          */
