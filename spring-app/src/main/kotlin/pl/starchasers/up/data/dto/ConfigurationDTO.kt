@@ -1,0 +1,26 @@
+package pl.starchasers.up.data.dto
+
+class ConfigurationDTO(
+        /**
+         * Maximum allowed temporary file size, in bytes
+         */
+        val maxTemporaryFileSize: Long,
+        /**
+         * Maximum allowed time, after which temporary file will be deleted
+         */
+        val maxFileLifetime: Long,
+        /**
+         * Default time, after which temporary file will be deleted, if not specified
+         */
+        val defaultFileLifetime: Long,
+        /**
+         * Whether current user is allowed to upload permanent files
+         * Not yet implemented
+         */
+        val permanentAllowed: Boolean,
+        /**
+         * Maximum allowed permanent file size, in bytes
+         * Not yet implemented
+         */
+        val maxPermanentFileSize: Long
+)
