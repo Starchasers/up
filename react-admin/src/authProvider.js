@@ -1,5 +1,24 @@
 import jwt_decode from 'jwt-decode'
 
+const getAccessToken = () => {
+  const refreshToken = localStorage.getItem('refresh_token')
+  const request = new Request(`${process.env.REACT_APP_API_URL}/auth/getAccessToken`, {
+    method: 'POST',
+    body: JSON.stringify({ token: refreshToken }),
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+  })
+  return fetch(request)
+    .then(response => {
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(response.statusText)
+      }
+      return response.json()
+    })
+    .then(({ token }) => {
+      localStorage.setItem('access_token', token)
+    })
+}
+
 export default {
   login: ({ username, password }) => {
     const request = new Request(`${process.env.REACT_APP_API_URL}/auth/login`, {
@@ -15,61 +34,41 @@ export default {
         return response.json()
       })
       .then(({ token }) => {
-        localStorage.removeItem('access_token')
         localStorage.setItem('refresh_token', token)
       })
+      .then(getAccessToken)
   },
   logout: () => {
-    if (typeof localStorage.getItem('refresh_token') === 'string') {
-      const request = new Request(`${process.env.REACT_APP_API_URL}/auth/logout`, {
-        method: 'POST',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'authorization': localStorage.getItem('refresh_token'),
-        }),
-      })
+    const refreshToken = localStorage.getItem('refresh_token')
+    if (refreshToken) {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
-      return fetch(request)
-        .then(response => {
-          if (response.status < 200 || response.status >= 300) {
-            throw new Error(response.statusText)
-          }
-        })
     }
     return Promise.resolve()
   },
-  checkAuth: async params => {
+  checkAuth: () => {
     const refreshToken = localStorage.getItem('refresh_token')
-    if (typeof refreshToken !== 'string') return Promise.reject({ redirectTo: '/login' })
-    if (jwt_decode(refreshToken).exp * 1000 <= Date.now()) {
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('access_token')
-      return Promise.reject({ redirectTo: '/login' })
-    }
-
     const accessToken = localStorage.getItem('access_token')
 
-    if (typeof accessToken !== 'string' || jwt_decode(accessToken).exp * 1000 <= Date.now()) {
-      const request = new Request(`${process.env.REACT_APP_API_URL}/auth/getAccessToken`, {
-        method: 'POST',
-        body: JSON.stringify({ token: refreshToken }),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
-      await fetch(request)
-        .then(response => {
-          if (response.status < 200 || response.status >= 300) {
-            throw new Error(response.statusText)
-          }
-          return response.json()
-        })
-        .then(({ token }) => {
-          localStorage.setItem('access_token', token)
-        })
+    if (!refreshToken) {
+      return Promise.reject()
+    }
+
+    if (!accessToken || jwt_decode(accessToken).exp * 1000 <= Date.now()) {
+      return getAccessToken()
     }
 
     return Promise.resolve()
   },
-  checkError: error => Promise.resolve(),
-  getPermissions: params => Promise.resolve(),
+  checkError: ({ status }) => {
+    return status === 401 || status === 403
+      ? Promise.reject({ redirectTo: '/login' })
+      : Promise.resolve()
+  },
+  getPermissions: () => {
+    const accessToken = localStorage.getItem('access_token')
+    return accessToken
+      ? Promise.resolve(jwt_decode(accessToken).role)
+      : Promise.reject()
+  },
 }
