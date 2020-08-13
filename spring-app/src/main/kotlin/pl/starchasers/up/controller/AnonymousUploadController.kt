@@ -54,12 +54,13 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
         response.contentType = fileEntry.contentType
 
-        response.addHeader("Content-Disposition",
-                ContentDisposition
-                        .builder("inline")
-                        .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
-                        .build()
-                        .toString())
+//        response.addHeader("Content-Disposition",
+//                ContentDisposition
+//                        .builder("inline")
+//                        .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
+//                        .build()
+//                        .toString())
+        response.addHeader("Content-Disposition", "inline;filename=MarcioTech-1.3.0-all(1).zip")//TODO remove
         response.addHeader("Content-Length", fileEntry.size.toString())
         try {
             val range = requestRangeParser(request.getHeader("Range"), fileEntry.size)
