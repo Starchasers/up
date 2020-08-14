@@ -54,7 +54,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
         response.contentType = fileEntry.contentType
 
-        response.addHeader("Content-Disposition",
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION,
                 ContentDisposition
                         .builder("inline")
                         .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
@@ -69,7 +69,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                 response.status = HttpStatus.PARTIAL_CONTENT.value()
                 IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
             } else {
-                response.addHeader("Content-Length", fileEntry.size.toString())
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, fileEntry.size.toString())
                 IOUtils.copyLarge(stream, response.outputStream)
             }
             response.outputStream.flush()
