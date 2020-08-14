@@ -10,6 +10,8 @@ include::build/generated-snippets/VerifyFileAccess/auto-section.adoc[]
 include::build/generated-snippets/GetFileDetails/auto-section.adoc[]
 '''
 include::build/generated-snippets/VerifyUploadSize/auto-section.adoc[]
+'''
+include::build/generated-snippets/DeleteFile/auto-section.adoc[]
 
 == Authentication Controller
 include::build/generated-snippets/LogIn/auto-section.adoc[]

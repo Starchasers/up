@@ -29,6 +29,8 @@ interface FileService {
 
     fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO
 
+    fun deleteFile(fileEntry: FileEntry)
+
 }
 
 @Service
@@ -97,6 +99,10 @@ class FileServiceImpl(
 
     override fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO =
             VerifyUploadSizeResponseDTO(size <= maxUploadSize * 1000, maxUploadSize)
+
+    override fun deleteFile(fileEntry: FileEntry) {
+        fileStorageService.deleteFile(fileEntry)
+    }
 
     private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)
 }

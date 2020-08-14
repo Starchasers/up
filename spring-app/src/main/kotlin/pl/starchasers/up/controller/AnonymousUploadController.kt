@@ -90,6 +90,17 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         return BasicResponseDTO()
     }
 
+
+    @DeleteMapping("/api/u/{fileKey}")
+    fun deleteFile(@PathVariable fileKey: String,
+                   @Validated @RequestBody operationDto: AuthorizedOperationDTO) {
+        val fileEntry = fileService.findFileEntry(fileKey) ?: throw NotFoundException()
+
+        if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
+
+        fileService.deleteFile(fileEntry)
+    }
+
     @GetMapping("/api/u/{fileKey}/details")
     fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(fileKey)
 
