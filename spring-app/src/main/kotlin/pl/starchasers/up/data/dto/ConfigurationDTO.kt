@@ -15,12 +15,10 @@ class ConfigurationDTO(
         val defaultFileLifetime: Long,
         /**
          * Whether current user is allowed to upload permanent files
-         * Not yet implemented
          */
         val permanentAllowed: Boolean,
         /**
          * Maximum allowed permanent file size, in bytes
-         * Not yet implemented
          */
         val maxPermanentFileSize: Long
 )

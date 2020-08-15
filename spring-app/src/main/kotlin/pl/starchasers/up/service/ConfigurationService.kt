@@ -17,6 +17,12 @@ interface ConfigurationService {
     fun getConfigurationOption(key: ConfigurationKey): String
 
     fun getGlobalConfiguration(): Map<ConfigurationKey, String>
+
+    fun getAnonymousMaxFileSize(): FileSize
+
+    fun getAnonymousDefaultFileLifetime(): Milliseconds
+
+    fun getAnonymousMaxFileLifetime(): Milliseconds
 }
 
 @Service
@@ -50,6 +56,14 @@ class ConfigurationServiceImpl(
     override fun getGlobalConfiguration(): Map<ConfigurationKey, String> =
             mapOf(*ConfigurationKey.values().map { Pair(it, configurationRepository.findFirstByKey(it).toString()) }.toTypedArray())
 
+    override fun getAnonymousMaxFileSize(): FileSize =
+            FileSize(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE).toLong())
+
+    override fun getAnonymousDefaultFileLifetime(): Milliseconds =
+            Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME).toLong())
+
+    override fun getAnonymousMaxFileLifetime(): Milliseconds =
+            Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME).toLong())
 
     @PostConstruct
     private fun initialize() {
