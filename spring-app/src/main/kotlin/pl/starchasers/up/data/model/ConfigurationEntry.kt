@@ -13,7 +13,7 @@ class ConfigurationEntry(
         val key: ConfigurationKey,
 
         @Column(nullable = false)
-        val value: String
+        var value: String
 )
 
 enum class ConfigurationKey(val defaultValue: String) {
