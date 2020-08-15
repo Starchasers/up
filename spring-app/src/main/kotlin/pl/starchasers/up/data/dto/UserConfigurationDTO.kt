@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.dto
 
-class ConfigurationDTO(
+class UserConfigurationDTO(
         /**
          * Maximum allowed temporary file size, in bytes
          */

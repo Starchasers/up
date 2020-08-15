@@ -7,7 +7,7 @@ data class Milliseconds(
         val value: Long
 ) {
     init {
-        require(value > 0)
+        require(value >= 0)
     }
 }
 

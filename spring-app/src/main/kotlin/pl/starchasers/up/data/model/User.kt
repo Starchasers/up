@@ -27,17 +27,17 @@ class User(
 
         @Convert(converter = FileSizeConverter::class)
         @Column(nullable = false, unique = false)
-        var maxTemporaryFileSize: FileSize,
+        var maxTemporaryFileSize: FileSize =  FileSize(0),
 
         @Convert(converter = FileSizeConverter::class)
         @Column(nullable = false, unique = false)
-        var maxPermanentFileSize: FileSize,
+        var maxPermanentFileSize: FileSize = FileSize(0),
 
         @Convert(converter = MillisecondsConverter::class)
         @Column(nullable = false, unique = false)
-        var defaultFileLifetime: Milliseconds,
+        var defaultFileLifetime: Milliseconds = Milliseconds(0),
 
         @Convert(converter = MillisecondsConverter::class)
         @Column(nullable = false, unique = false)
-        var maxFileLifetime: Milliseconds
+        var maxFileLifetime: Milliseconds = Milliseconds(0)
 )

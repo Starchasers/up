@@ -27,7 +27,8 @@ interface UserService {
 @Service
 class UserServiceImpl(
         private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder
+        private val passwordEncoder: PasswordEncoder,
+        private val configurationService: ConfigurationService
 ) : UserService {
     override fun getUser(id: Long): User = userRepository.findFirstById(id)
             ?: throw UserException("User with ID `$id` doesn't exist")
@@ -45,12 +46,9 @@ class UserServiceImpl(
                 username,
                 passwordEncoder.encode(password),
                 email,
-                role,
-                FileSize(123),//TODO get from global configuration
-                FileSize(123),//TODo get from global configuration
-                Milliseconds(123),//TODO get from global configuration
-                Milliseconds(123)//TODO get from global configuration
+                role
         )
+        configurationService.applyDefaultConfiguration(user)
         userRepository.save(user)
         return user
     }
