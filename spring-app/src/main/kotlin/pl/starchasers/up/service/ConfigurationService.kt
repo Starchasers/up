@@ -1,44 +1,36 @@
 package pl.starchasers.up.service
 
 import org.springframework.stereotype.Service
+import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.User
-import pl.starchasers.up.data.value.FileSize
-import pl.starchasers.up.data.value.Miliseconds
+import javax.annotation.PostConstruct
 
 interface ConfigurationService {
-    fun getMaxTemporaryFileSize(user: User?): FileSize
+    fun applyDefaultConfiguration(user: User)
 
-    fun getMaxPermanentFileSize(user: User?): FileSize
+    fun setConfigurationOption(key: ConfigurationKey, value: String)
 
-    fun getDefaultFileLifetime(user: User?): Miliseconds
-
-    fun getMaxFileLifetime(user: User?): Miliseconds
-
-    fun isPermanentAllowed(user: User?): Boolean
+    fun getConfigurationOption(key: ConfigurationKey): String
 }
 
 @Service
 class ConfigurationServiceImpl() : ConfigurationService {
 
-
-    override fun getMaxTemporaryFileSize(user: User?): FileSize {
+    override fun applyDefaultConfiguration(user: User) {
         TODO("Not yet implemented")
     }
 
-    override fun getMaxPermanentFileSize(user: User?): FileSize {
+    override fun setConfigurationOption(key: ConfigurationKey, value: String) {
         TODO("Not yet implemented")
     }
 
-    override fun getDefaultFileLifetime(user: User?): Miliseconds {
+    override fun getConfigurationOption(key: ConfigurationKey): String {
         TODO("Not yet implemented")
     }
 
-    override fun getMaxFileLifetime(user: User?): Miliseconds {
-        TODO("Not yet implemented")
-    }
+    @PostConstruct
+    private fun initialize() {
 
-    override fun isPermanentAllowed(user: User?): Boolean {
-        TODO("Not yet implemented")
     }
 
 }

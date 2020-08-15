@@ -2,10 +2,9 @@ package pl.starchasers.up.data.model
 
 import pl.starchasers.up.data.value.FileSize
 import pl.starchasers.up.data.value.FileSizeConverter
-import pl.starchasers.up.data.value.Miliseconds
-import pl.starchasers.up.data.value.MilisecondsConverter
+import pl.starchasers.up.data.value.Milliseconds
+import pl.starchasers.up.data.value.MillisecondsConverter
 import pl.starchasers.up.security.Role
-import java.io.File
 import javax.persistence.*
 
 @Entity
@@ -34,11 +33,11 @@ class User(
         @Column(nullable = false, unique = false)
         var maxPermanentFileSize: FileSize,
 
-        @Convert(converter = MilisecondsConverter::class)
+        @Convert(converter = MillisecondsConverter::class)
         @Column(nullable = false, unique = false)
-        var defaultFileLifetime: Miliseconds,
+        var defaultFileLifetime: Milliseconds,
 
-        @Convert(converter = MilisecondsConverter::class)
+        @Convert(converter = MillisecondsConverter::class)
         @Column(nullable = false, unique = false)
-        var maxFileLifetime: Miliseconds
+        var maxFileLifetime: Milliseconds
 )
