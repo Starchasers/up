@@ -3,6 +3,8 @@ package pl.starchasers.up.service
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.FileSize
+import pl.starchasers.up.data.value.Miliseconds
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
@@ -43,7 +45,11 @@ class UserServiceImpl(
                 username,
                 passwordEncoder.encode(password),
                 email,
-                role
+                role,
+                FileSize(123),//TODO get from global configuration
+                FileSize(123),//TODo get from global configuration
+                Miliseconds(123),//TODO get from global configuration
+                Miliseconds(123)//TODO get from global configuration
         )
         userRepository.save(user)
         return user

@@ -16,7 +16,3 @@ enum class Configuration {
     MAX_ANONYMOUS_FILE_SIZE,
 
 }
-
-enum class UserSpecificConfiguration: Configuration{
-
-}
