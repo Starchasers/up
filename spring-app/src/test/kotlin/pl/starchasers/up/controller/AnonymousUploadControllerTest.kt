@@ -137,7 +137,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")
-                responseHeader("Content-Type").equals("text/plain")
+                responseHeader(HttpHeaders.CONTENT_TYPE).equals("text/plain")
+                responseHeader(HttpHeaders.CONTENT_LENGTH).equals("${content.length}")
             }
 
         }
