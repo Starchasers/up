@@ -1,7 +1,8 @@
 package pl.starchasers.up.controller.admin
 
 import org.springframework.web.bind.annotation.*
-import pl.starchasers.up.data.dto.UserConfigurationDTO
+import pl.starchasers.up.data.dto.configuration.UserConfigurationDTO
+import pl.starchasers.up.data.dto.configuration.ConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationOptionDTO
 import pl.starchasers.up.security.IsAdmin
 
@@ -15,15 +16,21 @@ class ConfigurationAdminController() {
         TODO()
     }
 
+//    @IsAdmin
+//    @GetMapping("/")
+//    fun getConfigurationOption(): ConfigurationOptionDTO {
+//        TODO()
+//    }
+
     @IsAdmin
-    @GetMapping("/")
-    fun getConfigurationOption(): ConfigurationOptionDTO {
+    @PutMapping("/all")
+    fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO){
         TODO()
     }
 
     @IsAdmin
     @GetMapping("/all")
-    fun getGlobalConfiguration(): List<ConfigurationOptionDTO> {
+    fun getConfiguration(): ConfigurationDTO {
         TODO()
     }
 

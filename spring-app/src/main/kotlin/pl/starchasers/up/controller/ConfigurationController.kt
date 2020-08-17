@@ -2,7 +2,7 @@ package pl.starchasers.up.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import pl.starchasers.up.data.dto.UserConfigurationDTO
+import pl.starchasers.up.data.dto.configuration.UserConfigurationDTO
 import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.UserService
 import java.security.Principal
