@@ -6,7 +6,7 @@ class UserConfigurationDTO(
          */
         val maxTemporaryFileSize: Long,
         /**
-         * Maximum allowed time, after which temporary file will be deleted
+         * Maximum allowed time, after which temporary file will be deleted. 0 means no limit
          */
         val maxFileLifetime: Long,
         /**

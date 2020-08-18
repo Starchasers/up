@@ -11,6 +11,9 @@ include::build/generated-snippets/GetFileDetails/auto-section.adoc[]
 '''
 include::build/generated-snippets/VerifyUploadSize/auto-section.adoc[]
 
+== Configuration Controller
+include::build/generated-snippets/GetConfiguration/auto-section.adoc[]
+
 == Authentication Controller
 include::build/generated-snippets/Login/auto-section.adoc[]
 '''
@@ -19,3 +22,15 @@ include::build/generated-snippets/LogOut/auto-section.adoc[]
 include::build/generated-snippets/GetAccessToken/auto-section.adoc[]
 '''
 include::build/generated-snippets/RefreshRefreshToken/auto-section.adoc[]
+
+== Configuration Admin Controller
+include::build/generated-snippets/SetConfigurationOption/auto-section.adoc[]
+'''
+include::build/generated-snippets/SetConfiguration/auto-section.adoc[]
+'''
+include::build/generated-snippets/GetGlobalConfiguration/auto-section.adoc[]
+'''
+include::build/generated-snippets/SetUserConfiguration/auto-section.adoc[]
+'''
+include::build/generated-snippets/GetUserConfiguration/auto-section.adoc[]
+'''

@@ -17,18 +17,27 @@ class ConfigurationAdminController(
         private val userService: UserService
 ) {
 
+    /**
+     * Update one option in global configuration
+     */
     @IsAdmin
     @PutMapping("")
     fun setConfigurationOption(@RequestBody configurationOptionDTO: ConfigurationOptionDTO) {
         configurationService.setConfigurationOption(configurationOptionDTO.key, configurationOptionDTO.value)
     }
 
+    /**
+     * Update many options in global configuration
+     */
     @IsAdmin
     @PutMapping("/all")
     fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         configurationService.updateGlobalConfiguration(configurationDTO.options)
     }
 
+    /**
+     * Get entire global configuration
+     */
     @IsAdmin
     @GetMapping("/all")
     fun getConfiguration(): ConfigurationDTO {
@@ -36,6 +45,10 @@ class ConfigurationAdminController(
     }
 
     //TODO move to UserAdminController (?)
+    /**
+     * Set user-specific limits
+     * @param userId User to update
+     */
     @IsAdmin
     @PutMapping("/user/{userId}")
     fun setUserConfiguration(@PathVariable userId: Long, @RequestBody userConfigurationDTO: UpdateUserConfigurationDTO) {
@@ -45,6 +58,10 @@ class ConfigurationAdminController(
     }
 
     //TODO move to UserAdminController (?)
+    /**
+     * Get user-specific limits
+     * @param userId User id
+     */
     @IsAdmin
     @GetMapping("/user/{userId}")
     fun getUserConfiguration(@PathVariable userId: Long): UserConfigurationDTO {
