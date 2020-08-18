@@ -5,15 +5,18 @@ import pl.starchasers.up.data.dto.configuration.UserConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationOptionDTO
 import pl.starchasers.up.security.IsAdmin
+import pl.starchasers.up.service.ConfigurationService
 
 @RestController
 @RequestMapping("/api/admin/config")
-class ConfigurationAdminController() {
+class ConfigurationAdminController(
+        private val configurationService: ConfigurationService
+) {
 
     @IsAdmin
-    @PutMapping("/")
+    @PutMapping("")
     fun setConfigurationOption(@RequestBody configurationOptionDTO: ConfigurationOptionDTO) {
-        TODO()
+        configurationService.setConfigurationOption(configurationOptionDTO.key, configurationOptionDTO.value)
     }
 
 //    @IsAdmin
@@ -24,7 +27,7 @@ class ConfigurationAdminController() {
 
     @IsAdmin
     @PutMapping("/all")
-    fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO){
+    fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         TODO()
     }
 

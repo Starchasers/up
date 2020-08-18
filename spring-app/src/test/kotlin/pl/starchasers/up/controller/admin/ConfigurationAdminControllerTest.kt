@@ -24,7 +24,7 @@ import javax.transaction.Transactional
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-internal class AuthenticationControllerTest(
+internal class ConfigurationAdminControllerTest(
         @Autowired private val userService: UserService,
         @Autowired private val jwtTokenService: JwtTokenService,
         @Autowired private val configurationService: ConfigurationService

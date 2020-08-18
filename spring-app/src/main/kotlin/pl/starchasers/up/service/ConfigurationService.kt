@@ -6,6 +6,7 @@ import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.FileSize
 import pl.starchasers.up.data.value.Milliseconds
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.repository.ConfigurationRepository
 import javax.annotation.PostConstruct
 
@@ -44,6 +45,7 @@ class ConfigurationServiceImpl(
     }
 
     override fun setConfigurationOption(key: ConfigurationKey, value: String) {
+        if (value.toLongOrNull() == null) throw BadRequestException()//TODO change if more data types are required
         val entry = configurationRepository.findFirstByKey(key) ?: ConfigurationEntry(0, key, value)
         entry.value = value
         configurationRepository.save(entry)
