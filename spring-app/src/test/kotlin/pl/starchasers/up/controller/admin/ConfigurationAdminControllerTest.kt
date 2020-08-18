@@ -130,7 +130,7 @@ internal class ConfigurationAdminControllerTest(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(accessToken),
                     body = ConfigurationDTO(
-                            mapOf(Pair(key1.toString(), value1), Pair(key2.toString(), value2))
+                            mapOf(Pair(key1, value1), Pair(key2, value2))
                     )
             ) {
                 statusIsOk()
@@ -147,9 +147,9 @@ internal class ConfigurationAdminControllerTest(
             mockMvc.put(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(accessToken),
-                    body = ConfigurationDTO(
-                            mapOf(Pair(key1.toString(), value1), Pair(incorrectKey, value2))
-                    )
+                    body = object {
+                        val options = mapOf(Pair(key1.toString(), value1), Pair(incorrectKey, value2))
+                    }
             ) {
                 isError(HttpStatus.BAD_REQUEST)
             }
@@ -169,22 +169,6 @@ internal class ConfigurationAdminControllerTest(
         }
 
         @Test
-        fun `Given duplicate key, should return 400 and update nothing`() {
-
-            mockMvc.put(
-                    path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
-                    body = ConfigurationDTO(
-                            mapOf(Pair(key1.toString(), value1), Pair(key1.toString(), value2))
-                    )
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
-            }
-
-            assertEquals(configurationService.getConfigurationOption(key1), key1.defaultValue)
-        }
-
-        @Test
         fun `Given incorrect data type, should return 400 and update nothing`() {
             val incorrectValue = "qwe"
 
@@ -192,7 +176,7 @@ internal class ConfigurationAdminControllerTest(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(accessToken),
                     body = ConfigurationDTO(
-                            mapOf(Pair(key1.toString(), value1), Pair(key2.toString(), incorrectValue))
+                            mapOf(Pair(key1, value1), Pair(key2, incorrectValue))
                     )
             ) {
                 isError(HttpStatus.BAD_REQUEST)
@@ -208,14 +192,11 @@ internal class ConfigurationAdminControllerTest(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getUserAccessToken()),
                     body = ConfigurationDTO(
-                            mapOf(Pair(key1.toString(), value1), Pair(key2.toString(), value2))
+                            mapOf(Pair(key1, value1), Pair(key2, value2))
                     )
             ) {
                 isError(HttpStatus.FORBIDDEN)
             }
-
-            assertEquals(value1, configurationService.getConfigurationOption(key1))
-            assertEquals(value2, configurationService.getConfigurationOption(key2))
         }
     }
 

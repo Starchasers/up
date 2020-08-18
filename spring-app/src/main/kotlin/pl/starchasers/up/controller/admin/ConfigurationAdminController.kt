@@ -28,7 +28,7 @@ class ConfigurationAdminController(
     @IsAdmin
     @PutMapping("/all")
     fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
-        TODO()
+        configurationService.updateGlobalConfiguration(configurationDTO.options)
     }
 
     @IsAdmin
