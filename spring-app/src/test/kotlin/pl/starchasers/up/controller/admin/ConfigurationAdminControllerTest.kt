@@ -1,10 +1,8 @@
 package pl.starchasers.up.controller.admin
 
 import no.skatteetaten.aurora.mockmvc.extensions.*
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -15,6 +13,7 @@ import pl.starchasers.up.data.dto.configuration.ConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationOptionDTO
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationKey
+import pl.starchasers.up.data.model.User
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.JwtTokenService
@@ -244,17 +243,19 @@ internal class ConfigurationAdminControllerTest(
         }
     }
 
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Transactional
     @OrderTests
     @Nested
     inner class SetUserConfiguration() : MockMvcTestBase() {
 
-        private fun requestPath(userId: Long) = Path("/api/admin/config/$userId")
+        private fun requestPath(userId: Long) = Path("/api/admin/config/user/$userId")
         private val accessToken = getAdminAccessToken()
 
-        private val testUser2 = userService.createUser("testUser2", "password", null, Role.USER)
+        private val testUser2: User =userService.createUser("setConfigurationTestUser", "password", null, Role.USER)
 
         @Test
+        @Transactional
         @DocumentResponse
         fun `Given valid request, should update user`() {
             mockMvc.put(
@@ -270,10 +271,11 @@ internal class ConfigurationAdminControllerTest(
                 isSuccess()
             }
             flush()
-            assertEquals(1, testUser2.maxTemporaryFileSize.value)
-            assertEquals(12, testUser2.defaultFileLifetime.value)
-            assertEquals(123, testUser2.maxFileLifetime.value)
-            assertEquals(1234, testUser2.maxPermanentFileSize.value)
+            val updatedUser = userService.getUser(testUser2.id)
+            assertEquals(1, updatedUser.maxTemporaryFileSize.value)
+            assertEquals(12, updatedUser.defaultFileLifetime.value)
+            assertEquals(123, updatedUser.maxFileLifetime.value)
+            assertEquals(1234, updatedUser.maxPermanentFileSize.value)
         }
 
         @Test
@@ -301,7 +303,7 @@ internal class ConfigurationAdminControllerTest(
                         val maxTemporaryFileSize = 1
                         val defaultFileLifetime = 12
                         val maxFileLifetime = 123
-                        val maxPermanentFileSize = 1234
+                        val maxPermanentFileSize = "qwe"
                     }
             ) {
                 isError(HttpStatus.BAD_REQUEST)
@@ -309,9 +311,9 @@ internal class ConfigurationAdminControllerTest(
             assertEquals(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
                     testUser2.maxTemporaryFileSize.value)
             assertEquals(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong(),
-                    testUser2.defaultFileLifetime.value)
-            assertEquals(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
                     testUser2.maxFileLifetime.value)
+            assertEquals(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                    testUser2.defaultFileLifetime.value)
             assertEquals(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
                     testUser2.maxPermanentFileSize.value)
         }
@@ -333,6 +335,7 @@ internal class ConfigurationAdminControllerTest(
         }
     }
 
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Transactional
     @OrderTests
     @Nested

@@ -1,6 +1,7 @@
 package pl.starchasers.up.service
 
 import org.springframework.stereotype.Service
+import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationEntry
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.User
@@ -8,10 +9,14 @@ import pl.starchasers.up.data.value.FileSize
 import pl.starchasers.up.data.value.Milliseconds
 import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.repository.ConfigurationRepository
+import pl.starchasers.up.repository.UserRepository
 import javax.annotation.PostConstruct
+import javax.transaction.Transactional
 
 interface ConfigurationService {
     fun applyDefaultConfiguration(user: User)
+
+    fun updateUserConfiguration(user: User, configuration: UpdateUserConfigurationDTO)
 
     fun setConfigurationOption(key: ConfigurationKey, value: String)
 
@@ -46,6 +51,16 @@ class ConfigurationServiceImpl(
         }
     }
 
+    @Transactional
+    override fun updateUserConfiguration(user: User, configuration: UpdateUserConfigurationDTO) {
+        user.apply {
+            maxTemporaryFileSize = FileSize(configuration.maxTemporaryFileSize)
+            maxPermanentFileSize = FileSize(configuration.maxPermanentFileSize)
+            defaultFileLifetime = Milliseconds(configuration.defaultFileLifetime)
+            maxFileLifetime = Milliseconds(configuration.maxFileLifetime)
+        }
+    }
+
     override fun setConfigurationOption(key: ConfigurationKey, value: String) {
         if (value.toLongOrNull() == null) throw BadRequestException()//TODO change if more data types are required
         val entry = configurationRepository.findFirstByKey(key) ?: ConfigurationEntry(0, key, value)
@@ -58,7 +73,9 @@ class ConfigurationServiceImpl(
     }
 
     override fun getGlobalConfiguration(): Map<ConfigurationKey, String> =
-            mapOf(*ConfigurationKey.values().map { Pair(it, configurationRepository.findFirstByKey(it).toString()) }.toTypedArray())
+            mapOf(*ConfigurationKey.values().map {
+                Pair(it, configurationRepository.findFirstByKey(it)?.value ?: it.defaultValue)
+            }.toTypedArray())
 
     override fun updateGlobalConfiguration(configuration: Map<ConfigurationKey, String>) {
         if (configuration.values.any { it.toLongOrNull() == null }) throw BadRequestException()//TODO change if more data types are required

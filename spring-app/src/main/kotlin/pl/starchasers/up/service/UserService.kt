@@ -22,6 +22,8 @@ interface UserService {
     fun createUser(username: String, password: String, email: String?, role: Role): User
 
     fun getUserFromCredentials(username: String, password: String): User
+
+    fun deleteUser(user: User)
 }
 
 @Service
@@ -56,5 +58,9 @@ class UserServiceImpl(
     override fun getUserFromCredentials(username: String, password: String): User =
             findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
                     ?: throw AccessDeniedException("Incorrect username or password")
+
+    override fun deleteUser(user: User) {
+        userRepository.delete(user)
+    }
 
 }
