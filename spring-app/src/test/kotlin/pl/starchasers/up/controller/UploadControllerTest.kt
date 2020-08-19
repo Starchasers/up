@@ -357,7 +357,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
             return fileService.createFile(fileContent.byteInputStream(),
                     "file",
                     "text/plain",
-                    fileContent.length.toLong())
+                    fileContent.length.toLong(),
+                    null)
         }
 
         @Test
@@ -396,10 +397,10 @@ internal class UploadControllerTest : MockMvcTestBase() {
             val response = createTestFile()
 
             mockMvc.delete(path = getRequestPath("qwe"),
-            headers = HttpHeaders().contentTypeJson(),
-            body = object {
-                val accessToken = response.accessToken
-            }) {
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = response.accessToken
+                    }) {
                 isError(HttpStatus.NOT_FOUND)
             }
 

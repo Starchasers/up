@@ -29,12 +29,6 @@ internal class ConfigurationAdminControllerTest(
         @Autowired private val configurationService: ConfigurationService
 ) : MockMvcTestBase() {
 
-    private fun getAdminAccessToken(): String {
-        val admin = requireNotNull(userService.findUser("root"))
-        val refreshToken = jwtTokenService.issueRefreshToken(admin)
-        return jwtTokenService.issueAccessToken(refreshToken)
-    }
-
     private val testUser = userService.createUser("unauthorizedUser", "password", null, Role.USER)
 
     private fun getUserAccessToken(): String {
@@ -48,7 +42,6 @@ internal class ConfigurationAdminControllerTest(
     inner class SetConfigurationOption : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config")
-        private val accessToken = getAdminAccessToken()
 
         @Test
         @DocumentResponse
@@ -56,7 +49,7 @@ internal class ConfigurationAdminControllerTest(
             val newValue = "123456789"
             val key = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
             mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationOptionDTO(
                             key,
                             newValue
@@ -69,7 +62,7 @@ internal class ConfigurationAdminControllerTest(
         @Test
         fun `Given incorrect key, should return 400`() {
             mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = object {
                         val key = "incorrectKey"
                         val value = "123456789"
@@ -83,7 +76,7 @@ internal class ConfigurationAdminControllerTest(
             val newValue = "qwe"
             val key = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
             mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationOptionDTO(
                             key,
                             newValue
@@ -112,10 +105,9 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class SetConfiguration() : MockMvcTestBase() {
+    inner class SetConfiguration : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config/all")
-        private val accessToken = getAdminAccessToken()
 
         private val key1 = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
         private val value1 = "123456789"
@@ -127,7 +119,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given valid request, should update all configuration values`() {
             mockMvc.put(
                     path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(
                             mapOf(Pair(key1, value1), Pair(key2, value2))
                     )
@@ -145,7 +137,7 @@ internal class ConfigurationAdminControllerTest(
 
             mockMvc.put(
                     path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = object {
                         val options = mapOf(Pair(key1.toString(), value1), Pair(incorrectKey, value2))
                     }
@@ -160,7 +152,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given empty map, should update nothing`() {
             mockMvc.put(
                     path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(mapOf())
             ) {
                 isSuccess()
@@ -173,7 +165,7 @@ internal class ConfigurationAdminControllerTest(
 
             mockMvc.put(
                     path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(
                             mapOf(Pair(key1, value1), Pair(key2, incorrectValue))
                     )
@@ -202,17 +194,16 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class GetGlobalConfiguration() : MockMvcTestBase() {
+    inner class GetGlobalConfiguration : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config/all")
-        private val accessToken = getAdminAccessToken()
 
         @Test
         @DocumentResponse
         fun `Given valid request, should return entire global configuration`() {
             mockMvc.get(
                     path = requestPath,
-                    headers = HttpHeaders().authorization(accessToken)
+                    headers = HttpHeaders().authorization(getAdminAccessToken())
             ) {
                 isSuccess()
                 responseJsonPath("$.options.ANONYMOUS_MAX_FILE_SIZE")
@@ -247,10 +238,9 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class SetUserConfiguration() : MockMvcTestBase() {
+    inner class SetUserConfiguration : MockMvcTestBase() {
 
         private fun requestPath(userId: Long) = Path("/api/admin/config/user/$userId")
-        private val accessToken = getAdminAccessToken()
 
         private val testUser2: User =userService.createUser("setConfigurationTestUser", "password", null, Role.USER)
 
@@ -260,7 +250,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given valid request, should update user`() {
             mockMvc.put(
                     path = requestPath(testUser2.id),
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = UpdateUserConfigurationDTO(
                             1,
                             123,
@@ -282,7 +272,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given incorrect user id, should return 404`() {
             mockMvc.put(
                     path = requestPath(12345),
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = UpdateUserConfigurationDTO(
                             1,
                             123,
@@ -298,7 +288,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given incorrect data type, should return 400`() {
             mockMvc.put(
                     path = requestPath(testUser2.id),
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = object {
                         val maxTemporaryFileSize = 1
                         val defaultFileLifetime = 12
@@ -339,18 +329,17 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class GetUserConfiguration() : MockMvcTestBase() {
+    inner class GetUserConfiguration : MockMvcTestBase() {
 
         private val testUser2 = userService.createUser("testUser2", "password", null, Role.USER)
         private fun requestPath(userId: Long) = Path("/api/admin/config/user/$userId")
-        private val accessToken = getAdminAccessToken()
 
         @Test
         @DocumentResponse
         fun `Given valid request, should return user configuration`() {
             mockMvc.get(
                     path = requestPath(testUser2.id),
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken)
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
             ) {
                 isSuccess()
                 responseJsonPath("$.maxTemporaryFileSize")
@@ -369,7 +358,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given incorrect used id, should return 404`() {
             mockMvc.get(
                     path = requestPath(12345),
-                    headers = HttpHeaders().contentTypeJson().authorization(accessToken)
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
             ) {
                 isError(HttpStatus.NOT_FOUND)
             }

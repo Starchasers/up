@@ -103,7 +103,7 @@ abstract class MockMvcTestBase {
         entityManager.flush()
     }
 
-    fun getAdminAccessToken(): String {
+    final fun getAdminAccessToken(): String {
         return jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(userService.getUser("root")))
     }
 }
