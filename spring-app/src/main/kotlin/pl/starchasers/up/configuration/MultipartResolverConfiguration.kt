@@ -14,7 +14,7 @@ class MultipartResolverConfiguration() {
     @Bean(name = ["multipartResolver"])
     fun multipartResolver(): CommonsMultipartResolver? {
         val multipartResolver = CommonsMultipartResolver()
-        multipartResolver.setMaxUploadSize(1000 * maxFileSize)
+        multipartResolver.setMaxUploadSize(maxFileSize)
         return multipartResolver
     }
 }

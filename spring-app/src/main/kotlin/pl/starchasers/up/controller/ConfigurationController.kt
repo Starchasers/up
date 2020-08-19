@@ -18,7 +18,7 @@ class ConfigurationController(
      */
     @GetMapping("/api/configuration")
     fun getConfiguration(principal: Principal?): UserConfigurationDTO {
-        val user = if (principal != null) userService.findUser(principal.name.toLong()) else null
+        val user = userService.fromPrincipal(principal)
 
         return UserConfigurationDTO(
                 user?.maxTemporaryFileSize?.value ?: configurationService.getAnonymousMaxFileSize().value,

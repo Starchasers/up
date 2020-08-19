@@ -8,8 +8,6 @@ include::build/generated-snippets/GetAnonymousUpload/auto-section.adoc[]
 include::build/generated-snippets/VerifyFileAccess/auto-section.adoc[]
 '''
 include::build/generated-snippets/GetFileDetails/auto-section.adoc[]
-'''
-include::build/generated-snippets/VerifyUploadSize/auto-section.adoc[]
 
 == Configuration Controller
 include::build/generated-snippets/GetConfiguration/auto-section.adoc[]

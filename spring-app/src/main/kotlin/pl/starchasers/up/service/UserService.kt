@@ -9,6 +9,7 @@ import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
+import java.security.Principal
 
 interface UserService {
     fun getUser(id: Long): User
@@ -18,6 +19,8 @@ interface UserService {
     fun findUser(id: Long): User?
 
     fun findUser(username: String): User?
+
+    fun fromPrincipal(principal: Principal?): User?
 
     fun createUser(username: String, password: String, email: String?, role: Role): User
 
@@ -41,6 +44,11 @@ class UserServiceImpl(
     override fun findUser(id: Long): User? = userRepository.findFirstById(id)
 
     override fun findUser(username: String): User? = userRepository.findFirstByUsername(username)
+
+    override fun fromPrincipal(principal: Principal?): User? {
+        if (principal == null) return null
+        return findUser(principal.name.toLong())
+    }
 
     override fun createUser(username: String, password: String, email: String?, role: Role): User {
         val user = User(

@@ -2,6 +2,7 @@ package pl.starchasers.up.controller
 
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
+import org.hibernate.sql.Update
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -14,23 +15,31 @@ import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
+import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
+import pl.starchasers.up.security.Role
+import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
+import pl.starchasers.up.service.JwtTokenService
+import pl.starchasers.up.service.UserService
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
+internal class UploadControllerTest : MockMvcTestBase() {
 
     @Transactional
     @OrderTests
     @Nested
     inner class AnonymousUpload(
-            @Autowired val fileEntryRepository: FileEntryRepository,
-            @Autowired val uploadRepository: UploadRepository) : MockMvcTestBase() {
+            @Autowired private val fileEntryRepository: FileEntryRepository,
+            @Autowired private val uploadRepository: UploadRepository,
+            @Autowired private val userService: UserService,
+            @Autowired private val configurationService: ConfigurationService,
+            @Autowired private val jwtTokenService: JwtTokenService) : MockMvcTestBase() {
 
         private val uploadFileRequestPath = Path("/api/upload")
 
@@ -113,6 +122,30 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                 } ?: throw RuntimeException()
             }
         }
+
+        @Test
+        fun `Given too large file, should return 413`() {
+            val testUser = userService.createUser("testUser", "password", null, Role.USER)
+            configurationService.updateUserConfiguration(testUser,
+                    UpdateUserConfigurationDTO(10,
+                            testUser.maxFileLifetime.value,
+                            testUser.defaultFileLifetime.value,
+                            testUser.maxPermanentFileSize.value))
+
+            val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(testUser))
+            val exampleTextFile = MockMultipartFile("file",
+                    "exampleTextFile.txt",
+                    "text/plain",
+                    "example content".toByteArray())
+
+            mockMvc.multipart(path = uploadFileRequestPath,
+                    headers = HttpHeaders().authorization(accessToken),
+                    fnBuilder = {
+                        file(exampleTextFile)
+                    }) {
+                isError(HttpStatus.PAYLOAD_TOO_LARGE)
+            }
+        }
     }
 
     @Transactional
@@ -130,7 +163,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     content.byteInputStream(),
                     "fileName.txt",
                     "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong()
+                    content.byteInputStream().readAllBytes().size.toLong(),
+                    null
             ).key
 
             mockMvc.get(path = Path("/u/$key")) {
@@ -147,7 +181,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     content.byteInputStream(),
                     "fileName.txt",
                     "text/plain",
-                    contentSize
+                    contentSize,
+                    null
             ).key
 
             val headers = HttpHeaders()
@@ -155,7 +190,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
             mockMvc.get(path = Path("/u/$key"), headers = headers) {
                 status(HttpStatus.PARTIAL_CONTENT)
-                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize-1}/$contentSize")
+                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize - 1}/$contentSize")
                 responseHeader(HttpHeaders.CONTENT_LENGTH).equals("$contentSize")
             }
         }
@@ -167,8 +202,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
                     content.byteInputStream(),
                     "fileName.txt",
                     "text/plain",
-                    contentSize
-            ).key
+                    contentSize,
+                    null).key
 
             val headers = HttpHeaders()
             headers.set(HttpHeaders.RANGE, "mb=-1024")
@@ -197,15 +232,16 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
         private val content = "example content"
 
-        private lateinit var fileKey: String;
-        private lateinit var fileAccessToken: String;
+        private lateinit var fileKey: String
+        private lateinit var fileAccessToken: String
 
         @BeforeAll
         fun setup() {
             fileKey = fileService.createFile(content.byteInputStream(),
                     "filename.txt",
                     "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong()).key
+                    content.byteInputStream().readAllBytes().size.toLong(),
+                    null).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
                     ?: throw IllegalStateException()
@@ -267,7 +303,7 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
 
         private fun getRequestPath(key: String): Path = Path("/api/u/$key/details")
         private val content = "example content"
-        private lateinit var fileKey: String;
+        private lateinit var fileKey: String
         private val filename: String = "filename.txt"
         private val contentType: String = "text/plain"
 
@@ -276,7 +312,8 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
             fileKey = fileService.createFile(content.byteInputStream(),
                     filename,
                     contentType,
-                    content.byteInputStream().readAllBytes().size.toLong()).key
+                    content.byteInputStream().readAllBytes().size.toLong(),
+                    null).key
         }
 
         @Test
@@ -296,57 +333,6 @@ internal class AnonymousUploadControllerTest() : MockMvcTestBase() {
         fun `Given incorrect key, should return 404`() {
             mockMvc.get(path = getRequestPath("incorrectKey")) {
                 isError(HttpStatus.NOT_FOUND)
-            }
-        }
-    }
-
-    @Transactional
-    @OrderTests
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class VerifyUploadSize() : MockMvcTestBase() {
-
-        private val verifyUploadSizeRequestPath = Path("/api/verifyUpload")
-
-        @Value("\${up.max-file-size}")
-        private val maxUploadSize: Long = 0;
-
-
-        @Test
-        @DocumentResponse
-        fun `Given valid upload size, should return true`() {
-            mockMvc.post(
-                    path = verifyUploadSizeRequestPath,
-                    headers = HttpHeaders().contentTypeJson(),
-                    body = object {
-                        val size = maxUploadSize * 1000
-                    }
-            ) {
-                isSuccess()
-                responseJsonPath("$.valid").isTrue()
-                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
-            }
-        }
-
-        @Test
-        fun `Given too big upload size, should return false`() {
-            mockMvc.post(
-                    path = verifyUploadSizeRequestPath,
-                    headers = HttpHeaders().contentTypeJson(),
-                    body = object {
-                        val size = maxUploadSize * 1000 + 1
-                    }
-            ) {
-                isSuccess()
-                responseJsonPath("$.valid").isFalse()
-                responseJsonPath("$.maxUploadSize").equalsValue(maxUploadSize)
-            }
-        }
-
-        @Test
-        fun `Given missing size parameter, should return 400`() {
-            mockMvc.post(path = Path("/api/verifyUpload")) {
-                isError(HttpStatus.BAD_REQUEST)
             }
         }
     }
