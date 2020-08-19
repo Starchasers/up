@@ -15,6 +15,8 @@ interface FileStorageService {
     fun storeNonPermanentFile(tmpFile: InputStream, filename: String): String
 
     fun getStoredFileRaw(key: String): Pair<FileEntry, InputStream>
+
+    fun deleteFile(fileEntry: FileEntry)
 }
 
 //TODO move to app configuration
@@ -45,5 +47,10 @@ class FileStorageServiceImpl(
         val upload = uploadRepository.find(key) ?: throw NotFoundException()//TODO handle possible data inconsistency
 
         return Pair(fileEntry, upload.data)
+    }
+
+    override fun deleteFile(fileEntry: FileEntry) {
+        uploadRepository.delete(fileEntry.key)
+        fileEntryRepository.delete(fileEntry)
     }
 }

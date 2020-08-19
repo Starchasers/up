@@ -1,15 +1,21 @@
 package pl.starchasers.up.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.FileSize
 import pl.starchasers.up.data.value.Milliseconds
 import pl.starchasers.up.exception.AccessDeniedException
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
 import java.security.Principal
+import javax.persistence.Access
+
+const val ROOT_USER_NAME = "root"
 
 interface UserService {
     fun getUser(id: Long): User
@@ -26,7 +32,13 @@ interface UserService {
 
     fun getUserFromCredentials(username: String, password: String): User
 
+    fun listUsers(pageable: Pageable): Page<User>
+
+    fun updateUser(userId: Long, email: String?, password: String?, role: Role)
+
     fun deleteUser(user: User)
+
+    fun deleteUser(userId: Long, thisUserId: Long)
 }
 
 @Service
@@ -51,6 +63,8 @@ class UserServiceImpl(
     }
 
     override fun createUser(username: String, password: String, email: String?, role: Role): User {
+        val oldUser = findUser(username)
+        if (oldUser != null) throw BadRequestException()
         val user = User(
                 0,
                 username,
@@ -67,8 +81,28 @@ class UserServiceImpl(
             findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
                     ?: throw AccessDeniedException("Incorrect username or password")
 
+    override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
+
+    override fun updateUser(userId: Long, email: String?, password: String?, role: Role) {
+        val user = findUser(userId) ?: throw BadRequestException()
+
+        user.email = email
+        if (password != null) user.password = passwordEncoder.encode(password)
+        user.role = role
+
+        userRepository.save(user)
+    }
+
     override fun deleteUser(user: User) {
         userRepository.delete(user)
+    }
+
+    override fun deleteUser(userId: Long, thisUserId: Long) {
+        if (userId == thisUserId) throw BadRequestException()
+        if (findUser(userId)?.username == ROOT_USER_NAME) throw AccessDeniedException()
+
+        val toDelete = findUser(userId) ?: throw BadRequestException()
+        userRepository.delete(toDelete)
     }
 
 }

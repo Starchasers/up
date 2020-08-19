@@ -31,6 +31,8 @@ interface FileService {
 
     fun getFileDetails(fileKey: String): FileDetailsDTO
 
+    fun deleteFile(fileEntry: FileEntry)
+
 }
 
 @Service
@@ -102,6 +104,11 @@ class FileServiceImpl(
                         it.size,
                         it.contentType)
             } ?: throw NotFoundException()
+
+
+    override fun deleteFile(fileEntry: FileEntry) {
+        fileStorageService.deleteFile(fileEntry)
+    }
 
     private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)
 }

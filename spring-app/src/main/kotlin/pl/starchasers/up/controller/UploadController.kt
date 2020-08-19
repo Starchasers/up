@@ -60,7 +60,7 @@ class UploadController(private val fileStorageService: FileStorageService,
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
         response.contentType = fileEntry.contentType
 
-        response.addHeader("Content-Disposition",
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION,
                 ContentDisposition
                         .builder("inline")
                         .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
@@ -75,6 +75,7 @@ class UploadController(private val fileStorageService: FileStorageService,
                 response.status = HttpStatus.PARTIAL_CONTENT.value()
                 IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
             } else {
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, fileEntry.size.toString())
                 IOUtils.copyLarge(stream, response.outputStream)
             }
             response.outputStream.flush()
@@ -93,6 +94,17 @@ class UploadController(private val fileStorageService: FileStorageService,
 
         if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
         return BasicResponseDTO()
+    }
+
+
+    @DeleteMapping("/api/u/{fileKey}")
+    fun deleteFile(@PathVariable fileKey: String,
+                   @Validated @RequestBody operationDto: AuthorizedOperationDTO) {
+        val fileEntry = fileService.findFileEntry(fileKey) ?: throw NotFoundException()
+
+        if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
+
+        fileService.deleteFile(fileEntry)
     }
 
     @GetMapping("/api/u/{fileKey}/details")

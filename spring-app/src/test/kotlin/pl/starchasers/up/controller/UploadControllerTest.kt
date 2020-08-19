@@ -16,6 +16,7 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
+import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.security.Role
@@ -23,6 +24,7 @@ import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
+import java.io.InputStream
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -169,7 +171,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")
-                responseHeader("Content-Type").equals("text/plain")
+                responseHeader(HttpHeaders.CONTENT_TYPE).equals("text/plain")
+                responseHeader(HttpHeaders.CONTENT_LENGTH).equals("${content.length}")
             }
 
         }
@@ -334,6 +337,74 @@ internal class UploadControllerTest : MockMvcTestBase() {
             mockMvc.get(path = getRequestPath("incorrectKey")) {
                 isError(HttpStatus.NOT_FOUND)
             }
+        }
+    }
+
+    @Transactional
+    @OrderTests
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DeleteFile(
+            @Autowired val fileService: FileService,
+            @Autowired val uploadRepository: UploadRepository,
+            @Autowired val fileEntryRepository: FileEntryRepository
+    ) : MockMvcTestBase() {
+
+        private fun getRequestPath(fileKey: String) = Path("/api/u/$fileKey")
+
+        private fun createTestFile(): UploadCompleteResponseDTO {
+            val fileContent = "fileContent"
+            return fileService.createFile(fileContent.byteInputStream(),
+                    "file",
+                    "text/plain",
+                    fileContent.length.toLong())
+        }
+
+        @Test
+        @DocumentResponse
+        fun `Given valid request, should delete file`() {
+            val response = createTestFile()
+            mockMvc.delete(path = getRequestPath(response.key),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = response.accessToken
+                    }) {
+                isSuccess()
+            }
+
+            assertNull(uploadRepository.find(response.key))
+            assertNull(fileEntryRepository.findExistingFileByKey(response.key))
+        }
+
+        @Test
+        fun `Given wrong access token, should return 403`() {
+            val response = createTestFile()
+            mockMvc.delete(path = getRequestPath(response.key),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = "forSureNotRealToken"
+                    }) {
+                isError(HttpStatus.FORBIDDEN)
+            }
+
+            assertNotNull(uploadRepository.find(response.key))
+            assertNotNull(fileEntryRepository.findExistingFileByKey(response.key))
+        }
+
+        @Test
+        fun `Given not existing file, should return 404`() {
+            val response = createTestFile()
+
+            mockMvc.delete(path = getRequestPath("qwe"),
+            headers = HttpHeaders().contentTypeJson(),
+            body = object {
+                val accessToken = response.accessToken
+            }) {
+                isError(HttpStatus.NOT_FOUND)
+            }
+
+            assertNotNull(uploadRepository.find(response.key))
+            assertNotNull(fileEntryRepository.findExistingFileByKey(response.key))
         }
     }
 }
