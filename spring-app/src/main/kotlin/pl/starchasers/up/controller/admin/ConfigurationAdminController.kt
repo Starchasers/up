@@ -40,7 +40,7 @@ class ConfigurationAdminController(
      */
     @IsAdmin
     @GetMapping("/all")
-    fun getConfiguration(): ConfigurationDTO {
+    fun getGlobalConfiguration(): ConfigurationDTO {
         return ConfigurationDTO(configurationService.getGlobalConfiguration())
     }
 
