@@ -5,7 +5,11 @@ import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.model.ConfigurationKey
+import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
 import pl.starchasers.up.data.model.FileEntry
+import pl.starchasers.up.data.model.User
+import pl.starchasers.up.exception.FileTooLargeException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.util.Util
@@ -17,7 +21,7 @@ import javax.transaction.Transactional
 
 interface FileService {
 
-    fun createFile(tmpFile: InputStream, filename: String, contentType: String, size: Long): UploadCompleteResponseDTO
+    fun createFile(tmpFile: InputStream, filename: String, contentType: String, size: Long, user: User?): UploadCompleteResponseDTO
 
     fun verifyFileAccess(fileEntry: FileEntry, accessToken: String): Boolean
 
@@ -27,8 +31,6 @@ interface FileService {
 
     fun getFileDetails(fileKey: String): FileDetailsDTO
 
-    fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO
-
     fun deleteFile(fileEntry: FileEntry)
 
 }
@@ -36,7 +38,8 @@ interface FileService {
 @Service
 class FileServiceImpl(
         private val fileStorageService: FileStorageService,
-        private val fileEntryRepository: FileEntryRepository
+        private val fileEntryRepository: FileEntryRepository,
+        private val configurationService: ConfigurationService
 ) : FileService {
 
     @Value("\${up.max-file-size}")
@@ -49,8 +52,14 @@ class FileServiceImpl(
             tmpFile: InputStream,
             filename: String,
             contentType: String,
-            size: Long
+            size: Long,
+            user: User?
     ): UploadCompleteResponseDTO {
+        val personalLimit: Long = user?.maxTemporaryFileSize?.value
+                ?: configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong()
+
+        if (size > personalLimit) throw FileTooLargeException()
+
         val key = fileStorageService.storeNonPermanentFile(tmpFile, filename)
         //TODO check key already used
         val accessToken = generateFileAccessToken()
@@ -96,9 +105,6 @@ class FileServiceImpl(
                         it.contentType)
             } ?: throw NotFoundException()
 
-
-    override fun verifyUploadSize(size: Long): VerifyUploadSizeResponseDTO =
-            VerifyUploadSizeResponseDTO(size <= maxUploadSize * 1000, maxUploadSize)
 
     override fun deleteFile(fileEntry: FileEntry) {
         fileStorageService.deleteFile(fileEntry)

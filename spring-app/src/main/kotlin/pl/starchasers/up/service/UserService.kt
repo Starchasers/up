@@ -5,11 +5,14 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.FileSize
+import pl.starchasers.up.data.value.Milliseconds
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
+import java.security.Principal
 import javax.persistence.Access
 
 const val ROOT_USER_NAME = "root"
@@ -23,6 +26,8 @@ interface UserService {
 
     fun findUser(username: String): User?
 
+    fun fromPrincipal(principal: Principal?): User?
+
     fun createUser(username: String, password: String, email: String?, role: Role): User
 
     fun getUserFromCredentials(username: String, password: String): User
@@ -31,13 +36,16 @@ interface UserService {
 
     fun updateUser(userId: Long, email: String?, password: String?, role: Role)
 
+    fun deleteUser(user: User)
+
     fun deleteUser(userId: Long, thisUserId: Long)
 }
 
 @Service
 class UserServiceImpl(
         private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder
+        private val passwordEncoder: PasswordEncoder,
+        private val configurationService: ConfigurationService
 ) : UserService {
     override fun getUser(id: Long): User = userRepository.findFirstById(id)
             ?: throw UserException("User with ID `$id` doesn't exist")
@@ -49,6 +57,11 @@ class UserServiceImpl(
 
     override fun findUser(username: String): User? = userRepository.findFirstByUsername(username)
 
+    override fun fromPrincipal(principal: Principal?): User? {
+        if (principal == null) return null
+        return findUser(principal.name.toLong())
+    }
+
     override fun createUser(username: String, password: String, email: String?, role: Role): User {
         val oldUser = findUser(username)
         if (oldUser != null) throw BadRequestException()
@@ -59,6 +72,7 @@ class UserServiceImpl(
                 email,
                 role
         )
+        configurationService.applyDefaultConfiguration(user)
         userRepository.save(user)
         return user
     }
@@ -77,6 +91,10 @@ class UserServiceImpl(
         user.role = role
 
         userRepository.save(user)
+    }
+
+    override fun deleteUser(user: User) {
+        userRepository.delete(user)
     }
 
     override fun deleteUser(userId: Long, thisUserId: Long) {
