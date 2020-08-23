@@ -1,5 +1,8 @@
+import { checkAuth } from './authProvider'
+
 const dataProvider = {
   getList: async (resource, params) => {
+    await checkAuth()
     const { page, perPage } = params.pagination
     const { field, order } = params.sort
     const token = localStorage.getItem('access_token')
@@ -20,6 +23,7 @@ const dataProvider = {
     }
   },
   getOne: async (resource, params) => {
+    await checkAuth()
     const { id } = params
     const token = localStorage.getItem('access_token')
     const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${id}`, {
