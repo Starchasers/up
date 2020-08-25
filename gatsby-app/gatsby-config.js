@@ -85,9 +85,7 @@ module.exports = {
         component: require.resolve(`./src/providers`),
       },
     },
-    {
-      resolve: 'gatsby-plugin-zopfli'
-    },
+    'gatsby-plugin-compression',
     'gatsby-plugin-offline',
   ],
 }
