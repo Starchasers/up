@@ -1,5 +1,8 @@
 package pl.starchasers.up.data.dto.configuration
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserConfigurationDTO(
         /**
          * Maximum allowed temporary file size, in bytes
