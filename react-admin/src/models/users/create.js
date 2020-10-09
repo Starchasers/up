@@ -11,8 +11,9 @@ import {
 export default (props) => (
   <Create
     {...props}
+    undoable={false}
   >
-    <SimpleForm onSubmit={(data) => console.log(data, props)}>
+    <SimpleForm>
       <TextInput
         source='username'
         type='text'
