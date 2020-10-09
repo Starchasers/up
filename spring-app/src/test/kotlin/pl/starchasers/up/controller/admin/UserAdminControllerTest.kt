@@ -177,13 +177,13 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("mail2@example.com", "password2", Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", "password2", Role.ADMIN)) {
                 isSuccess()
             }
             flush()
             userService.getUser(oldUser.id).let {
                 assertEquals("mail2@example.com", it.email)
-                assertEquals("exampleUser", it.username)
+                assertEquals("newExampleUser", it.username)
                 assertEquals(Role.ADMIN, it.role)
                 assertTrue(passwordEncoder.matches("password2", it.password))
             }
@@ -196,7 +196,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().contentTypeJson(),
-                    body = UpdateUserDTO("mail2@example.com", "password2", Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", "password2", Role.ADMIN)) {
                 isError(HttpStatus.FORBIDDEN)
             }
         }
@@ -208,7 +208,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("mail2@example.com", null, Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", null, Role.ADMIN)) {
                 isSuccess()
             }
             flush()
@@ -222,7 +222,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id + 123),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("mail2@example.com", null, Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser","mail2@example.com", null, Role.ADMIN)) {
                 isError(HttpStatus.BAD_REQUEST)
             }
         }
@@ -236,7 +236,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = object {
                         val id = oldUser.id
-                        val username = oldUser.username
+                        val username = "newExampleUser"
                         val email = ""
                         val role = Role.USER
                     }) {
@@ -247,7 +247,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             userService.getUser(oldUser.id).let {
                 assertEquals(null, it.email)
-                assertEquals("exampleUser", it.username)
+                assertEquals("newExampleUser", it.username)
                 assertEquals(Role.USER, it.role)
                 assertTrue(passwordEncoder.matches("password", it.password))
             }
