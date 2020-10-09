@@ -6,9 +6,9 @@ import Grid from 'styled-components-grid'
 import styled, { css } from 'styled-components'
 import { breakpoint } from 'styled-components-breakpoint'
 import { py } from 'styled-components-spacing/dist/cjs'
-import foreground from '../assets/images/foreground.jpg'
 import Boxes from '../components/boxes'
 import InfoButton from '../components/elements/InfoButton'
+import MainImage from '../components/elements/MainImage'
 
 const Mobile = css`
   display: flex;
@@ -30,17 +30,6 @@ const Row = styled(Grid)`
   `}
 `
 
-const Decoration = styled('div')`
-  width: 100%;
-  height: 100%;
-  min-height: 300px;
-  background-color: ${props => props.theme.colors.secondary.two};
-  border-radius: ${props => props.theme.border.radius};
-  background-image: url(${foreground});
-  background-position: center;
-  background-size: cover;
-`
-
 const IndexPage = () => (
   <Layout>
     <Container>
@@ -48,7 +37,7 @@ const IndexPage = () => (
         <MainBox.Box>
           <Grid>
             <Grid.Unit size={{ xs: 0, md: 1 / 3 }}>
-              <Decoration alt='Freepik.com'/>
+              <MainImage/>
             </Grid.Unit>
             <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
               <Boxes/>

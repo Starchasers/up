@@ -52,7 +52,7 @@ class UserAdminController(
         userService.deleteUser(userId, principal.name.toLongOrNull() ?: throw AccessDeniedException())
     }
 
-    private fun nullIfBlank(string: String?): String? = string?.takeIf { string.isNotBlank() }
+    private fun nullIfBlank(string: String?): String? = string?.takeIf(String::isNotBlank)
 
     private fun User.toUserDTO() = UserDTO(id, username, email ?: "", role)
 }

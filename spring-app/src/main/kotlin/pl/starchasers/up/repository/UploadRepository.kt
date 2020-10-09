@@ -78,7 +78,7 @@ class UploadRepositoryImpl() : UploadRepository {
         if (file.isDirectory || !file.isFile)
             throwExceptionDataStoreCorrupted(key)
 
-        file.delete()
+        if(!file.delete()) throw IllegalStateException("Unable to delete file $key")
         deleteDirIfEmpty(file.parentFile)
         deleteDirIfEmpty(file.parentFile.parentFile)
     }

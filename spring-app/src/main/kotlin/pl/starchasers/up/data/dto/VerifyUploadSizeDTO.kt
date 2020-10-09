@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.dto
 
-class VerifyUploadSizeDTO(
+data class VerifyUploadSizeDTO(
         /**
          * File size in KB
          */

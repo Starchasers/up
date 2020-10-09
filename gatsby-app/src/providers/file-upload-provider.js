@@ -2,12 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { setError, setLoading, setPage, setResponse } from '../redux/actions'
 import { PAGE_ID } from '../redux/constants'
-import axios from 'axios'
 import DropZone, { useDropzone } from 'react-dropzone'
 import Offset from '../components/elements/Offset'
 import GlobalDropZone from '../components/blocks/GlobalDropZone'
-
-const backendURL = process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : ''
+import APIClient from '../api-client'
 
 export const FileUploadContext = React.createContext({})
 
@@ -17,13 +15,17 @@ const FileUploadProvider = ({ children }) => {
 
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
+      const fileSize = file.get('file').size
+
       dispatch(setLoading({ isLoading: true, value: 0 }))
       dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
 
-      const checkSize = await axios.post(`${backendURL}/api/verifyUpload`, { size: file.get('file').size })
-      if (!checkSize.data.valid) {
+      const configuration = await APIClient.getConfiguration()
+      const maxTemporaryFileSize = configuration.data.maxTemporaryFileSize
+
+      if (fileSize >= maxTemporaryFileSize) {
         dispatch(setError({
-          message: 'File is too large. Maximum size: ' + checkSize.data.maxUploadSize / 1000 + ' MB',
+          message: 'File is too large. Maximum size: ' + Math.floor(maxTemporaryFileSize / 1024 / 1024) + ' MiB',
           status: 413
         }))
         dispatch(setResponse({ received: false, data: {} }))
@@ -31,7 +33,8 @@ const FileUploadProvider = ({ children }) => {
         dispatch(setLoading({ isLoading: true, value: 0 }))
         return
       }
-      const response = await axios.post(`${backendURL}/api/upload`, file, {
+
+      const response = await APIClient.postFile(file, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
