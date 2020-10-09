@@ -227,6 +227,32 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             }
         }
 
+        @Transactional
+        @Test
+        fun `Given extra fields, should ignore them and process request`() {
+            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            flush()
+            mockMvc.put(path = getUpdateUserPath(oldUser.id),
+                    headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
+                    body = object {
+                        val id = oldUser.id
+                        val username = oldUser.username
+                        val email = ""
+                        val role = Role.USER
+                    }) {
+
+                isSuccess()
+            }
+
+            flush()
+            userService.getUser(oldUser.id).let {
+                assertEquals(null, it.email)
+                assertEquals("exampleUser", it.username)
+                assertEquals(Role.USER, it.role)
+                assertTrue(passwordEncoder.matches("password", it.password))
+            }
+        }
+
     }
 
     @Transactional
