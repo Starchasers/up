@@ -1,12 +1,14 @@
 import { checkAuth } from './authProvider'
 
+const API_URL = `${process.env.REACT_APP_API_URL}/admin`
+
 const dataProvider = {
   getList: async (resource, params) => {
     await checkAuth()
     const { page, perPage } = params.pagination
     const { field, order } = params.sort
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}?page=${page - 1}&size=${perPage}&sort=${field},${order}`, {
+    const request = new Request(`${API_URL}/${resource}?page=${page - 1}&size=${perPage}&sort=${field},${order}`, {
       method: 'GET',
       headers: new Headers({ 'Authorization': `Bearer ${token}` }),
     })
@@ -25,7 +27,7 @@ const dataProvider = {
   getOne: async (resource, params) => {
     await checkAuth()
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
+    const request = new Request(`${API_URL}/${resource}/${params.id}`, {
       method: 'GET',
       headers: new Headers({ 'Authorization': `Bearer ${token}` }),
     })
@@ -47,7 +49,7 @@ const dataProvider = {
   create: async (resource, params) => {
     await checkAuth()
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}`, {
+    const request = new Request(`${API_URL}/${resource}`, {
       method: 'POST',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -69,7 +71,7 @@ const dataProvider = {
   update: async (resource, params) => {
     await checkAuth()
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
+    const request = new Request(`${API_URL}/${resource}/${params.id}`, {
       method: 'PUT',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
@@ -93,7 +95,7 @@ const dataProvider = {
   delete: async (resource, params) => {
     await checkAuth()
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
+    const request = new Request(`${API_URL}/${resource}/${params.id}`, {
       method: 'DELETE',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
