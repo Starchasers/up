@@ -35,7 +35,6 @@ export default (props) => (
       <TextInput
         source='id'
         type='text'
-        validate={required()}
         disabled
       />
       <TextInput
