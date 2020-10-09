@@ -24,9 +24,8 @@ const dataProvider = {
   },
   getOne: async (resource, params) => {
     await checkAuth()
-    const { id } = params
     const token = localStorage.getItem('access_token')
-    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${id}`, {
+    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
       method: 'GET',
       headers: new Headers({ 'Authorization': `Bearer ${token}` }),
     })
@@ -41,7 +40,9 @@ const dataProvider = {
       data: response
     }
   },
+  // NO VISIBLE USE CASE
   getMany: (resource, params) => Promise,
+  // NO VISIBLE USE CASE
   getManyReference: (resource, params) => Promise,
   create: async (resource, params) => {
     await checkAuth()
@@ -57,7 +58,7 @@ const dataProvider = {
     const response = await fetch(request)
       .then(response => {
         if (response.status < 200 || response.status >= 300) {
-          throw new Error(response.statusText)
+          return Promise.reject(response)
         }
         return response.json()
       })
@@ -65,9 +66,52 @@ const dataProvider = {
       data: response
     }
   },
-  update: (resource, params) => Promise,
+  update: async (resource, params) => {
+    await checkAuth()
+    const token = localStorage.getItem('access_token')
+    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
+      method: 'PUT',
+      headers: new Headers({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(params.data)
+    })
+    const response = await fetch(request)
+      .then(response => {
+        if (response.status < 200 || response.status >= 300) {
+          return Promise.reject(response)
+        }
+        return { data: { id: params.id }}
+      })
+    return {
+      data: response
+    }
+  },
+  // NO VISIBLE USE CASE
   updateMany: (resource, params) => Promise,
-  delete: (resource, params) => Promise,
+  delete: async (resource, params) => {
+    await checkAuth()
+    const token = localStorage.getItem('access_token')
+    const request = new Request(`${process.env.REACT_APP_API_URL}/admin/${resource}/${params.id}`, {
+      method: 'DELETE',
+      headers: new Headers({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      })
+    })
+    const response = await fetch(request)
+      .then(response => {
+        if (response.status < 200 || response.status >= 300) {
+          return Promise.reject(response)
+        }
+        return { data: { id: params.id }}
+      })
+    return {
+      data: response
+    }
+  },
+  // NO VISIBLE USE CASE
   deleteMany: (resource, params) => Promise,
 }
 
