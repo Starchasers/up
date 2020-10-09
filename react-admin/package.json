@@ -7,6 +7,7 @@
     "@material-ui/core": "^4.11.0",
     "history": "^4.10.1",
     "jwt-decode": "^2.2.0",
+    "movefiles": "^1.0.1",
     "prop-types": "^15.7.2",
     "ra-data-json-server": "^3.5.0",
     "ra-data-simple-rest": "^3.5.5",
@@ -17,7 +18,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run move-build",
+    "move-build": "mvf build output",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

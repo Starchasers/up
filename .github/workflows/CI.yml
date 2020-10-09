@@ -19,6 +19,9 @@ jobs:
     - name: Build Gatsby app
       run: ./gradlew :gatsby-app:build
 
+    - name: Build React-admin app
+      run: ./gradlew :react-admin:build
+
     - name: Build Spring app
       run: ./gradlew bootjar
       
