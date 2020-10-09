@@ -5,6 +5,7 @@ import pl.starchasers.up.security.Role
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserDTO(
+        val username: String,
         val email: String?,
         val password: String?,
         val role: Role
