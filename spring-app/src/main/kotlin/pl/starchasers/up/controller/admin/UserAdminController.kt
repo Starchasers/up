@@ -9,6 +9,7 @@ import pl.starchasers.up.data.dto.users.UpdateUserDTO
 import pl.starchasers.up.data.dto.users.UserDTO
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.exception.AccessDeniedException
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.security.IsAdmin
 import pl.starchasers.up.service.UserService
@@ -43,7 +44,8 @@ class UserAdminController(
     @IsAdmin
     @PutMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
-        userService.updateUser(userId, nullIfBlank(userDTO.email), nullIfBlank(userDTO.password), userDTO.role)
+        if(userDTO.username.isBlank()) throw BadRequestException() //TODO refactor validation
+        userService.updateUser(userId, userDTO.username, nullIfBlank(userDTO.email), nullIfBlank(userDTO.password), userDTO.role)
     }
 
     @IsAdmin

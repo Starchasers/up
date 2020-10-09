@@ -34,7 +34,7 @@ interface UserService {
 
     fun listUsers(pageable: Pageable): Page<User>
 
-    fun updateUser(userId: Long, email: String?, password: String?, role: Role)
+    fun updateUser(userId: Long, username: String, email: String?, password: String?, role: Role)
 
     fun deleteUser(user: User)
 
@@ -83,8 +83,13 @@ class UserServiceImpl(
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
-    override fun updateUser(userId: Long, email: String?, password: String?, role: Role) {
+    override fun updateUser(userId: Long, username: String, email: String?, password: String?, role: Role) {
         val user = findUser(userId) ?: throw BadRequestException()
+
+        if (user.username != username) {
+            if (findUser(username) != null) throw BadRequestException()
+            user.username = username
+        }
 
         user.email = email
         if (password != null) user.password = passwordEncoder.encode(password)
