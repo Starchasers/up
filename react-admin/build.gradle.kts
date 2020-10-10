@@ -44,7 +44,7 @@ tasks {
         destinationDirectory.set(file("${project.projectDir}/build/artifact"))
 
         from("output") {
-            into("static")
+            into("static/admin")
         }
     }
 

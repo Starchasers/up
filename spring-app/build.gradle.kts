@@ -33,6 +33,7 @@ dependencies {
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     runtimeOnly(files("../gatsby-app/build/artifact/gatsby-app.jar"))
+    runtimeOnly(files("../react-admin/build/artifact/react-admin.jar"))
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
