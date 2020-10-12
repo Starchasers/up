@@ -24,10 +24,4 @@ class UtilController {
           "URL": "${domain}/u/${'$'}json:key${'$'}"
         }
     """.trimIndent()
-
-    @GetMapping("/admin")
-    fun adminPanel(): ModelAndView {
-        return ModelAndView("admin/index.html")
-    }
-
 }
