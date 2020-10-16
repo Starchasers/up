@@ -158,16 +158,18 @@ internal class UploadControllerTest : MockMvcTestBase() {
     ) : MockMvcTestBase() {
         private val content = "example content"
 
+        private fun createFile(contentType: String): String = fileService.createFile(
+                content.byteInputStream(),
+                "fileName.txt",
+                contentType,
+                content.byteInputStream().readAllBytes().size.toLong(),
+                null
+        ).key
+
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong(),
-                    null
-            ).key
+            val key = createFile("text/plain")
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")
@@ -180,13 +182,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
         @Test
         fun `Given valid Range header, should return 206`() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize,
-                    null
-            ).key
+            val key = createFile("text/plain")
 
             val headers = HttpHeaders()
             headers.set(HttpHeaders.RANGE, "bytes=0-")
@@ -201,12 +197,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
         @Test
         fun `Given invalid Range header, should return 200`() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
-            val key = fileService.createFile(
-                    content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize,
-                    null).key
+            val key = createFile("text/plain")
 
             val headers = HttpHeaders()
             headers.set(HttpHeaders.RANGE, "mb=-1024")
