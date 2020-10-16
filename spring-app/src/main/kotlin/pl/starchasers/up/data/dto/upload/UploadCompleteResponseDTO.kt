@@ -3,7 +3,7 @@ package pl.starchasers.up.data.dto.upload
 import java.sql.Timestamp
 
 
-class UploadCompleteResponseDTO(
+data class UploadCompleteResponseDTO(
         /**
          * File identifier
          */

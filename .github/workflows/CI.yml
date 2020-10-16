@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.4.0
+      with:
+        java-version: 11
+
+    - name: Build Gatsby app
+      run: ./gradlew :gatsby-app:build
+
+    - name: Build Spring app
+      run: ./gradlew bootjar
+      
+    - name: Test
+      run: ./gradlew --continue test
+      
+    - name: Publish Test Report
+      uses: scacap/action-surefire-report@v1
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+      if: always()
+
+    - name: Generate documentation
+      run: ./gradlew asciidoctor
+    
+    - name: Upload artifacts to CD
+      run: |
+        branch=${{ github.ref }}
+        
+        curl 'https://cd.snet.ovh/api/pub/staticfile/create' -i -X POST \
+        -H 'Content-Type: multipart/form-data' \
+        -H 'secret: ${{ secrets.CD_DOCUMENTATION_SECRET }}' \
+        -F 'app=2' \
+        -F "key=${branch#refs/heads/}" \
+        -F 'file=@spring-app/build/generated-docs/index.html;type=text/html'
+        
+        curl 'https://cd.snet.ovh/api/pub/spring/add' -i -X POST \
+        -H 'Content-Type: multipart/form-data' \
+        -H 'secret: ${{ secrets.CD_DEPLOY_SECRET }}' \
+        -F 'app=1' \
+        -F "key=${branch#refs/heads/}" \
+        -F 'file=@spring-app/build/libs/up-1.0.jar;type=application/octet-stream' 

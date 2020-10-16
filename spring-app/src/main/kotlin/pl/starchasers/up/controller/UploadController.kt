@@ -8,26 +8,33 @@ import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import pl.starchasers.up.data.dto.VerifyUploadSizeDTO
 import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.exception.AccessDeniedException
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.NotFoundException
+import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
+import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.BasicResponseDTO
 import pl.starchasers.up.util.RequestRangeParser
 import java.io.IOException
 import java.nio.charset.Charset
+import java.security.Principal
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-class AnonymousUploadController(private val fileStorageService: FileStorageService,
-                                private val fileService: FileService,
-                                private val requestRangeParser: RequestRangeParser) {
+class UploadController(private val fileStorageService: FileStorageService,
+                       private val fileService: FileService,
+                       private val requestRangeParser: RequestRangeParser,
+                       private val multipartResolver: CommonsMultipartResolver,
+                       private val userService: UserService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -35,15 +42,14 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
      * @param file Uploaded file content
      */
     @PostMapping("/api/upload")
-    fun anonymousUpload(@RequestParam file: MultipartFile): UploadCompleteResponseDTO =
-            fileService.createFile(file.inputStream,
-                    file.originalFilename ?: "file",
-                    file.contentType ?: "application/octet-stream",
-                    file.size)
+    fun anonymousUpload(@RequestParam file: MultipartFile, principal: Principal?): UploadCompleteResponseDTO {
+        val user = userService.fromPrincipal(principal)
 
-    @PostMapping("/api/verifyUpload")
-    fun verifyUploadSize(@RequestBody verifyUploadSizeDTO: VerifyUploadSizeDTO): VerifyUploadSizeResponseDTO {
-        return fileService.verifyUploadSize(verifyUploadSizeDTO.size)
+        return fileService.createFile(file.inputStream,
+                file.originalFilename ?: "file",
+                file.contentType ?: "application/octet-stream",
+                file.size,
+                user)
     }
 
     /**
@@ -55,10 +61,10 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
         response.contentType = if (fileEntry.contentType == "text/plain") "text/plain; charset=utf-8"
         else fileEntry.contentType
 
-        response.addHeader("Content-Disposition",
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION,
                 ContentDisposition
                         .builder("inline")
-                        .filename(fileEntry.filename, Charset.forName("UTF-8"))
+                        .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
                         .build()
                         .toString())
         try {
@@ -70,6 +76,7 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
                 response.status = HttpStatus.PARTIAL_CONTENT.value()
                 IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
             } else {
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, fileEntry.size.toString())
                 IOUtils.copyLarge(stream, response.outputStream)
             }
             response.outputStream.flush()
@@ -88,6 +95,17 @@ class AnonymousUploadController(private val fileStorageService: FileStorageServi
 
         if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
         return BasicResponseDTO()
+    }
+
+
+    @DeleteMapping("/api/u/{fileKey}")
+    fun deleteFile(@PathVariable fileKey: String,
+                   @Validated @RequestBody operationDto: AuthorizedOperationDTO) {
+        val fileEntry = fileService.findFileEntry(fileKey) ?: throw NotFoundException()
+
+        if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) throw AccessDeniedException()
+
+        fileService.deleteFile(fileEntry)
     }
 
     @GetMapping("/api/u/{fileKey}/details")

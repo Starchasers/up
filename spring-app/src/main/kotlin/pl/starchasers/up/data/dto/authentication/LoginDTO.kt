@@ -1,8 +1,10 @@
 package pl.starchasers.up.data.dto.authentication
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import javax.validation.constraints.NotBlank
 
-class LoginDTO(
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LoginDTO(
         /**
          * User's username
          */

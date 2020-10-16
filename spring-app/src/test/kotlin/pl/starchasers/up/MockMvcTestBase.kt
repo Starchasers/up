@@ -26,6 +26,9 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import pl.starchasers.up.data.model.User
+import pl.starchasers.up.service.JwtTokenService
+import pl.starchasers.up.service.UserService
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 import javax.servlet.Filter
@@ -48,6 +51,12 @@ abstract class MockMvcTestBase {
 
     @Autowired
     private lateinit var springSecurityFilterChain: Filter
+
+    @Autowired
+    private lateinit var jwtTokenService: JwtTokenService
+
+    @Autowired
+    private lateinit var userService: UserService
 
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
@@ -92,5 +101,9 @@ abstract class MockMvcTestBase {
     @AfterEach
     protected fun flush() {
         entityManager.flush()
+    }
+
+    final fun getAdminAccessToken(): String {
+        return jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(userService.getUser("root")))
     }
 }

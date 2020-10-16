@@ -4,10 +4,13 @@ import TextBox from './TextBox'
 import Link from './Link'
 import Back from './Back'
 import Icon from './Icon'
-import CopyButton from './CopyButton'
+import Button from './Button'
 import Tooltip from './Tooltip'
-import Center from './Center'
+import Area from './Area'
 import Text from './Text'
+import DeleteTime from './DeleteTime'
+import DeleteTimeArea from './DeleteTimeArea'
+import DateFormat from './DateFormat'
 
 const AfterUploadBox = styled('div')`
   width: 100%;
@@ -20,13 +23,16 @@ const AfterUploadBox = styled('div')`
 `
 
 AfterUploadBox.Back = Back
-AfterUploadBox.Center = Center
-AfterUploadBox.CopyButton = CopyButton
+AfterUploadBox.Area = Area
+AfterUploadBox.Button = Button
 AfterUploadBox.Icon = Icon
 AfterUploadBox.Icon = Icon
 AfterUploadBox.Link = Link
 AfterUploadBox.Text = Text
 AfterUploadBox.TextBox = TextBox
 AfterUploadBox.Tooltip = Tooltip
+AfterUploadBox.DeleteTimeArea = DeleteTimeArea
+AfterUploadBox.DeleteTime = DeleteTime
+AfterUploadBox.DateFormat = DateFormat
 
 export default AfterUploadBox
