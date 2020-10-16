@@ -52,7 +52,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
         fun `Given valid request, should upload and store file`() {
             val exampleTextFile = MockMultipartFile("file",
                     "exampleTextFile.txt",
-                    "text/plain",
+                    "text/plain; charset=UTF-8",
                     "example content".toByteArray())
 
             mockMvc.multipart(path = uploadFileRequestPath,
@@ -68,7 +68,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
             }
 
             fileEntryRepository.findAll()[0].let { fileEntry ->
-                assertEquals("text/plain", fileEntry.contentType)
+                assertEquals("text/plain; charset=UTF-8", fileEntry.contentType)
                 assertEquals(false, fileEntry.encrypted)
                 assertEquals("exampleTextFile.txt", fileEntry.filename)
                 assertEquals(null, fileEntry.password)
@@ -158,22 +158,22 @@ internal class UploadControllerTest : MockMvcTestBase() {
     ) : MockMvcTestBase() {
         private val content = "example content"
 
-        private fun createFile(contentType: String): String = fileService.createFile(
-                content.byteInputStream(),
+        private fun createFile(contentType: String, fileContent:String=content): String = fileService.createFile(
+                fileContent.byteInputStream(),
                 "fileName.txt",
                 contentType,
-                content.byteInputStream().readAllBytes().size.toLong(),
+                fileContent.byteInputStream().readAllBytes().size.toLong(),
                 null
         ).key
 
         @Test
         @DocumentResponse
         fun `Given valid key, should return raw file`() {
-            val key = createFile("text/plain")
+            val key = createFile("application/octet-stream")
 
             mockMvc.get(path = Path("/u/$key")) {
                 responseJsonPath("$").equalsValue("example content")
-                responseHeader(HttpHeaders.CONTENT_TYPE).equals("text/plain; charset=utf-8")
+                responseHeader(HttpHeaders.CONTENT_TYPE).equals("application/octet-stream")
                 responseHeader(HttpHeaders.CONTENT_LENGTH).equals("${content.length}")
             }
 
@@ -215,13 +215,13 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
 
         @Test
-        fun `Given unspecified text file encoding, should default to utf-8`() {
-            val key = createFile("text/plain")
+        fun `Given unspecified text file encoding, should guess based on content`() {
+            val key = createFile("text/plain", fileContent = "Ā ā Ă অ আ ই ঈ উ")
 
             mockMvc.get(path = Path("/u/$key")) {
                 isSuccess()
-                responseJsonPath("$").equalsValue("example content")
-                responseHeader("Content-Type").equals("text/plain; charset=utf-8")
+                responseJsonPath("$").equalsValue("Ā ā Ă অ আ ই ঈ উ")
+                responseHeader("Content-Type").equals("text/plain; charset=UTF-8")
             }
         }
 
@@ -314,15 +314,14 @@ internal class UploadControllerTest : MockMvcTestBase() {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetFileDetails(
-            @Autowired val fileService: FileService,
-            @Autowired val fileEntryRepository: FileEntryRepository
+            @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
 
         private fun getRequestPath(key: String): Path = Path("/api/u/$key/details")
         private val content = "example content"
         private lateinit var fileKey: String
         private val filename: String = "filename.txt"
-        private val contentType: String = "text/plain"
+        private val contentType: String = "text/plain; charset=UTF-8"
 
         @BeforeAll
         fun setup() {
