@@ -30,6 +30,8 @@ dependencies {
     implementation("commons-fileupload:commons-fileupload:1.3.3")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     runtimeOnly("com.h2database:h2:1.4.200")
+    implementation("com.ibm.icu:icu4j:67.1")
+    runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     runtimeOnly(files("../gatsby-app/build/artifact/gatsby-app.jar"))
