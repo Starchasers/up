@@ -66,7 +66,9 @@ class ExceptionHandler() {
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
     fun handleMissingServletRequestParameterException(exception: MissingServletRequestParameterException): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request. Missing required parameter '${exception.parameterName}'."), HttpStatus.BAD_REQUEST)
+            ResponseEntity(BasicErrorResponseDTO(
+                    "Bad Request. Missing required parameter '${exception.parameterName}'."),
+                    HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MultipartException::class)
     fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
