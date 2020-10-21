@@ -1,14 +1,17 @@
 package pl.starchasers.up.data.value
 
+import pl.starchasers.up.util.validate
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
 data class Milliseconds(
-        @Column(name="miliseconds")
+        @Column(name = "miliseconds")
         val value: Long
 ) {
     init {
-        require(value >= 0)
+        validate(this, Milliseconds::value) {
+            check { it >= 0 }
+        }
     }
 }
