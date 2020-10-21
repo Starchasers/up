@@ -1,6 +1,5 @@
 package pl.starchasers.up.data.model
 
-import com.sun.xml.bind.annotation.OverrideAnnotationOf
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.security.Role
 import javax.persistence.*
@@ -24,18 +23,18 @@ class User(
         var role: Role,
 
         @Embedded
-        @AttributeOverride(name="value", column = Column(name = "maxTemporaryFileSize"))
-        var maxTemporaryFileSize: FileSize =  FileSize(0),
+        @AttributeOverride(name = "value", column = Column(name = "maxTemporaryFileSize"))
+        var maxTemporaryFileSize: FileSize = FileSize(0),
 
         @Embedded
-        @AttributeOverride(name="value", column = Column(name = "maxPermanentFileSize"))
+        @AttributeOverride(name = "value", column = Column(name = "maxPermanentFileSize"))
         var maxPermanentFileSize: FileSize = FileSize(0),
 
-        @Convert(converter = MillisecondsConverter::class)
-        @Column(nullable = false, unique = false)
+        @Embedded
+        @AttributeOverride(name = "valie", column = Column(name = "defaultFileLifetime"))
         var defaultFileLifetime: Milliseconds = Milliseconds(0),
 
-        @Convert(converter = MillisecondsConverter::class)
-        @Column(nullable = false, unique = false)
+        @Embedded
+        @AttributeOverride(name = "value", column = Column(name = "maxFileLifetime"))
         var maxFileLifetime: Milliseconds = Milliseconds(0)
 )
