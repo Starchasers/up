@@ -9,7 +9,7 @@ const getAccessToken = async () => {
   })
 
   const { token } = await fetch(request)
-    .then((r) => r && r.json())
+    .then((r) => r.json())
     .catch((r) => {
       if (r.status < 200 || r.status >= 300) {
         throw new Error(r.statusText)
@@ -31,7 +31,7 @@ const getRefreshToken = async () => {
   })
 
   const { token } = await fetch(request)
-    .then((r) => r && r.json())
+    .then((r) => r.json())
     .catch((r) => {
       if (r.status < 200 || r.status >= 300) {
         throw new Error(r.statusText)
