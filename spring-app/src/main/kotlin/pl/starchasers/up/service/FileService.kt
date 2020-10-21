@@ -40,7 +40,8 @@ interface FileService {
 class FileServiceImpl(
         private val fileStorageService: FileStorageService,
         private val fileEntryRepository: FileEntryRepository,
-        private val configurationService: ConfigurationService
+        private val configurationService: ConfigurationService,
+        private val charsetDetectionService: CharsetDetectionService
 ) : FileService {
 
     @Value("\${up.max-file-size}")
@@ -56,6 +57,11 @@ class FileServiceImpl(
             size: FileSize,
             user: User?
     ): UploadCompleteResponseDTO {
+        val actualContentType = when {
+            contentType.value.isBlank() -> ContentType("application/octet-stream")
+            contentType.value == "text/plain" -> ContentType("text/plain; charset=" + charsetDetectionService.detect(tmpFile))
+            else -> contentType
+        }
         val personalLimit: FileSize = user?.maxTemporaryFileSize
                 ?: FileSize(configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong())
 
@@ -68,10 +74,7 @@ class FileServiceImpl(
         val fileEntry = FileEntry(0,
                 key,
                 filename,
-                contentType.let {
-                    if (contentType.value.isBlank()) ContentType("application/octet-stream")
-                    else contentType
-                },
+                actualContentType,
                 null,
                 false,
                 Timestamp.valueOf(LocalDateTime.now()),
