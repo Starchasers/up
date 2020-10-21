@@ -7,20 +7,18 @@ const getAccessToken = async () => {
     body: JSON.stringify({ token: refreshToken }),
     headers: new Headers({ 'Content-Type': 'application/json' }),
   })
-  return fetch(request)
-    .then(response => {
-      if (response.status < 200 || response.status >= 300) {
-        console.log(response)
-        throw new Error(response.statusText + ': ' + response.status)
+
+  const { token } = await fetch(request)
+    .then((r) => r && r.json())
+    .catch((r) => {
+      if (r.status < 200 || r.status >= 300) {
+        throw new Error(r.statusText)
       }
-      return response.json()
     })
-    .then(({ token }) => {
-      localStorage.setItem('access_token', token)
-    })
-    .catch((e) => {
-      return Promise.reject({ status: (e && e.length > 3 && e.slice(-3)) || 403 })
-    })
+
+  localStorage.setItem('access_token', token)
+
+  return Promise.resolve()
 }
 
 const getRefreshToken = async () => {
@@ -32,20 +30,17 @@ const getRefreshToken = async () => {
     headers: new Headers({ 'Content-Type': 'application/json' }),
   })
 
-  return fetch(request)
-    .then(response => {
-      if (response.status < 200 || response.status >= 300) {
-        throw new Error(response.statusText)
+  const { token } = await fetch(request)
+    .then((r) => r && r.json())
+    .catch((r) => {
+      if (r.status < 200 || r.status >= 300) {
+        throw new Error(r.statusText)
       }
-      return response.json()
     })
-    .then(({ token }) => {
-      localStorage.setItem('refresh_token', token)
-    })
-    .then(getAccessToken)
-    .catch((e) => {
-      return Promise.reject({ status: (e && e.length > 3 && e.slice(-3)) || 403 })
-    })
+
+  localStorage.setItem('refresh_token', token)
+
+  return Promise.resolve()
 }
 
 export const checkAuth = async () => {
@@ -53,7 +48,7 @@ export const checkAuth = async () => {
   const accessToken = localStorage.getItem('access_token')
 
   if (!refreshToken) {
-    return getRefreshToken()
+    return Promise.reject()
   }
 
   try {
@@ -61,7 +56,8 @@ export const checkAuth = async () => {
     const duration = dRefreshToken.exp - dRefreshToken.iat
 
     if (((duration / 2) + dRefreshToken.iat) * 1000 < Date.now()) {
-      return getRefreshToken()
+      await getRefreshToken()
+      return getAccessToken()
     }
   } catch (e) {
     localStorage.removeItem('refreshToken')
@@ -69,13 +65,14 @@ export const checkAuth = async () => {
   }
 
   try {
-    if (!accessToken || jwt_decode(accessToken).exp * 1000 <= Date.now()) {
+    if (accessToken === 'undefined' || !accessToken || jwt_decode(accessToken).exp * 1000 <= Date.now()) {
       return getAccessToken()
     }
   } catch (e) {
     localStorage.removeItem('accessToken')
     return Promise.reject()
   }
+
   return Promise.resolve()
 }
 
