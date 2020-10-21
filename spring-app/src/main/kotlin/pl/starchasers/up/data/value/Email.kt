@@ -5,14 +5,14 @@ import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
-class Email(
+data class Email(
         @Column(name = "email", length = 64)
         val value: String
 ) {
     init {
         validate(this, Email::value) {
             check { it.isNotBlank() }
-            check { it.length < 64 }
+            check { it.length <= 64 }
         }
     }
 }

@@ -14,7 +14,6 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.encode
 import pl.starchasers.up.util.matches
 import java.security.Principal
-import javax.persistence.Access
 
 const val ROOT_USER_NAME = "root"
 
@@ -29,13 +28,13 @@ interface UserService {
 
     fun fromPrincipal(principal: Principal?): User?
 
-    fun createUser(username: Username, rawPassword: RawUserPassword, email: Email?, role: Role): User
+    fun createUser(username: Username, rawPassword: RawPassword, email: Email?, role: Role): User
 
-    fun getUserFromCredentials(username: Username, password: RawUserPassword): User
+    fun getUserFromCredentials(username: Username, password: RawPassword): User
 
     fun listUsers(pageable: Pageable): Page<User>
 
-    fun updateUser(userId: Long, username: Username, email: Email?, password: RawUserPassword?, role: Role)
+    fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role)
 
     fun deleteUser(user: User)
 
@@ -63,7 +62,7 @@ class UserServiceImpl(
         return findUser(principal.name.toLong())
     }
 
-    override fun createUser(username: Username, rawPassword: RawUserPassword, email: Email?, role: Role): User {
+    override fun createUser(username: Username, rawPassword: RawPassword, email: Email?, role: Role): User {
         val oldUser = findUser(username)
         if (oldUser != null) throw BadRequestException("Username already taken.")
         val user = User(
@@ -78,13 +77,13 @@ class UserServiceImpl(
         return user
     }
 
-    override fun getUserFromCredentials(username: Username, password: RawUserPassword): User =
+    override fun getUserFromCredentials(username: Username, password: RawPassword): User =
             findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
                     ?: throw AccessDeniedException("Incorrect username or password")
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
-    override fun updateUser(userId: Long, username: Username, email: Email?, password: RawUserPassword?, role: Role) {
+    override fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role) {
         val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
         if (user.username != username) {

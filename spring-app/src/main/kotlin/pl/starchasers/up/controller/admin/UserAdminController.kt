@@ -9,10 +9,9 @@ import pl.starchasers.up.data.dto.users.UpdateUserDTO
 import pl.starchasers.up.data.dto.users.UserDTO
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.Email
-import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.exception.AccessDeniedException
-import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.security.IsAdmin
 import pl.starchasers.up.service.UserService
@@ -43,7 +42,7 @@ class UserAdminController(
     fun create(@Validated @RequestBody createUserDTO: CreateUserDTO): UserDTO {
         return userService.createUser(
                 Username(createUserDTO.username),
-                RawUserPassword(createUserDTO.password),
+                RawPassword(createUserDTO.password),
                 if (!createUserDTO.email.isNullOrBlank()) Email(createUserDTO.email) else null,
                 createUserDTO.role).toUserDTO()
     }
@@ -55,7 +54,7 @@ class UserAdminController(
                 userId,
                 Username(userDTO.username),
                 if (userDTO.email.isNullOrBlank()) null else Email(userDTO.email),
-                if (userDTO.password.isNullOrBlank()) null else RawUserPassword(userDTO.password),
+                if (userDTO.password.isNullOrBlank()) null else RawPassword(userDTO.password),
                 userDTO.role)
     }
 

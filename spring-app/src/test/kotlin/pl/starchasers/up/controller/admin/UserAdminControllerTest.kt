@@ -1,7 +1,5 @@
 package pl.starchasers.up.controller.admin
 
-import assertk.assertAll
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -21,7 +19,7 @@ import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
 import pl.starchasers.up.data.value.Email
-import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.service.JwtTokenService
 
@@ -42,11 +40,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         private fun createUsers() {
             user = userService.createUser(
                     Username("username"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@gmail.com"),
                     Role.ADMIN)
             userService.createUser(Username("username2"),
-                    RawUserPassword("password2"),
+                    RawPassword("password2"),
                     Email("email2@gmail.com"),
                     Role.USER)
         }
@@ -96,11 +94,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         private fun createUsers() {
             user = userService.createUser(
                     Username("username3"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@gmail.com"),
                     Role.ADMIN)
             userService.createUser(Username("username4"),
-                    RawUserPassword("password2"),
+                    RawPassword("password2"),
                     Email("email2@gmail.com"),
                     Role.USER)
         }
@@ -165,7 +163,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given duplicate username, should throw 400`() {
             userService.createUser(
                     Username("duplicateUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"),
                     Role.USER)
             mockMvc.post(path = path,
@@ -196,7 +194,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given valid request, should update user`() {
             val oldUser = userService.createUser(
                     Username("exampleUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@example.com"),
                     Role.USER)
             flush()
@@ -219,7 +217,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given unauthorized user, should throw 403`() {
             val oldUser = userService.createUser(
                     Username("exampleUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@example.com"),
                     Role.USER)
             flush()
@@ -235,7 +233,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given no password field, should not update password`() {
             val oldUser = userService.createUser(
                     Username("exampleUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@example.com"),
                     Role.USER)
             flush()
@@ -253,7 +251,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given wrong userId, should return 400`() {
             val oldUser = userService.createUser(
                     Username("exampleUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@example.com"),
                     Role.USER)
             flush()
@@ -269,7 +267,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given extra fields, should ignore them and process request`() {
             val oldUser = userService.createUser(
                     Username("exampleUser"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("email@example.com"), Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
@@ -313,7 +311,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given valid request, should delete user`() {
             val user = userService.createUser(
                     Username("userToDelete"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"), Role.USER)
 
             mockMvc.delete(path = getDeleteUserPath(user.id),
@@ -328,7 +326,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given unauthorized user, should throw 403`() {
             val user = userService.createUser(
                     Username("userToDelete"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"),
                     Role.USER)
 
@@ -343,7 +341,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given wrong userId, should return 400`() {
             val user = userService.createUser(
                     Username("userToDelete"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"),
                     Role.USER)
 
@@ -357,7 +355,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given root account, should return 403`() {
             val user = userService.createUser(
                     Username("userToDelete"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"),
                     Role.ADMIN)
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
@@ -372,7 +370,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         fun `Given current account, should return 400`() {
             val user = userService.createUser(
                     Username("userToDelete"),
-                    RawUserPassword("password"),
+                    RawPassword("password"),
                     Email("mail@example.com"),
                     Role.ADMIN)
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))

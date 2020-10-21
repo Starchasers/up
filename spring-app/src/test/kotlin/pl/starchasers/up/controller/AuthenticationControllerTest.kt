@@ -19,7 +19,7 @@ import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
 import org.junit.jupiter.api.Assertions.*
 import pl.starchasers.up.data.dto.authentication.TokenDTO
-import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 
 
@@ -31,7 +31,7 @@ internal class AuthenticationControllerTest(
 ) : MockMvcTestBase() {
 
     private val testUserUsername: Username = Username("testUser")
-    private val testUserPassword: RawUserPassword = RawUserPassword("examplePassword")
+    private val testUserPassword: RawPassword = RawPassword("examplePassword")
     private lateinit var testUser: User
 
     @BeforeEach

@@ -2,14 +2,12 @@ package pl.starchasers.up.controller
 
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
-import org.hibernate.sql.Update
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
@@ -17,8 +15,7 @@ import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
-import pl.starchasers.up.data.value.RawUserPassword
-import pl.starchasers.up.data.value.Username
+import pl.starchasers.up.data.value.*
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.security.Role
@@ -26,7 +23,7 @@ import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
-import java.io.InputStream
+import java.nio.file.Files
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -63,19 +60,18 @@ internal class UploadControllerTest : MockMvcTestBase() {
                     }) {
                 isSuccess()
                 fileEntryRepository.findAll()[0].let { fileEntry ->
-                    responseJsonPath("$.key").equalsValue(fileEntry.key)
-                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.key").equalsValue(fileEntry.key.value)
+                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken.value)
                     responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
             fileEntryRepository.findAll()[0].let { fileEntry ->
-                assertEquals("text/plain", fileEntry.contentType)
+                assertEquals("text/plain", fileEntry.contentType.value)
                 assertEquals(false, fileEntry.encrypted)
-                assertEquals("exampleTextFile.txt", fileEntry.filename)
+                assertEquals("exampleTextFile.txt", fileEntry.filename.value)
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
-                assertTrue(fileEntry.accessToken.isNotBlank())
                 assertNotNull(fileEntry.toDeleteDate)
                 assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
@@ -105,19 +101,18 @@ internal class UploadControllerTest : MockMvcTestBase() {
                     }) {
                 isSuccess()
                 fileEntryRepository.findAll()[0].let { fileEntry ->
-                    responseJsonPath("$.key").equalsValue(fileEntry.key)
-                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken)
+                    responseJsonPath("$.key").equalsValue(fileEntry.key.value)
+                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken.value)
                     responseJsonPath("$.toDelete").isNotEmpty()
                 }
             }
 
             fileEntryRepository.findAll()[0].let { fileEntry ->
-                assertEquals("application/octet-stream", fileEntry.contentType)
+                assertEquals("application/octet-stream", fileEntry.contentType.value)
                 assertEquals(false, fileEntry.encrypted)
-                assertEquals("exampleTextFile.txt", fileEntry.filename)
+                assertEquals("exampleTextFile.txt", fileEntry.filename.value)
                 assertEquals(null, fileEntry.password)
                 assertEquals(false, fileEntry.permanent)
-                assertTrue(fileEntry.accessToken.isNotBlank())
                 assertNotNull(fileEntry.toDeleteDate)
                 assertTrue(fileEntry.toDeleteDate!!.toLocalDateTime().isAfter(LocalDateTime.now()))
 
@@ -129,7 +124,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
         @Test
         fun `Given too large file, should return 413`() {
-            val testUser = userService.createUser(Username("testUser"), RawUserPassword("password"), null, Role.USER)
+            val testUser = userService.createUser(Username("testUser"), RawPassword("password"), null, Role.USER)
             configurationService.updateUserConfiguration(testUser,
                     UpdateUserConfigurationDTO(10,
                             testUser.maxFileLifetime.value,
@@ -165,9 +160,9 @@ internal class UploadControllerTest : MockMvcTestBase() {
         fun `Given valid key, should return raw file`() {
             val key = fileService.createFile(
                     content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong(),
+                    Filename("fileName.txt"),
+                    ContentType("text/plain"),
+                    FileSize(content.byteInputStream().readAllBytes().size.toLong()),
                     null
             ).key
 
@@ -184,9 +179,9 @@ internal class UploadControllerTest : MockMvcTestBase() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
             val key = fileService.createFile(
                     content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize,
+                    Filename("fileName.txt"),
+                    ContentType("text/plain"),
+                    FileSize(contentSize),
                     null
             ).key
 
@@ -205,9 +200,9 @@ internal class UploadControllerTest : MockMvcTestBase() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
             val key = fileService.createFile(
                     content.byteInputStream(),
-                    "fileName.txt",
-                    "text/plain",
-                    contentSize,
+                    Filename("fileName.txt"),
+                    ContentType("text/plain"),
+                    FileSize(contentSize),
                     null).key
 
             val headers = HttpHeaders()
@@ -243,12 +238,12 @@ internal class UploadControllerTest : MockMvcTestBase() {
         @BeforeAll
         fun setup() {
             fileKey = fileService.createFile(content.byteInputStream(),
-                    "filename.txt",
-                    "text/plain",
-                    content.byteInputStream().readAllBytes().size.toLong(),
+                    Filename("filename.txt"),
+                    ContentType("text/plain"),
+                    FileSize(content.byteInputStream().readAllBytes().size.toLong()),
                     null).key
 
-            fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
+            fileAccessToken = fileEntryRepository.findExistingFileByKey(FileKey(fileKey))?.accessToken?.value
                     ?: throw IllegalStateException()
         }
 
@@ -269,7 +264,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
             mockMvc.post(path = verifyRequestPath(fileKey),
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {
-                        val accessToken = fileAccessToken + "qwe"
+                        val accessToken = "qweasd"
                     }) {
                 isError(HttpStatus.FORBIDDEN)
             }
@@ -315,9 +310,9 @@ internal class UploadControllerTest : MockMvcTestBase() {
         @BeforeAll
         fun setup() {
             fileKey = fileService.createFile(content.byteInputStream(),
-                    filename,
-                    contentType,
-                    content.byteInputStream().readAllBytes().size.toLong(),
+                    Filename(filename),
+                    ContentType(contentType),
+                    FileSize(content.byteInputStream().readAllBytes().size.toLong()),
                     null).key
         }
 
@@ -357,9 +352,9 @@ internal class UploadControllerTest : MockMvcTestBase() {
         private fun createTestFile(): UploadCompleteResponseDTO {
             val fileContent = "fileContent"
             return fileService.createFile(fileContent.byteInputStream(),
-                    "file",
-                    "text/plain",
-                    fileContent.length.toLong(),
+                    Filename("file"),
+                    ContentType("text/plain"),
+                    FileSize(fileContent.length.toLong()),
                     null)
         }
 
@@ -375,8 +370,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
                 isSuccess()
             }
 
-            assertNull(uploadRepository.find(response.key))
-            assertNull(fileEntryRepository.findExistingFileByKey(response.key))
+            assertNull(uploadRepository.find(FileKey(response.key)))
+            assertNull(fileEntryRepository.findExistingFileByKey(FileKey(response.key)))
         }
 
         @Test
@@ -390,8 +385,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
                 isError(HttpStatus.FORBIDDEN)
             }
 
-            assertNotNull(uploadRepository.find(response.key))
-            assertNotNull(fileEntryRepository.findExistingFileByKey(response.key))
+            assertNotNull(uploadRepository.find(FileKey(response.key)))
+            assertNotNull(fileEntryRepository.findExistingFileByKey(FileKey(response.key)))
         }
 
         @Test
@@ -406,8 +401,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
                 isError(HttpStatus.NOT_FOUND)
             }
 
-            assertNotNull(uploadRepository.find(response.key))
-            assertNotNull(fileEntryRepository.findExistingFileByKey(response.key))
+            assertNotNull(uploadRepository.find(FileKey(response.key)))
+            assertNotNull(fileEntryRepository.findExistingFileByKey(FileKey(response.key)))
         }
     }
 }

@@ -1,5 +1,6 @@
 package pl.starchasers.up.data.model
 
+import pl.starchasers.up.data.value.*
 import java.sql.Timestamp
 import javax.persistence.*
 
@@ -9,17 +10,17 @@ class FileEntry(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
 
-        @Column(name = "fileKey", nullable = false, unique = false, length = 32)
-        val key: String,
+        @Embedded
+        val key: FileKey,
 
-        @Column(nullable = false, unique = false, length = 1024)
-        val filename: String,
+        @Embedded
+        val filename: Filename,
 
-        @Column(nullable = false, unique = false, length = 32)
-        val contentType: String,
+        @Embedded
+        val contentType: ContentType,
 
-        @Column(nullable = true, unique = false)
-        val password: String?,
+        @Embedded
+        val password: FilePassword?,
 
         @Column(nullable = false, unique = false)
         val encrypted: Boolean,
@@ -33,9 +34,9 @@ class FileEntry(
         @Column(nullable = false, unique = false)
         val permanent: Boolean,
 
-        @Column(nullable = false, unique = false, length = 128)
-        val accessToken: String,
+        @Embedded
+        val accessToken: FileAccessToken,
 
-        @Column(nullable = false, unique = false)
-        val size: Long
+        @Embedded
+        val size: FileSize
 )

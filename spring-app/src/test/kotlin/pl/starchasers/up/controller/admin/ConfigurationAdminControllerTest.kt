@@ -8,13 +8,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
-import pl.starchasers.up.data.dto.configuration.UserConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationDTO
 import pl.starchasers.up.data.dto.configuration.ConfigurationOptionDTO
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.User
-import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.ConfigurationService
@@ -33,7 +32,7 @@ internal class ConfigurationAdminControllerTest(
 
     private val testUser = userService.createUser(
             Username("unauthorizedUser"),
-            RawUserPassword("password"),
+            RawPassword("password"),
             null,
             Role.USER)
 
@@ -250,7 +249,7 @@ internal class ConfigurationAdminControllerTest(
 
         private val testUser2: User = userService.createUser(
                 Username("setConfigurationTestUser"),
-                RawUserPassword("password"),
+                RawPassword("password"),
                 null,
                 Role.USER)
 
@@ -343,7 +342,7 @@ internal class ConfigurationAdminControllerTest(
 
         private val testUser2 = userService.createUser(
                 Username("testUser2"),
-                RawUserPassword("password"),
+                RawPassword("password"),
                 null,
                 Role.USER)
 
