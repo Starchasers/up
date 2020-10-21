@@ -17,6 +17,8 @@ import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.security.Role
@@ -127,7 +129,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
         @Test
         fun `Given too large file, should return 413`() {
-            val testUser = userService.createUser("testUser", "password", null, Role.USER)
+            val testUser = userService.createUser(Username("testUser"), RawUserPassword("password"), null, Role.USER)
             configurationService.updateUserConfiguration(testUser,
                     UpdateUserConfigurationDTO(10,
                             testUser.maxFileLifetime.value,

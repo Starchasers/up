@@ -2,6 +2,8 @@ package pl.starchasers.up.util
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
 import javax.annotation.PostConstruct
@@ -20,11 +22,11 @@ class Initializer(
     }
 
     private fun ensureRootAccount() {
-        val user = userService.findUser("root")
+        val user = userService.findUser(Username("root"))
 
         if (user == null) {
             val password = util.secureAlphanumericRandomString(16)
-            userService.createUser("root", password, null, Role.ADMIN)
+            userService.createUser(Username("root"), RawUserPassword(password), null, Role.ADMIN)
             logger.info("Root account not found. Creating new one.\n\nUsername: root Password: $password\n")
         }
     }

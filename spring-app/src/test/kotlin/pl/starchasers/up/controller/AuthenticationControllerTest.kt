@@ -19,6 +19,8 @@ import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
 import org.junit.jupiter.api.Assertions.*
 import pl.starchasers.up.data.dto.authentication.TokenDTO
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -28,9 +30,9 @@ internal class AuthenticationControllerTest(
         @Autowired private val jwtTokenService: JwtTokenService
 ) : MockMvcTestBase() {
 
-    private val testUserUsername: String = "testUser"
-    private val testUserPassword: String = "examplePassword"
-    private lateinit var testUser: User;
+    private val testUserUsername: Username = Username("testUser")
+    private val testUserPassword: RawUserPassword = RawUserPassword("examplePassword")
+    private lateinit var testUser: User
 
     @BeforeEach
     fun createTestUser() {
@@ -51,7 +53,7 @@ internal class AuthenticationControllerTest(
             mockMvc.post(
                     path = loginRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
-                    body = LoginDTO(testUserUsername, testUserPassword)
+                    body = LoginDTO(testUserUsername.value, testUserPassword.value)
             ) {
                 isSuccess()
                 responseJsonPath("$.token").isNotEmpty()
@@ -63,7 +65,7 @@ internal class AuthenticationControllerTest(
             mockMvc.post(
                     path = loginRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
-                    body = LoginDTO(testUserUsername, testUserPassword + "qwe")
+                    body = LoginDTO(testUserUsername.value, testUserPassword.value + "qwe")
             ) {
                 isError(HttpStatus.FORBIDDEN)
             }
@@ -74,7 +76,7 @@ internal class AuthenticationControllerTest(
             mockMvc.post(
                     path = loginRequestPath,
                     headers = HttpHeaders().contentTypeJson(),
-                    body = LoginDTO(testUserUsername + "qwe", testUserPassword)
+                    body = LoginDTO(testUserUsername.value + "qwe", testUserPassword.value)
             ) {
                 isError(HttpStatus.FORBIDDEN)
             }

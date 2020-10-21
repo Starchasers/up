@@ -11,6 +11,7 @@ import pl.starchasers.up.DocumentResponse
 import pl.starchasers.up.MockMvcTestBase
 import pl.starchasers.up.OrderTests
 import pl.starchasers.up.data.model.ConfigurationKey
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.isSuccess
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
@@ -50,7 +51,7 @@ internal class ConfigurationControllerTest(
         @Test
         @DocumentResponse
         fun `Given authorized request, should return user-specific details`() {
-            val user = requireNotNull(userService.findUser("root"))
+            val user = requireNotNull(userService.findUser(Username("root")))
             val refreshToken = jwtTokenService.issueRefreshToken(user)
             val accessToken = jwtTokenService.issueAccessToken(refreshToken)
 

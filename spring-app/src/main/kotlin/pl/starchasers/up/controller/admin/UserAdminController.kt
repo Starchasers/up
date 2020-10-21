@@ -8,6 +8,9 @@ import pl.starchasers.up.data.dto.users.CreateUserDTO
 import pl.starchasers.up.data.dto.users.UpdateUserDTO
 import pl.starchasers.up.data.dto.users.UserDTO
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.Email
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.NotFoundException
@@ -38,14 +41,22 @@ class UserAdminController(
     @IsAdmin
     @PostMapping("")
     fun create(@Validated @RequestBody createUserDTO: CreateUserDTO): UserDTO {
-        return userService.createUser(createUserDTO.username, createUserDTO.password, createUserDTO.email, createUserDTO.role).toUserDTO()
+        return userService.createUser(
+                Username(createUserDTO.username),
+                RawUserPassword(createUserDTO.password),
+                if (!createUserDTO.email.isNullOrBlank()) Email(createUserDTO.email) else null,
+                createUserDTO.role).toUserDTO()
     }
 
     @IsAdmin
     @PutMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
-        if(userDTO.username.isBlank()) throw BadRequestException("Invalid username.") //TODO refactor validation
-        userService.updateUser(userId, userDTO.username, nullIfBlank(userDTO.email), nullIfBlank(userDTO.password), userDTO.role)
+        userService.updateUser(
+                userId,
+                Username(userDTO.username),
+                if (userDTO.email.isNullOrBlank()) null else Email(userDTO.email),
+                if (userDTO.password.isNullOrBlank()) null else RawUserPassword(userDTO.password),
+                userDTO.role)
     }
 
     @IsAdmin
@@ -54,7 +65,5 @@ class UserAdminController(
         userService.deleteUser(userId, principal.name.toLongOrNull() ?: throw AccessDeniedException())
     }
 
-    private fun nullIfBlank(string: String?): String? = string?.takeIf(String::isNotBlank)
-
-    private fun User.toUserDTO() = UserDTO(id, username, email ?: "", role)
+    private fun User.toUserDTO() = UserDTO(id, username.value, email?.value ?: "", role)
 }

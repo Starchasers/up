@@ -20,6 +20,9 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
+import pl.starchasers.up.data.value.Email
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.service.JwtTokenService
 
 
@@ -37,8 +40,15 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @BeforeAll
         private fun createUsers() {
-            user = userService.createUser("username", "password", "email@gmail.com", Role.ADMIN)
-            userService.createUser("username2", "password2", "email2@gmail.com", Role.USER)
+            user = userService.createUser(
+                    Username("username"),
+                    RawUserPassword("password"),
+                    Email("email@gmail.com"),
+                    Role.ADMIN)
+            userService.createUser(Username("username2"),
+                    RawUserPassword("password2"),
+                    Email("email2@gmail.com"),
+                    Role.USER)
         }
 
         private fun getOnePath(id: Long): Path = Path("/api/admin/users/$id")
@@ -51,8 +61,8 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                 isSuccess()
 
                 responseJsonPath("$.id").equalsValue(user.id)
-                responseJsonPath("$.username").equalsValue(user.username)
-                responseJsonPath("$.email").equalsValue(user.email)
+                responseJsonPath("$.username").equalsValue(user.username.value)
+                responseJsonPath("$.email").equalsValue(user.email?.value)
                 responseJsonPath("$.role").equalsValue(user.role.toString())
             }
         }
@@ -84,8 +94,15 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @BeforeAll
         private fun createUsers() {
-            user = userService.createUser("username3", "password", "email@gmail.com", Role.ADMIN)
-            userService.createUser("username4", "password2", "email2@gmail.com", Role.USER)
+            user = userService.createUser(
+                    Username("username3"),
+                    RawUserPassword("password"),
+                    Email("email@gmail.com"),
+                    Role.ADMIN)
+            userService.createUser(Username("username4"),
+                    RawUserPassword("password2"),
+                    Email("email2@gmail.com"),
+                    Role.USER)
         }
 
         private val getOnePath: Path = Path("/api/admin/users")
@@ -126,10 +143,10 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = CreateUserDTO("createdUser", "password", "mail@example.com", Role.USER)) {
                 isSuccess()
-                userService.getUser("createdUser").let {
+                userService.getUser(Username("createdUser")).let {
                     responseJsonPath("$.id").equalsValue(it.id)
-                    responseJsonPath("$.username").equalsValue(it.username)
-                    responseJsonPath("$.email").equalsValue(it.email)
+                    responseJsonPath("$.username").equalsValue(it.username.value)
+                    responseJsonPath("$.email").equalsValue(it.email?.value)
                     responseJsonPath("$.role").equalsValue(it.role.toString())
                 }
             }
@@ -146,7 +163,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given duplicate username, should throw 400`() {
-            userService.createUser("duplicateUser", "password", "mail@example.com", Role.USER)
+            userService.createUser(
+                    Username("duplicateUser"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"),
+                    Role.USER)
             mockMvc.post(path = path,
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = CreateUserDTO("duplicateUser", "password", "mail2@example.com", Role.ADMIN)) {
@@ -173,7 +194,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         @DocumentResponse
         @Test
         fun `Given valid request, should update user`() {
-            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            val oldUser = userService.createUser(
+                    Username("exampleUser"),
+                    RawUserPassword("password"),
+                    Email("email@example.com"),
+                    Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
@@ -182,17 +207,21 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             }
             flush()
             userService.getUser(oldUser.id).let {
-                assertEquals("mail2@example.com", it.email)
-                assertEquals("newExampleUser", it.username)
+                assertEquals("mail2@example.com", it.email?.value)
+                assertEquals("newExampleUser", it.username.value)
                 assertEquals(Role.ADMIN, it.role)
-                assertTrue(passwordEncoder.matches("password2", it.password))
+                assertTrue(passwordEncoder.matches("password2", it.password.value))
             }
         }
 
         @Transactional
         @Test
         fun `Given unauthorized user, should throw 403`() {
-            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            val oldUser = userService.createUser(
+                    Username("exampleUser"),
+                    RawUserPassword("password"),
+                    Email("email@example.com"),
+                    Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().contentTypeJson(),
@@ -204,7 +233,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         @Transactional
         @Test
         fun `Given no password field, should not update password`() {
-            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            val oldUser = userService.createUser(
+                    Username("exampleUser"),
+                    RawUserPassword("password"),
+                    Email("email@example.com"),
+                    Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
@@ -212,17 +245,21 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                 isSuccess()
             }
             flush()
-            assertTrue(passwordEncoder.matches("password", userService.getUser(oldUser.id).password))
+            assertTrue(passwordEncoder.matches("password", userService.getUser(oldUser.id).password.value))
         }
 
         @Transactional
         @Test
         fun `Given wrong userId, should return 400`() {
-            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            val oldUser = userService.createUser(
+                    Username("exampleUser"),
+                    RawUserPassword("password"),
+                    Email("email@example.com"),
+                    Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id + 123),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("newExampleUser","mail2@example.com", null, Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", null, Role.ADMIN)) {
                 isError(HttpStatus.BAD_REQUEST)
             }
         }
@@ -230,7 +267,10 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         @Transactional
         @Test
         fun `Given extra fields, should ignore them and process request`() {
-            val oldUser = userService.createUser("exampleUser", "password", "email@example.com", Role.USER)
+            val oldUser = userService.createUser(
+                    Username("exampleUser"),
+                    RawUserPassword("password"),
+                    Email("email@example.com"), Role.USER)
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
@@ -247,9 +287,9 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             userService.getUser(oldUser.id).let {
                 assertEquals(null, it.email)
-                assertEquals("newExampleUser", it.username)
+                assertEquals("newExampleUser", it.username.value)
                 assertEquals(Role.USER, it.role)
-                assertTrue(passwordEncoder.matches("password", it.password))
+                assertTrue(passwordEncoder.matches("password", it.password.value))
             }
         }
 
@@ -271,7 +311,10 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
         @Test
         @DocumentResponse
         fun `Given valid request, should delete user`() {
-            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
+            val user = userService.createUser(
+                    Username("userToDelete"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"), Role.USER)
 
             mockMvc.delete(path = getDeleteUserPath(user.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken())) {
@@ -283,7 +326,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given unauthorized user, should throw 403`() {
-            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
+            val user = userService.createUser(
+                    Username("userToDelete"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"),
+                    Role.USER)
 
             mockMvc.delete(path = getDeleteUserPath(user.id)) {
                 isError(HttpStatus.FORBIDDEN)
@@ -294,7 +341,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given wrong userId, should return 400`() {
-            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.USER)
+            val user = userService.createUser(
+                    Username("userToDelete"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"),
+                    Role.USER)
 
             mockMvc.delete(path = getDeleteUserPath(user.id + 123),
                     headers = HttpHeaders().authorization(getAdminAccessToken())) {
@@ -304,10 +355,14 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given root account, should return 403`() {
-            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.ADMIN)
+            val user = userService.createUser(
+                    Username("userToDelete"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"),
+                    Role.ADMIN)
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
-            mockMvc.delete(path = getDeleteUserPath(userService.getUser("root").id),
+            mockMvc.delete(path = getDeleteUserPath(userService.getUser(Username("root")).id),
                     headers = HttpHeaders().authorization(accessToken)) {
                 isError(HttpStatus.FORBIDDEN)
             }
@@ -315,7 +370,11 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
 
         @Test
         fun `Given current account, should return 400`() {
-            val user = userService.createUser("userToDelete", "password", "mail@example.com", Role.ADMIN)
+            val user = userService.createUser(
+                    Username("userToDelete"),
+                    RawUserPassword("password"),
+                    Email("mail@example.com"),
+                    Role.ADMIN)
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
             mockMvc.delete(path = getDeleteUserPath(user.id),

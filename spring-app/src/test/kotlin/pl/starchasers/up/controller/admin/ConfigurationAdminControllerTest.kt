@@ -14,6 +14,8 @@ import pl.starchasers.up.data.dto.configuration.ConfigurationOptionDTO
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.RawUserPassword
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.JwtTokenService
@@ -29,7 +31,11 @@ internal class ConfigurationAdminControllerTest(
         @Autowired private val configurationService: ConfigurationService
 ) : MockMvcTestBase() {
 
-    private val testUser = userService.createUser("unauthorizedUser", "password", null, Role.USER)
+    private val testUser = userService.createUser(
+            Username("unauthorizedUser"),
+            RawUserPassword("password"),
+            null,
+            Role.USER)
 
     private fun getUserAccessToken(): String {
         val refreshToken = jwtTokenService.issueRefreshToken(testUser)
@@ -242,7 +248,11 @@ internal class ConfigurationAdminControllerTest(
 
         private fun requestPath(userId: Long) = Path("/api/admin/config/user/$userId")
 
-        private val testUser2: User =userService.createUser("setConfigurationTestUser", "password", null, Role.USER)
+        private val testUser2: User = userService.createUser(
+                Username("setConfigurationTestUser"),
+                RawUserPassword("password"),
+                null,
+                Role.USER)
 
         @Test
         @Transactional
@@ -331,7 +341,12 @@ internal class ConfigurationAdminControllerTest(
     @Nested
     inner class GetUserConfiguration : MockMvcTestBase() {
 
-        private val testUser2 = userService.createUser("testUser2", "password", null, Role.USER)
+        private val testUser2 = userService.createUser(
+                Username("testUser2"),
+                RawUserPassword("password"),
+                null,
+                Role.USER)
+
         private fun requestPath(userId: Long) = Path("/api/admin/config/user/$userId")
 
         @Test
