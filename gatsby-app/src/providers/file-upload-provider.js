@@ -55,43 +55,18 @@ const FileUploadProvider = ({ children }) => {
     }
   }, [setError, setPage, setResponse])
 
-  const handleOnPaste = useCallback((event) => {
-    const items = event.clipboardData.items
-    const data = new FormData()
-    if (event.clipboardData.getData('text') === '') {
-      let blob = null
-
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') === 0) {
-          blob = items[i].getAsFile()
-        }
-      }
-      if (!blob) return
-      data.append('file', blob)
-    } else {
-      const file = new File([event.clipboardData.getData('text')], 'paste.txt', {
-        type: 'text/plain'
-      })
-      data.append('file', file)
-    }
-    handleFileUpload({
-      file: data
-    })
-  }, [handleFileUpload])
-
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
       const data = new FormData()
       data.append('file', acceptedFiles[0])
-      handleFileUpload({ file: data })
-    } else {
-      setError({
-        message: 'Invalid input, please make sure to upload a valid file',
-        status: undefined
-      })
-      setResponse({ data: {} })
-      setPage(PAGE.ERROR_PAGE)
+      return handleFileUpload({ file: data })
     }
+    setError({
+      message: 'Invalid input, please make sure to upload a valid file',
+      status: undefined
+    })
+    setResponse({ data: {} })
+    setPage(PAGE.ERROR_PAGE)
   }, [handleFileUpload, setError, setPage, setResponse])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -100,9 +75,32 @@ const FileUploadProvider = ({ children }) => {
   })
 
   useEffect(() => {
+    const handleOnPaste = (event) => {
+      const items = event.clipboardData.items
+      const data = new FormData()
+      if (event.clipboardData.getData('text') === '') {
+        let blob = null
+
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') === 0) {
+            blob = items[i].getAsFile()
+          }
+        }
+        if (!blob) return
+        data.append('file', blob)
+      } else {
+        const file = new File([event.clipboardData.getData('text')], 'paste.txt', {
+          type: 'text/plain'
+        })
+        data.append('file', file)
+      }
+      return handleFileUpload({
+        file: data
+      })
+    }
     window.addEventListener('paste', handleOnPaste, false)
     return () => window.removeEventListener('paste', handleOnPaste)
-  }, [handleOnPaste])
+  }, [handleFileUpload])
 
   const value = {
     handleFileUpload,
