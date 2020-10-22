@@ -1,31 +1,27 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import CustomErrorBox from '../blocks/CustomErrorBox'
 import { faAngleLeft, faBug } from '@fortawesome/free-solid-svg-icons'
-import { useDispatch, useSelector } from 'react-redux'
-import { setError, setPage } from '../../redux/actions'
-import { PAGE_ID } from '../../redux/constants'
+import { PAGE, PageContext } from '../../providers/page-provider'
 
 const ErrorBox = () => {
-  const dispatch = useDispatch()
-  const errorStatus = useSelector(state => state.error.status)
-  const errorMessage = useSelector(state => state.error.message)
+  const { error, setError, setPage } = useContext(PageContext)
   return (
     <CustomErrorBox>
       {
-        errorStatus
-          ? <CustomErrorBox.Status> {errorStatus}</CustomErrorBox.Status>
+        error?.status
+          ? <CustomErrorBox.Status> {error.status}</CustomErrorBox.Status>
           : <CustomErrorBox.Icon icon={faBug}/>
       }
       <CustomErrorBox.Header>Oopsie woopsie,</CustomErrorBox.Header>
       <CustomErrorBox.Header>something went wrong</CustomErrorBox.Header>
       <CustomErrorBox.Pre>
         <CustomErrorBox.Code>
-          {errorMessage}
+          {error?.message}
         </CustomErrorBox.Code>
       </CustomErrorBox.Pre>
       <CustomErrorBox.Back onClick={() => {
-        dispatch(setError({ status: 0, message: '' }))
-        dispatch(setPage({ pageId: PAGE_ID.MAIN_PAGE }))
+        setError({ status: 0, message: '' })
+        setPage({ pageId: PAGE.MAIN_PAGE })
       }}
       >
         <CustomErrorBox.Icon icon={faAngleLeft}/>

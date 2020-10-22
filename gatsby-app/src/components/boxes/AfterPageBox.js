@@ -1,22 +1,18 @@
 import AfterUploadBox from '../blocks/AfterUploadBox'
 import { faAngleLeft, faCopy } from '@fortawesome/free-solid-svg-icons'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { setPage, setResponse } from '../../redux/actions'
-import { PAGE_ID } from '../../redux/constants'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import copy from 'copy-to-clipboard'
 import Countdown from 'react-countdown'
+import { PAGE, PageContext } from '../../providers/page-provider'
 
 const AfterPageBox = () => {
   const [showTooltip, setShowTooltip] = useState(false)
-  const dispatch = useDispatch()
-  const responseDataKey = useSelector(state => state.response.data.key)
-  const responseDeleteTime = useSelector(state => state.response.data.toDelete)
+  const { response, setResponse, setPage } = useContext(PageContext)
   const linkNode = useRef(null)
 
   const resourceLink = useMemo(() => {
-    return (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/' + responseDataKey
-  }, [responseDataKey])
+    return (process.env.GATSBY_API_URL ? process.env.GATSBY_API_URL : window.location.origin) + '/u/' + response.data.key
+  }, [response.data])
 
   const selectLink = () => {
     try {
@@ -105,7 +101,7 @@ const AfterPageBox = () => {
         <AfterUploadBox.DeleteTime>
           <span>Expires in:</span>
           <Countdown
-            date={responseDeleteTime}
+            date={response.data.toDelete}
             zeroPadTime={2}
             renderer={dateRenderer}
           />
@@ -113,8 +109,8 @@ const AfterPageBox = () => {
       </AfterUploadBox.DeleteTimeArea>
       <AfterUploadBox.Back
         onClick={() => {
-          dispatch(setResponse({ received: false, data: {} }))
-          dispatch(setPage({ pageId: PAGE_ID.MAIN_PAGE }))
+          setResponse({ data: {} })
+          setPage({ pageId: PAGE.MAIN_PAGE })
         }}
       >
         <AfterUploadBox.Icon icon={faAngleLeft}/>

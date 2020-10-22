@@ -1,6 +1,0 @@
-export const PAGE_ID = {
-  MAIN_PAGE: 0,
-  LOADING_PAGE: 1,
-  ERROR_PAGE: 2,
-  AFTER_UPLOAD_PAGE: 3,
-}

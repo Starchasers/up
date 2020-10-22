@@ -1,36 +1,35 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { setError, setLoading, setPage, setResponse } from '../redux/actions'
-import { PAGE_ID } from '../redux/constants'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import DropZone, { useDropzone } from 'react-dropzone'
 import Offset from '../components/elements/Offset'
 import GlobalDropZone from '../components/blocks/GlobalDropZone'
 import APIClient from '../api-client'
+import { PAGE, PageContext } from './page-provider'
 
-export const FileUploadContext = React.createContext({})
+export const FileUploadContext = createContext({})
 
 const FileUploadProvider = ({ children }) => {
   const [dragActive, setDragActive] = useState(false)
-  const dispatch = useDispatch()
+  const [loading, setLoading] = useState({ isLoading: false, value: 0})
+  const { setPage, setError, setResponse } = useContext(PageContext)
 
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
       const fileSize = file.get('file').size
 
-      dispatch(setLoading({ isLoading: true, value: 0 }))
-      dispatch(setPage({ pageId: PAGE_ID.LOADING_PAGE }))
+      setLoading({ isLoading: true, value: 0 })
+      setPage(PAGE.LOADING_PAGE)
 
       const configuration = await APIClient.getConfiguration()
       const maxTemporaryFileSize = configuration.data.maxTemporaryFileSize
 
       if (fileSize >= maxTemporaryFileSize) {
-        dispatch(setError({
+        setError({
           message: 'File is too large. Maximum size: ' + Math.floor(maxTemporaryFileSize / 1024 / 1024) + ' MiB',
           status: 413
-        }))
-        dispatch(setResponse({ received: false, data: {} }))
-        dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
-        dispatch(setLoading({ isLoading: true, value: 0 }))
+        })
+        setResponse({ data: {}})
+        setPage(PAGE.ERROR_PAGE)
+        setLoading({ isLoading: false, value: 0 })
         return
       }
 
@@ -39,24 +38,22 @@ const FileUploadProvider = ({ children }) => {
           'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (value) => {
-          dispatch(setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) }))
+          setLoading({ isLoading: true, value: Math.round(value.loaded / value.total * 100) })
         }
       })
-      dispatch(setResponse({ received: true, data: { ...response.data } }))
-      dispatch(setPage({ pageId: PAGE_ID.AFTER_UPLOAD_PAGE }))
+      setResponse({ data: { ...response.data } })
+      setPage(PAGE.AFTER_UPLOAD_PAGE)
     } catch (e) {
-      dispatch(
-        setError({
-          message: e.response ? e.response.data.message : e.toString(),
-          status: e.response ? e.response.status : undefined
-        })
-      )
-      dispatch(setResponse({ received: false, data: {} }))
-      dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+      setError({
+        message: e.response ? e.response.data.message : e.toString(),
+        status: e.response ? e.response.status : undefined
+      })
+      setResponse({ data: {} })
+      setPage(PAGE.ERROR_PAGE)
     } finally {
-      dispatch(setLoading({ isLoading: false, value: 100 }))
+      setLoading({ isLoading: false, value: 100 })
     }
-  }, [dispatch])
+  }, [setError, setPage, setResponse])
 
   const handleOnPaste = useCallback((event) => {
     const items = event.clipboardData.items
@@ -88,14 +85,14 @@ const FileUploadProvider = ({ children }) => {
       data.append('file', acceptedFiles[0])
       handleFileUpload({ file: data })
     } else {
-      dispatch(setError({
+      setError({
         message: 'Invalid input, please make sure to upload a valid file',
         status: undefined
-      }))
-      dispatch(setResponse({ received: false, data: {} }))
-      dispatch(setPage({ pageId: PAGE_ID.ERROR_PAGE }))
+      })
+      setResponse({ data: {} })
+      setPage(PAGE.ERROR_PAGE)
     }
-  }, [dispatch, handleFileUpload])
+  }, [handleFileUpload, setError, setPage, setResponse])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDrop,
@@ -107,17 +104,14 @@ const FileUploadProvider = ({ children }) => {
     return () => window.removeEventListener('paste', handleOnPaste)
   }, [handleOnPaste])
 
-  const value = useMemo(() => ({
+  const value = {
     handleFileUpload,
     getRootProps,
     getInputProps,
-    isDragActive
-  }), [
-    handleFileUpload,
-    getRootProps,
-    getInputProps,
-    isDragActive
-  ])
+    isDragActive,
+    loading,
+    setLoading
+  }
 
   return (
     <FileUploadContext.Provider value={value}>

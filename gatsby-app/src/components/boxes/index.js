@@ -1,21 +1,20 @@
-import { PAGE_ID } from '../../redux/constants'
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useContext } from 'react'
 import Loader from '../elements/Loader'
 import ErrorBox from './ErrorBox'
 import MainPageBox from './MainPageBox'
 import AfterPageBox from './AfterPageBox'
+import { PAGE, PageContext } from '../../providers/page-provider'
 
 const Boxes = () => {
-  const pageId = useSelector(state => state.page.pageId)
-  switch (pageId) {
-    case PAGE_ID.MAIN_PAGE:
+  const { page } = useContext(PageContext)
+  switch (page) {
+    case PAGE.MAIN_PAGE:
       return <MainPageBox/>
-    case PAGE_ID.AFTER_UPLOAD_PAGE:
+    case PAGE.AFTER_UPLOAD_PAGE:
       return <AfterPageBox/>
-    case PAGE_ID.LOADING_PAGE:
+    case PAGE.LOADING_PAGE:
       return <Loader/>
-    case PAGE_ID.ERROR_PAGE:
+    case PAGE.ERROR_PAGE:
       return <ErrorBox/>
     default:
       return <MainPageBox/>

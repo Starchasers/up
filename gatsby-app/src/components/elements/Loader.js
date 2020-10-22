@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { theme } from '../theme'
 import AfterUploadBox from '../blocks/AfterUploadBox'
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux'
+import { FileUploadContext } from '../../providers/file-upload-provider'
 
 const CustomLoader = styled(CircularProgressbar)`
   max-width: 50%;
@@ -30,12 +30,12 @@ const CustomLoader = styled(CircularProgressbar)`
 `
 
 const Loader = () => {
-  const loadingValue = useSelector(state => state.loading.value)
+  const { loading } = useContext(FileUploadContext)
   return (
     <AfterUploadBox>
       <CustomLoader
-        value={loadingValue}
-        text={`${loadingValue === 100 ? 'Saving...' : loadingValue + '%'}`}
+        value={loading.value}
+        text={`${loading.value === 100 ? 'Saving...' : loading.value + '%'}`}
         background
       />
     </AfterUploadBox>
