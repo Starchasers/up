@@ -14,6 +14,7 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.encode
 import pl.starchasers.up.util.matches
 import java.security.Principal
+import kotlin.math.max
 
 const val ROOT_USER_NAME = "root"
 
@@ -34,7 +35,14 @@ interface UserService {
 
     fun listUsers(pageable: Pageable): Page<User>
 
-    fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role)
+    fun updateUser(userId: Long,
+                   username: Username, email: Email?,
+                   password: RawPassword?,
+                   role: Role,
+                   maxTemporaryFileSize: FileSize,
+                   maxPermanentFileSize: FileSize,
+                   defaultFileLifetime: Milliseconds,
+                   maxFileLifetime: Milliseconds)
 
     fun deleteUser(user: User)
 
@@ -83,7 +91,16 @@ class UserServiceImpl(
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
-    override fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role) {
+    override fun updateUser(
+            userId: Long,
+            username: Username, email: Email?,
+            password: RawPassword?,
+            role: Role,
+            maxTemporaryFileSize: FileSize,
+            maxPermanentFileSize: FileSize,
+            defaultFileLifetime: Milliseconds,
+            maxFileLifetime: Milliseconds
+    ) {
         val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
         if (user.username != username) {
@@ -94,6 +111,10 @@ class UserServiceImpl(
         user.email = email
         if (password != null) user.password = passwordEncoder.encode(password)
         user.role = role
+        user.maxTemporaryFileSize = maxTemporaryFileSize
+        user.maxPermanentFileSize = maxPermanentFileSize
+        user.defaultFileLifetime = defaultFileLifetime
+        user.maxFileLifetime = maxFileLifetime
 
         userRepository.save(user)
     }

@@ -18,6 +18,7 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
 import javax.transaction.Transactional
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
+import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.value.Email
 import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
@@ -62,6 +63,10 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                 responseJsonPath("$.username").equalsValue(user.username.value)
                 responseJsonPath("$.email").equalsValue(user.email?.value)
                 responseJsonPath("$.role").equalsValue(user.role.toString())
+                responseJsonPath("$.maxTemporaryFileSize").equalsValue(user.maxTemporaryFileSize.value)
+                responseJsonPath("$.maxPermanentFileSize").equalsValue(user.maxPermanentFileSize.value)
+                responseJsonPath("$.defaultFileLifetime").equalsValue(user.defaultFileLifetime.value)
+                responseJsonPath("$.maxFileLifetime").equalsValue(user.maxFileLifetime.value)
             }
         }
 
@@ -200,7 +205,15 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", "password2", Role.ADMIN)) {
+                    body = UpdateUserDTO(
+                            "newExampleUser",
+                            "mail2@example.com",
+                            "password2",
+                            Role.ADMIN,
+                            ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong())) {
                 isSuccess()
             }
             flush()
@@ -223,7 +236,14 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().contentTypeJson(),
-                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", "password2", Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser",
+                            "mail2@example.com",
+                            "password2",
+                            Role.ADMIN,
+                            ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong())) {
                 isError(HttpStatus.FORBIDDEN)
             }
         }
@@ -239,7 +259,14 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", null, Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser",
+                            "mail2@example.com",
+                            null,
+                            Role.ADMIN,
+                            ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong())) {
                 isSuccess()
             }
             flush()
@@ -257,7 +284,14 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
             flush()
             mockMvc.put(path = getUpdateUserPath(oldUser.id + 123),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                    body = UpdateUserDTO("newExampleUser", "mail2@example.com", null, Role.ADMIN)) {
+                    body = UpdateUserDTO("newExampleUser",
+                            "mail2@example.com",
+                            null,
+                            Role.ADMIN,
+                            ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                            ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong())) {
                 isError(HttpStatus.BAD_REQUEST)
             }
         }

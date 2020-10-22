@@ -44,35 +44,33 @@ class ConfigurationAdminController(
         return ConfigurationDTO(configurationService.getGlobalConfiguration())
     }
 
-    //TODO move to UserAdminController (?)
-    /**
-     * Set user-specific limits
-     * @param userId User to update
-     */
-    @IsAdmin
-    @PutMapping("/user/{userId}")
-    fun setUserConfiguration(@PathVariable userId: Long, @RequestBody userConfigurationDTO: UpdateUserConfigurationDTO) {
-        val user = userService.findUser(userId) ?: throw NotFoundException()
-
-        configurationService.updateUserConfiguration(user, userConfigurationDTO)
-    }
-
-    //TODO move to UserAdminController (?)
-    /**
-     * Get user-specific limits
-     * @param userId User id
-     */
-    @IsAdmin
-    @GetMapping("/user/{userId}")
-    fun getUserConfiguration(@PathVariable userId: Long): UserConfigurationDTO {
-        val user = userService.findUser(userId) ?: throw NotFoundException()
-
-        return UserConfigurationDTO(
-                user.maxTemporaryFileSize.value,
-                user.maxFileLifetime.value,
-                user.defaultFileLifetime.value,
-                user.maxFileLifetime.value == 0L,
-                user.maxPermanentFileSize.value
-        )
-    }
+//    /**
+//     * Set user-specific limits
+//     * @param userId User to update
+//     */
+//    @IsAdmin
+//    @PutMapping("/user/{userId}")
+//    fun setUserConfiguration(@PathVariable userId: Long, @RequestBody userConfigurationDTO: UpdateUserConfigurationDTO) {
+//        val user = userService.findUser(userId) ?: throw NotFoundException()
+//
+//        configurationService.updateUserConfiguration(user, userConfigurationDTO)
+//    }
+//
+//    /**
+//     * Get user-specific limits
+//     * @param userId User id
+//     */
+//    @IsAdmin
+//    @GetMapping("/user/{userId}")
+//    fun getUserConfiguration(@PathVariable userId: Long): UserConfigurationDTO {
+//        val user = userService.findUser(userId) ?: throw NotFoundException()
+//
+//        return UserConfigurationDTO(
+//                user.maxTemporaryFileSize.value,
+//                user.maxFileLifetime.value,
+//                user.defaultFileLifetime.value,
+//                user.maxFileLifetime.value == 0L,
+//                user.maxPermanentFileSize.value
+//        )
+//    }
 }

@@ -31,7 +31,7 @@ class User(
         var maxPermanentFileSize: FileSize = FileSize(0),
 
         @Embedded
-        @AttributeOverride(name = "valie", column = Column(name = "defaultFileLifetime"))
+        @AttributeOverride(name = "value", column = Column(name = "defaultFileLifetime"))
         var defaultFileLifetime: Milliseconds = Milliseconds(0),
 
         @Embedded
