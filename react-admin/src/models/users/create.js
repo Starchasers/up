@@ -12,9 +12,9 @@ import {
 export default (props) => (
   <Create
     {...props}
-    undoable={false}
+    undoable='false'
   >
-    <SimpleForm>
+    <SimpleForm redirect='list'>
       <TextInput
         source='username'
         type='text'
