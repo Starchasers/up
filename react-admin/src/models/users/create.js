@@ -6,6 +6,7 @@ import {
   required,
   RadioButtonGroupInput,
   PasswordInput,
+  email
 } from 'react-admin'
 
 export default (props) => (
@@ -22,7 +23,7 @@ export default (props) => (
       <TextInput
         source='email'
         type='email'
-        validate={required()}
+        validate={[required(), email()]}
       />
       <PasswordInput
         source='password'

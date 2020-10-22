@@ -8,7 +8,8 @@ import {
   PasswordInput,
   Toolbar,
   SaveButton,
-  DeleteButton
+  DeleteButton,
+  email
 } from 'react-admin'
 import { makeStyles } from '@material-ui/core/styles'
 
@@ -45,6 +46,7 @@ export default (props) => (
       <TextInput
         source='email'
         type='email'
+        validate={[required(), email()]}
       />
       <PasswordInput
         source='password'
