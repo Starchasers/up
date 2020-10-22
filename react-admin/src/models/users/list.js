@@ -9,6 +9,7 @@ import {
 export default (props) => (
   <List
     {...props}
+    bulkActionButtons={false}
   >
     <Datagrid>
       <TextField
