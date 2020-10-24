@@ -1,10 +1,13 @@
 import jwt_decode from 'jwt-decode'
 
 const getAccessToken = async () => {
-  const refreshToken = localStorage.getItem('refresh_token')
+  const accessToken = localStorage.getItem('refresh_token')
+
+  if (!accessToken) return Promise.reject({ status: 403 })
+
   const request = new Request(`${process.env.REACT_APP_API_URL}/auth/getAccessToken`, {
     method: 'POST',
-    body: JSON.stringify({ token: refreshToken }),
+    body: JSON.stringify({ token: accessToken }),
     headers: new Headers({ 'Content-Type': 'application/json' }),
   })
 
@@ -23,6 +26,8 @@ const getAccessToken = async () => {
 
 const getRefreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
+
+  if (!refreshToken) return Promise.reject({ status: 403 })
 
   const request = new Request(`${process.env.REACT_APP_API_URL}/auth/refreshToken`, {
     method: 'POST',
@@ -108,7 +113,7 @@ export default {
   },
   getPermissions: () => {
     const accessToken = localStorage.getItem('access_token')
-    return accessToken
+    return accessToken && accessToken !== 'undefined'
       ? Promise.resolve(jwt_decode(accessToken).role)
       : Promise.reject()
   },
