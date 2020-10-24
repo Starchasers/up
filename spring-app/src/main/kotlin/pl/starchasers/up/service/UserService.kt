@@ -64,7 +64,7 @@ class UserServiceImpl(
 
     override fun createUser(username: String, password: String, email: String?, role: Role): User {
         val oldUser = findUser(username)
-        if (oldUser != null) throw BadRequestException()
+        if (oldUser != null) throw BadRequestException("Username already taken.")
         val user = User(
                 0,
                 username,
@@ -84,10 +84,10 @@ class UserServiceImpl(
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
     override fun updateUser(userId: Long, username: String, email: String?, password: String?, role: Role) {
-        val user = findUser(userId) ?: throw BadRequestException()
+        val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
         if (user.username != username) {
-            if (findUser(username) != null) throw BadRequestException()
+            if (findUser(username) != null) throw BadRequestException("Username already taken")
             user.username = username
         }
 
@@ -103,10 +103,10 @@ class UserServiceImpl(
     }
 
     override fun deleteUser(userId: Long, thisUserId: Long) {
-        if (userId == thisUserId) throw BadRequestException()
+        if (userId == thisUserId) throw BadRequestException("Cannot delete current user.")
         if (findUser(userId)?.username == ROOT_USER_NAME) throw AccessDeniedException()
 
-        val toDelete = findUser(userId) ?: throw BadRequestException()
+        val toDelete = findUser(userId) ?: throw BadRequestException("User does not exist")
         userRepository.delete(toDelete)
     }
 

@@ -1,5 +1,6 @@
 package pl.starchasers.up.controller
 
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -36,39 +37,47 @@ class ExceptionHandler() {
         )
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
-    fun handleValidationErrors(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad request."), HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleMessageNotReadable(exception: HttpMessageNotReadableException): ResponseEntity<BasicErrorResponseDTO> {
+        val message = if (exception.cause is MissingKotlinParameterException) {
+            "Bad request. Missing required parameter '${(exception.cause as MissingKotlinParameterException).parameter.name}'."
+        } else "Bad request."
+
+        return ResponseEntity(BasicErrorResponseDTO(message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationErrors(exception: MethodArgumentNotValidException): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO(
+                    "Bad request. Missing or invalid parameter '${exception.parameter.parameterName}.'"),
+                    HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.FORBIDDEN)
+            ResponseEntity(BasicErrorResponseDTO("Access denied."), HttpStatus.FORBIDDEN)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Not Found"), HttpStatus.NOT_FOUND)
+            ResponseEntity(BasicErrorResponseDTO("Not Found."), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(MissingServletRequestPartException::class)
     fun handleMissingServletRequestException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+            ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
-    fun handleMissingServletRequestParameterException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
+    fun handleMissingServletRequestParameterException(exception: MissingServletRequestParameterException): ResponseEntity<BasicErrorResponseDTO> =
+            ResponseEntity(BasicErrorResponseDTO(
+                    "Bad Request. Missing required parameter '${exception.parameterName}'."),
+                    HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MultipartException::class)
     fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request"), HttpStatus.BAD_REQUEST)
-
-    @ExceptionHandler(UserException::class)
-    fun handleUserException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Access denied"), HttpStatus.FORBIDDEN)
-
+            ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(Exception::class)
     fun handleAll(exception: Exception): ResponseEntity<BasicErrorResponseDTO> {
         exception.printStackTrace()
-        return ResponseEntity(BasicErrorResponseDTO("Internal sever error"), HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity(BasicErrorResponseDTO("Internal sever error."), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
 }

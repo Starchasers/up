@@ -44,7 +44,7 @@ class UserAdminController(
     @IsAdmin
     @PutMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
-        if(userDTO.username.isBlank()) throw BadRequestException() //TODO refactor validation
+        if(userDTO.username.isBlank()) throw BadRequestException("Invalid username.") //TODO refactor validation
         userService.updateUser(userId, userDTO.username, nullIfBlank(userDTO.email), nullIfBlank(userDTO.password), userDTO.role)
     }
 

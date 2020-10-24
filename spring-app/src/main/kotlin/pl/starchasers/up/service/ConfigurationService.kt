@@ -62,7 +62,7 @@ class ConfigurationServiceImpl(
     }
 
     override fun setConfigurationOption(key: ConfigurationKey, value: String) {
-        if (value.toLongOrNull() == null) throw BadRequestException()//TODO change if more data types are required
+        if (value.toLongOrNull() == null) throw BadRequestException("Value must be of type Long.")//TODO change if more data types are required
         val entry = configurationRepository.findFirstByKey(key) ?: ConfigurationEntry(0, key, value)
         entry.value = value
         configurationRepository.save(entry)
@@ -78,7 +78,7 @@ class ConfigurationServiceImpl(
             }.toTypedArray())
 
     override fun updateGlobalConfiguration(configuration: Map<ConfigurationKey, String>) {
-        if (configuration.values.any { it.toLongOrNull() == null }) throw BadRequestException()//TODO change if more data types are required
+        if (configuration.values.any { it.toLongOrNull() == null }) throw BadRequestException("Value must be of type Long.")//TODO change if more data types are required
 
         configuration.forEach { setConfigurationOption(it.key, it.value) }
     }
