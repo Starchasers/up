@@ -1,9 +1,6 @@
 package pl.starchasers.up.data.model
 
-import pl.starchasers.up.data.value.FileSize
-import pl.starchasers.up.data.value.FileSizeConverter
-import pl.starchasers.up.data.value.Milliseconds
-import pl.starchasers.up.data.value.MillisecondsConverter
+import pl.starchasers.up.data.value.*
 import pl.starchasers.up.security.Role
 import javax.persistence.*
 
@@ -13,31 +10,31 @@ class User(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
 
-        @Column(length = 32, unique = true, updatable = true, nullable = false)
-        var username: String,
+        @Embedded
+        var username: Username,
 
-        @Column(length = 160, nullable = false)
-        var password: String,
+        @Embedded
+        var password: UserPassword,
 
-        @Column(length = 64, nullable = true)
-        var email: String?,
+        @Embedded
+        var email: Email?,
 
         @Column(nullable = false, unique = false)
         var role: Role,
 
-        @Convert(converter = FileSizeConverter::class)
-        @Column(nullable = false, unique = false)
-        var maxTemporaryFileSize: FileSize =  FileSize(0),
+        @Embedded
+        @AttributeOverride(name = "value", column = Column(name = "maxTemporaryFileSize"))
+        var maxTemporaryFileSize: FileSize = FileSize(0),
 
-        @Convert(converter = FileSizeConverter::class)
-        @Column(nullable = false, unique = false)
+        @Embedded
+        @AttributeOverride(name = "value", column = Column(name = "maxPermanentFileSize"))
         var maxPermanentFileSize: FileSize = FileSize(0),
 
-        @Convert(converter = MillisecondsConverter::class)
-        @Column(nullable = false, unique = false)
+        @Embedded
+        @AttributeOverride(name = "valie", column = Column(name = "defaultFileLifetime"))
         var defaultFileLifetime: Milliseconds = Milliseconds(0),
 
-        @Convert(converter = MillisecondsConverter::class)
-        @Column(nullable = false, unique = false)
+        @Embedded
+        @AttributeOverride(name = "value", column = Column(name = "maxFileLifetime"))
         var maxFileLifetime: Milliseconds = Milliseconds(0)
 )

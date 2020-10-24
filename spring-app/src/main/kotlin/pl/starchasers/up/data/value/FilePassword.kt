@@ -5,13 +5,13 @@ import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
-data class Milliseconds(
-        @Column(name = "miliseconds")
-        val value: Long
+data class FilePassword(
+        @Column(name = "filePassword", length = 255)
+        val value: String
 ) {
     init {
-        validate(this, Milliseconds::value) {
-            check { it >= 0 }
+        validate(this, FilePassword::value) {
+            check { it.length <= 255 }
         }
     }
 }

@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.model.FileContent
 import pl.starchasers.up.data.model.FileEntry
+import pl.starchasers.up.data.value.FileKey
+import pl.starchasers.up.data.value.Filename
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
@@ -12,9 +14,9 @@ import java.io.InputStream
 import java.time.LocalDateTime
 
 interface FileStorageService {
-    fun storeNonPermanentFile(tmpFile: InputStream, filename: String): String
+    fun storeNonPermanentFile(tmpFile: InputStream, filename: Filename): FileKey
 
-    fun getStoredFileRaw(key: String): Pair<FileEntry, InputStream>
+    fun getStoredFileRaw(key: FileKey): Pair<FileEntry, InputStream>
 
     fun deleteFile(fileEntry: FileEntry)
 }
@@ -33,15 +35,15 @@ class FileStorageServiceImpl(
     private val util = Util()
 
     @Transactional
-    override fun storeNonPermanentFile(tmpFile: InputStream, filename: String): String {
-        val key = util.secureReadableRandomString(NON_PERMANENT_FILE_KEY_LENGTH)
+    override fun storeNonPermanentFile(tmpFile: InputStream, filename: Filename): FileKey {
+        val key = FileKey(util.secureReadableRandomString(NON_PERMANENT_FILE_KEY_LENGTH))
         val fileContent = FileContent(key, tmpFile)
         uploadRepository.save(fileContent)
 
         return key
     }
 
-    override fun getStoredFileRaw(key: String): Pair<FileEntry, InputStream> {
+    override fun getStoredFileRaw(key: FileKey): Pair<FileEntry, InputStream> {
         val fileEntry = fileEntryRepository.findExistingFileByKey(key) ?: throw NotFoundException()
 
         val upload = uploadRepository.find(key) ?: throw NotFoundException()//TODO handle possible data inconsistency

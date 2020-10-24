@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.model.RefreshToken
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.RefreshTokenId
 import pl.starchasers.up.exception.JwtTokenException
 import pl.starchasers.up.repository.RefreshTokenRepository
 import pl.starchasers.up.util.Util
@@ -27,7 +28,7 @@ interface JwtTokenService {
 
     fun issueAccessToken(refreshToken: String): String
 
-    fun verifyRefreshToken(token: String, user: User)
+    fun verifyRefreshToken(token: RefreshTokenId, user: User)
 
     fun parseToken(token: String): Claims
 
@@ -60,9 +61,9 @@ class JwtTokenServiceImpl(
     override fun issueRefreshToken(user: User): String {
         val claims = Jwts.claims().setSubject(user.id.toString())
         val now = Date()
-        val tokenId = UUID.randomUUID().toString()
+        val tokenId = RefreshTokenId(UUID.randomUUID().toString())
 
-        claims[TOKEN_ID_KEY] = tokenId
+        claims[TOKEN_ID_KEY] = tokenId.value
         val refreshToken = RefreshToken(
                 0,
                 user,
@@ -85,7 +86,7 @@ class JwtTokenServiceImpl(
         val oldClaims = parseToken(oldRefreshToken)
         val user = userService.getUser(oldClaims.subject.toLong())
 
-        verifyRefreshToken(oldClaims[TOKEN_ID_KEY] as String, user)
+        verifyRefreshToken(oldClaims.getTokenId(), user)
 
         return issueRefreshToken(user)
     }
@@ -98,7 +99,7 @@ class JwtTokenServiceImpl(
         val claims = Jwts.claims().setSubject(user.id.toString())
         claims[ROLE_KEY] = user.role
 
-        verifyRefreshToken(refreshTokenClaims[TOKEN_ID_KEY] as String, user)
+        verifyRefreshToken(RefreshTokenId(refreshTokenClaims[TOKEN_ID_KEY] as String), user)
 
         val now = Date()
 
@@ -111,7 +112,7 @@ class JwtTokenServiceImpl(
 
     }
 
-    override fun verifyRefreshToken(token: String, user: User) {
+    override fun verifyRefreshToken(token: RefreshTokenId, user: User) {
         refreshTokenRepository.findFirstByTokenAndUser(token, user) ?: throw JwtTokenException("Invalid refresh token.")
     }
 
@@ -131,6 +132,12 @@ class JwtTokenServiceImpl(
     @Transactional
     override fun invalidateRefreshToken(refreshToken: String) {
         val claims = parseToken(refreshToken)
-        refreshTokenRepository.deleteAllByToken(claims[TOKEN_ID_KEY] as String)
+        refreshTokenRepository.deleteAllByToken(claims.getTokenId())
     }
+}
+
+fun Claims.getTokenId(): RefreshTokenId {
+    val idString = this[TOKEN_ID_KEY]
+    if(idString !is String) throw JwtTokenException("Invalid refresh token")
+    return RefreshTokenId(idString)
 }

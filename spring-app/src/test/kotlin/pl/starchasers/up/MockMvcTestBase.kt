@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 import javax.persistence.EntityManager
@@ -104,6 +105,6 @@ abstract class MockMvcTestBase {
     }
 
     final fun getAdminAccessToken(): String {
-        return jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(userService.getUser("root")))
+        return jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(userService.getUser(Username("root"))))
     }
 }

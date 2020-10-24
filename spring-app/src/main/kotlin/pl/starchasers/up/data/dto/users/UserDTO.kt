@@ -4,7 +4,7 @@ import pl.starchasers.up.security.Role
 
 data class UserDTO(
         val id: Long,
-        val username: String,//TODO use value object
+        val username: String,
         val email: String?,
         val role: Role
 )
