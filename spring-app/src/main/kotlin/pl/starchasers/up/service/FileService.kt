@@ -9,6 +9,7 @@ import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
 import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.data.model.User
+import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.FileTooLargeException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
@@ -21,15 +22,15 @@ import javax.transaction.Transactional
 
 interface FileService {
 
-    fun createFile(tmpFile: InputStream, filename: String, contentType: String, size: Long, user: User?): UploadCompleteResponseDTO
+    fun createFile(tmpFile: InputStream, filename: Filename, contentType: ContentType, size: FileSize, user: User?): UploadCompleteResponseDTO
 
-    fun verifyFileAccess(fileEntry: FileEntry, accessToken: String): Boolean
+    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean
 
-    fun verifyFileAccess(fileKey: String, accessToken: String): Boolean
+    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean
 
-    fun findFileEntry(fileKey: String): FileEntry?
+    fun findFileEntry(fileKey: FileKey): FileEntry?
 
-    fun getFileDetails(fileKey: String): FileDetailsDTO
+    fun getFileDetails(fileKey: FileKey): FileDetailsDTO
 
     fun deleteFile(fileEntry: FileEntry)
 
@@ -51,18 +52,18 @@ class FileServiceImpl(
     @Transactional
     override fun createFile(
             tmpFile: InputStream,
-            filename: String,
-            contentType: String,
-            size: Long,
+            filename: Filename,
+            contentType: ContentType,
+            size: FileSize,
             user: User?
     ): UploadCompleteResponseDTO {
         val actualContentType = when {
-            contentType.isBlank() -> "application/octet-stream"
-            contentType == "text/plain" -> "text/plain; charset=" + charsetDetectionService.detect(tmpFile)
+            contentType.value.isBlank() -> ContentType("application/octet-stream")
+            contentType.value == "text/plain" -> ContentType("text/plain; charset=" + charsetDetectionService.detect(tmpFile))
             else -> contentType
         }
-        val personalLimit: Long = user?.maxTemporaryFileSize?.value
-                ?: configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong()
+        val personalLimit: FileSize = user?.maxTemporaryFileSize
+                ?: FileSize(configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong())
 
         if (size > personalLimit) throw FileTooLargeException()
 
@@ -85,30 +86,30 @@ class FileServiceImpl(
         fileEntryRepository.save(fileEntry)
 
 
-        return UploadCompleteResponseDTO(key, accessToken, toDeleteDate)
+        return UploadCompleteResponseDTO(key.value, accessToken.value, toDeleteDate)
     }
 
-    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: String): Boolean =
-            fileEntry.accessToken.isNotBlank() && fileEntry.accessToken == accessToken
+    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean =
+            fileEntry.accessToken == accessToken
 
-    override fun verifyFileAccess(fileKey: String, accessToken: String): Boolean =
+    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean =
             fileEntryRepository
                     .findExistingFileByKey(fileKey)
-                    ?.let { it.accessToken.isNotBlank() && it.accessToken == accessToken } ?: false
+                    ?.let { it.accessToken == accessToken } ?: false
 
-    override fun findFileEntry(fileKey: String): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
+    override fun findFileEntry(fileKey: FileKey): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
 
-    override fun getFileDetails(fileKey: String): FileDetailsDTO =
+    override fun getFileDetails(fileKey: FileKey): FileDetailsDTO =
             fileEntryRepository.findExistingFileByKey(fileKey)?.let {
                 FileDetailsDTO(
-                        it.key,
-                        it.filename,
+                        it.key.value,
+                        it.filename.value,
                         it.permanent,
                         if (!it.permanent) it.toDeleteDate
-                                ?: throw IllegalStateException("Not permanent file without delete date! FileKey: ${it.key}")
+                                ?: throw IllegalStateException("Temporary file without delete date! FileKey: ${it.key}")
                         else null,
-                        it.size,
-                        it.contentType)
+                        it.size.value,
+                        it.contentType.value)
             } ?: throw NotFoundException()
 
 
@@ -116,5 +117,5 @@ class FileServiceImpl(
         fileStorageService.deleteFile(fileEntry)
     }
 
-    private fun generateFileAccessToken(): String = util.secureAlphanumericRandomString(128)
+    private fun generateFileAccessToken(): FileAccessToken = FileAccessToken(util.secureAlphanumericRandomString(128))
 }

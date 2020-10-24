@@ -1,3 +1,5 @@
 package pl.starchasers.up.exception
 
-class UserException(reason: String) : RuntimeException(reason)
+import org.springframework.http.HttpStatus
+
+class UserException(reason: String = "Access denied.") : ApplicationException(reason, HttpStatus.FORBIDDEN)

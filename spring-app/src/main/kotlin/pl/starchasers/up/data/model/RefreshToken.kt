@@ -1,6 +1,7 @@
 package pl.starchasers.up.data.model
 
 import com.sun.istack.NotNull
+import pl.starchasers.up.data.value.RefreshTokenId
 import java.sql.Timestamp
 import javax.persistence.*
 
@@ -14,8 +15,8 @@ class RefreshToken(
         @ManyToOne(targetEntity = User::class, fetch = FetchType.LAZY)
         val user: User,
 
-        @Column(nullable = false, unique = true, updatable = false)
-        val token: String,
+        @Embedded
+        val token: RefreshTokenId,
 
         @Column(nullable = false, updatable = false)
         val creationDate: Timestamp,

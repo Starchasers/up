@@ -5,8 +5,8 @@ import pl.starchasers.up.security.Role
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CreateUserDTO(
-        val username: String, //TODO use value objects
+        val username: String,
         val password: String,
-        val email: String, //TODO should email be required?
+        val email: String?,
         val role: Role
 )
