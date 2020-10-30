@@ -1,5 +1,6 @@
 package pl.starchasers.up.data.value
 
+import pl.starchasers.up.util.runOrNull
 import pl.starchasers.up.util.validate
 import javax.persistence.Column
 import javax.persistence.Embeddable
@@ -18,3 +19,5 @@ data class Username(
     }
 }
 
+
+fun String?.toUsername(): Username? = this.runOrNull { Username(it) }

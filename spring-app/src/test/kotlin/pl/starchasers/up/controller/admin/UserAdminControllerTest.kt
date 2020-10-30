@@ -203,7 +203,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     Email("email@example.com"),
                     Role.USER)
             flush()
-            mockMvc.put(path = getUpdateUserPath(oldUser.id),
+            mockMvc.patch(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = UpdateUserDTO(
                             "newExampleUser",
@@ -234,7 +234,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     Email("email@example.com"),
                     Role.USER)
             flush()
-            mockMvc.put(path = getUpdateUserPath(oldUser.id),
+            mockMvc.patch(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().contentTypeJson(),
                     body = UpdateUserDTO("newExampleUser",
                             "mail2@example.com",
@@ -257,7 +257,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     Email("email@example.com"),
                     Role.USER)
             flush()
-            mockMvc.put(path = getUpdateUserPath(oldUser.id),
+            mockMvc.patch(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = UpdateUserDTO("newExampleUser",
                             "mail2@example.com",
@@ -282,7 +282,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     Email("email@example.com"),
                     Role.USER)
             flush()
-            mockMvc.put(path = getUpdateUserPath(oldUser.id + 123),
+            mockMvc.patch(path = getUpdateUserPath(oldUser.id + 123),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = UpdateUserDTO("newExampleUser",
                             "mail2@example.com",
@@ -304,7 +304,7 @@ internal class UserAdminControllerTest() : MockMvcTestBase() {
                     RawPassword("password"),
                     Email("email@example.com"), Role.USER)
             flush()
-            mockMvc.put(path = getUpdateUserPath(oldUser.id),
+            mockMvc.patch(path = getUpdateUserPath(oldUser.id),
                     headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                     body = object {
                         val id = oldUser.id

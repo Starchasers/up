@@ -20,7 +20,7 @@ class ConfigurationAdminController(
      * Update many options in global configuration
      */
     @IsAdmin
-    @PutMapping("")
+    @PatchMapping("")
     fun updateConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         configurationService.updateGlobalConfiguration(configurationDTO.options)
     }

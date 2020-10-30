@@ -47,18 +47,18 @@ class UserAdminController(
     }
 
     @IsAdmin
-    @PutMapping("/{userId}")
+    @PatchMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
         userService.updateUser(
                 userId,
-                Username(userDTO.username),
+                userDTO.username.toUsername(),
                 if (userDTO.email.isNullOrBlank()) null else Email(userDTO.email),
                 if (userDTO.password.isNullOrBlank()) null else RawPassword(userDTO.password),
                 userDTO.role,
-                FileSize(userDTO.maxTemporaryFileSize),
-                FileSize(userDTO.maxPermanentFileSize),
-                Milliseconds(userDTO.defaultFileLifetime),
-                Milliseconds(userDTO.maxFileLifetime))
+                userDTO.maxTemporaryFileSize.toFileSize(),
+                userDTO.maxPermanentFileSize.toFileSize(),
+                userDTO.defaultFileLifetime.toMilliseconds(),
+                userDTO.maxFileLifetime.toMilliseconds())
     }
 
     @IsAdmin

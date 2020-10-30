@@ -56,7 +56,7 @@ internal class ConfigurationAdminControllerTest(
         @Test
         @DocumentResponse
         fun `Given valid request, should update all configuration values`() {
-            mockMvc.put(
+            mockMvc.patch(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(
@@ -74,7 +74,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given incorrect key, should return 400 and update nothing`() {
             val incorrectKey = "incorrectKey"
 
-            mockMvc.put(
+            mockMvc.patch(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = object {
@@ -89,7 +89,7 @@ internal class ConfigurationAdminControllerTest(
 
         @Test
         fun `Given empty map, should update nothing`() {
-            mockMvc.put(
+            mockMvc.patch(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(mapOf())
@@ -102,7 +102,7 @@ internal class ConfigurationAdminControllerTest(
         fun `Given incorrect data type, should return 400 and update nothing`() {
             val incorrectValue = "qwe"
 
-            mockMvc.put(
+            mockMvc.patch(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
                     body = ConfigurationDTO(
@@ -118,7 +118,7 @@ internal class ConfigurationAdminControllerTest(
 
         @Test
         fun `Given unauthorized request, should return 403`() {
-            mockMvc.put(
+            mockMvc.patch(
                     path = requestPath,
                     headers = HttpHeaders().contentTypeJson().authorization(getUserAccessToken()),
                     body = ConfigurationDTO(

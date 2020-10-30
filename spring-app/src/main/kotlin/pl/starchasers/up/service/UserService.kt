@@ -12,6 +12,7 @@ import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.encode
+import pl.starchasers.up.util.ifNotNull
 import pl.starchasers.up.util.matches
 import java.security.Principal
 import kotlin.math.max
@@ -36,13 +37,14 @@ interface UserService {
     fun listUsers(pageable: Pageable): Page<User>
 
     fun updateUser(userId: Long,
-                   username: Username, email: Email?,
+                   username: Username?,
+                   email: Email?,
                    password: RawPassword?,
-                   role: Role,
-                   maxTemporaryFileSize: FileSize,
-                   maxPermanentFileSize: FileSize,
-                   defaultFileLifetime: Milliseconds,
-                   maxFileLifetime: Milliseconds)
+                   role: Role?,
+                   maxTemporaryFileSize: FileSize?,
+                   maxPermanentFileSize: FileSize?,
+                   defaultFileLifetime: Milliseconds?,
+                   maxFileLifetime: Milliseconds?)
 
     fun deleteUser(user: User)
 
@@ -93,28 +95,29 @@ class UserServiceImpl(
 
     override fun updateUser(
             userId: Long,
-            username: Username, email: Email?,
+            username: Username?,
+            email: Email?,
             password: RawPassword?,
-            role: Role,
-            maxTemporaryFileSize: FileSize,
-            maxPermanentFileSize: FileSize,
-            defaultFileLifetime: Milliseconds,
-            maxFileLifetime: Milliseconds
+            role: Role?,
+            maxTemporaryFileSize: FileSize?,
+            maxPermanentFileSize: FileSize?,
+            defaultFileLifetime: Milliseconds?,
+            maxFileLifetime: Milliseconds?
     ) {
         val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
-        if (user.username != username) {
+        if (username != null && user.username != username) {
             if (findUser(username) != null) throw BadRequestException("Username already taken")
             user.username = username
         }
 
         user.email = email
-        if (password != null) user.password = passwordEncoder.encode(password)
-        user.role = role
-        user.maxTemporaryFileSize = maxTemporaryFileSize
-        user.maxPermanentFileSize = maxPermanentFileSize
-        user.defaultFileLifetime = defaultFileLifetime
-        user.maxFileLifetime = maxFileLifetime
+        password.ifNotNull { user.password = passwordEncoder.encode(it) }
+        role.ifNotNull { user.role = it }
+        maxTemporaryFileSize.ifNotNull { user.maxTemporaryFileSize = it }
+        maxPermanentFileSize.ifNotNull { user.maxPermanentFileSize = it }
+        defaultFileLifetime.ifNotNull { user.defaultFileLifetime = it }
+        maxFileLifetime.ifNotNull { user.maxFileLifetime = it }
 
         userRepository.save(user)
     }
