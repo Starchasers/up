@@ -44,7 +44,7 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class SetConfiguration : MockMvcTestBase() {
+    inner class UpdateConfiguration : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config")
 
@@ -133,7 +133,7 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class GetGlobalConfiguration : MockMvcTestBase() {
+    inner class GetAppConfiguration : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config")
 

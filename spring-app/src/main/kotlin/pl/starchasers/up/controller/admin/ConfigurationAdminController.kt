@@ -21,7 +21,7 @@ class ConfigurationAdminController(
      */
     @IsAdmin
     @PutMapping("")
-    fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
+    fun updateConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         configurationService.updateGlobalConfiguration(configurationDTO.options)
     }
 
@@ -30,7 +30,7 @@ class ConfigurationAdminController(
      */
     @IsAdmin
     @GetMapping("")
-    fun getGlobalConfiguration(): ConfigurationDTO {
+    fun getAppConfiguration(): ConfigurationDTO {
         return ConfigurationDTO(configurationService.getGlobalConfiguration())
     }
 
