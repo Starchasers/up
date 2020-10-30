@@ -18,4 +18,5 @@ class Util() {
         if (length < 1) throw IllegalArgumentException("String length < 1: $length")
         return String(CharArray(length) { characters[random.nextInt(characters.length)] })
     }
+
 }

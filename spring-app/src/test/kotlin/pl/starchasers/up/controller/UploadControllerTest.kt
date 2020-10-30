@@ -193,7 +193,6 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
         @Test
         fun `Given invalid Range header, should return 200`() {
-            val contentSize = content.byteInputStream().readAllBytes().size.toLong()
             val key = createFile("text/plain")
 
             val headers = HttpHeaders()

@@ -34,7 +34,15 @@ interface UserService {
 
     fun listUsers(pageable: Pageable): Page<User>
 
-    fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role)
+    fun updateUser(userId: Long,
+                   username: Username?,
+                   email: Email?,
+                   password: RawPassword?,
+                   role: Role?,
+                   maxTemporaryFileSize: FileSize?,
+                   maxPermanentFileSize: FileSize?,
+                   defaultFileLifetime: Milliseconds?,
+                   maxFileLifetime: Milliseconds?)
 
     fun deleteUser(user: User)
 
@@ -83,17 +91,31 @@ class UserServiceImpl(
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
-    override fun updateUser(userId: Long, username: Username, email: Email?, password: RawPassword?, role: Role) {
+    override fun updateUser(
+            userId: Long,
+            username: Username?,
+            email: Email?,
+            password: RawPassword?,
+            role: Role?,
+            maxTemporaryFileSize: FileSize?,
+            maxPermanentFileSize: FileSize?,
+            defaultFileLifetime: Milliseconds?,
+            maxFileLifetime: Milliseconds?
+    ) {
         val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
-        if (user.username != username) {
+        if (username != null && user.username != username) {
             if (findUser(username) != null) throw BadRequestException("Username already taken")
             user.username = username
         }
 
         user.email = email
-        if (password != null) user.password = passwordEncoder.encode(password)
-        user.role = role
+        password?.let { user.password = passwordEncoder.encode(it) }
+        role?.let { user.role = it }
+        maxTemporaryFileSize?.let { user.maxTemporaryFileSize = it }
+        maxPermanentFileSize?.let { user.maxPermanentFileSize = it }
+        defaultFileLifetime?.let { user.defaultFileLifetime = it }
+        maxFileLifetime?.let { user.maxFileLifetime = it }
 
         userRepository.save(user)
     }

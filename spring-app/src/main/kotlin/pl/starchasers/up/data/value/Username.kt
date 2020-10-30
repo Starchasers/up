@@ -18,3 +18,5 @@ data class Username(
     }
 }
 
+
+fun String?.toUsername(): Username? = this?.let { Username(it) }
