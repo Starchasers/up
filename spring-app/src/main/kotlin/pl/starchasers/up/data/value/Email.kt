@@ -1,6 +1,5 @@
 package pl.starchasers.up.data.value
 
-import pl.starchasers.up.util.runOrNull
 import pl.starchasers.up.util.validate
 import javax.persistence.Column
 import javax.persistence.Embeddable
@@ -18,4 +17,4 @@ data class Email(
     }
 }
 
-fun String?.toEmail(): Email? = this.runOrNull { Email(it) }
+fun String?.toEmail(): Email? = this?.let { Email(it) }

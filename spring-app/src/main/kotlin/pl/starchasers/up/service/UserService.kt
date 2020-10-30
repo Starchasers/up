@@ -12,10 +12,8 @@ import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.encode
-import pl.starchasers.up.util.ifNotNull
 import pl.starchasers.up.util.matches
 import java.security.Principal
-import kotlin.math.max
 
 const val ROOT_USER_NAME = "root"
 
@@ -112,12 +110,12 @@ class UserServiceImpl(
         }
 
         user.email = email
-        password.ifNotNull { user.password = passwordEncoder.encode(it) }
-        role.ifNotNull { user.role = it }
-        maxTemporaryFileSize.ifNotNull { user.maxTemporaryFileSize = it }
-        maxPermanentFileSize.ifNotNull { user.maxPermanentFileSize = it }
-        defaultFileLifetime.ifNotNull { user.defaultFileLifetime = it }
-        maxFileLifetime.ifNotNull { user.maxFileLifetime = it }
+        password?.let { user.password = passwordEncoder.encode(it) }
+        role?.let { user.role = it }
+        maxTemporaryFileSize?.let { user.maxTemporaryFileSize = it }
+        maxPermanentFileSize?.let { user.maxPermanentFileSize = it }
+        defaultFileLifetime?.let { user.defaultFileLifetime = it }
+        maxFileLifetime?.let { user.maxFileLifetime = it }
 
         userRepository.save(user)
     }

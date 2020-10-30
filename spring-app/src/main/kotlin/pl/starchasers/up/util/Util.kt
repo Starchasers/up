@@ -20,9 +20,3 @@ class Util() {
     }
 
 }
-
-inline fun <T, U> T?.ifNotNull(function: (obj: T) -> U) {
-    if (this != null) function.invoke(this)
-}
-
-fun <T, U> T?.runOrNull(function: (obj: T) -> U?): U? = if (this == null) null else function.invoke(this)
