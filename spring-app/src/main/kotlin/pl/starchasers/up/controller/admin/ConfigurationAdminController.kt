@@ -13,24 +13,14 @@ import pl.starchasers.up.service.UserService
 @RestController
 @RequestMapping("/api/admin/config")
 class ConfigurationAdminController(
-        private val configurationService: ConfigurationService,
-        private val userService: UserService
+        private val configurationService: ConfigurationService
 ) {
-
-    /**
-     * Update one option in global configuration
-     */
-    @IsAdmin
-    @PutMapping("")
-    fun setConfigurationOption(@RequestBody configurationOptionDTO: ConfigurationOptionDTO) {
-        configurationService.setConfigurationOption(configurationOptionDTO.key, configurationOptionDTO.value)
-    }
 
     /**
      * Update many options in global configuration
      */
     @IsAdmin
-    @PutMapping("/all")
+    @PutMapping("")
     fun setConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         configurationService.updateGlobalConfiguration(configurationDTO.options)
     }
@@ -39,38 +29,9 @@ class ConfigurationAdminController(
      * Get entire global configuration
      */
     @IsAdmin
-    @GetMapping("/all")
+    @GetMapping("")
     fun getGlobalConfiguration(): ConfigurationDTO {
         return ConfigurationDTO(configurationService.getGlobalConfiguration())
     }
 
-//    /**
-//     * Set user-specific limits
-//     * @param userId User to update
-//     */
-//    @IsAdmin
-//    @PutMapping("/user/{userId}")
-//    fun setUserConfiguration(@PathVariable userId: Long, @RequestBody userConfigurationDTO: UpdateUserConfigurationDTO) {
-//        val user = userService.findUser(userId) ?: throw NotFoundException()
-//
-//        configurationService.updateUserConfiguration(user, userConfigurationDTO)
-//    }
-//
-//    /**
-//     * Get user-specific limits
-//     * @param userId User id
-//     */
-//    @IsAdmin
-//    @GetMapping("/user/{userId}")
-//    fun getUserConfiguration(@PathVariable userId: Long): UserConfigurationDTO {
-//        val user = userService.findUser(userId) ?: throw NotFoundException()
-//
-//        return UserConfigurationDTO(
-//                user.maxTemporaryFileSize.value,
-//                user.maxFileLifetime.value,
-//                user.defaultFileLifetime.value,
-//                user.maxFileLifetime.value == 0L,
-//                user.maxPermanentFileSize.value
-//        )
-//    }
 }

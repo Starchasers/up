@@ -44,75 +44,9 @@ internal class ConfigurationAdminControllerTest(
     @Transactional
     @OrderTests
     @Nested
-    inner class SetConfigurationOption : MockMvcTestBase() {
-
-        private val requestPath = Path("/api/admin/config")
-
-        @Test
-        @DocumentResponse
-        fun `Given valid request, should update configuration`() {
-            val newValue = "123456789"
-            val key = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
-            mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                    body = ConfigurationOptionDTO(
-                            key,
-                            newValue
-                    )) {
-                isSuccess()
-            }
-            assertEquals(newValue, configurationService.getConfigurationOption(key))
-        }
-
-        @Test
-        fun `Given incorrect key, should return 400`() {
-            mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                    body = object {
-                        val key = "incorrectKey"
-                        val value = "123456789"
-                    }) {
-                isError(HttpStatus.BAD_REQUEST)
-            }
-        }
-
-        @Test
-        fun `Given incorrect value type, should return 400`() {
-            val newValue = "qwe"
-            val key = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
-            mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                    body = ConfigurationOptionDTO(
-                            key,
-                            newValue
-                    )) {
-                isError(HttpStatus.BAD_REQUEST)
-            }
-
-            assertEquals(configurationService.getConfigurationOption(key), key.defaultValue)
-        }
-
-        @Test
-        fun `Given unauthorized request, should return 403`() {
-            val newValue = "123456789"
-            val key = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
-            mockMvc.put(path = requestPath,
-                    headers = HttpHeaders().contentTypeJson().authorization(getUserAccessToken()),
-                    body = ConfigurationOptionDTO(
-                            key,
-                            newValue
-                    )) {
-                isError(HttpStatus.FORBIDDEN)
-            }
-        }
-    }
-
-    @Transactional
-    @OrderTests
-    @Nested
     inner class SetConfiguration : MockMvcTestBase() {
 
-        private val requestPath = Path("/api/admin/config/all")
+        private val requestPath = Path("/api/admin/config")
 
         private val key1 = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
         private val value1 = "123456789"
@@ -201,7 +135,7 @@ internal class ConfigurationAdminControllerTest(
     @Nested
     inner class GetGlobalConfiguration : MockMvcTestBase() {
 
-        private val requestPath = Path("/api/admin/config/all")
+        private val requestPath = Path("/api/admin/config")
 
         @Test
         @DocumentResponse
