@@ -38,6 +38,6 @@ class User(
         @AttributeOverride(name = "value", column = Column(name = "maxFileLifetime"))
         var maxFileLifetime: Milliseconds = Milliseconds(0),
 
-        @OneToMany
+        @OneToMany(fetch = FetchType.LAZY)
         val files: MutableSet<FileEntry> = mutableSetOf()
 )

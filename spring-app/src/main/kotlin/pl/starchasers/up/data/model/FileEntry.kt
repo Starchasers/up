@@ -40,6 +40,6 @@ class FileEntry(
         @Embedded
         val size: FileSize,
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         val owner: User?
 )

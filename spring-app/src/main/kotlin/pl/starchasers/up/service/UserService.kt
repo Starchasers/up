@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException

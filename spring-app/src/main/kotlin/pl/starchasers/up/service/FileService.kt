@@ -1,6 +1,8 @@
 package pl.starchasers.up.service
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
@@ -33,6 +35,8 @@ interface FileService {
     fun getFileDetails(fileKey: FileKey): FileDetailsDTO
 
     fun deleteFile(fileEntry: FileEntry)
+
+    fun getUploadHistory(user: User, pageable: Pageable): Page<FileEntry>
 
 }
 
@@ -117,6 +121,10 @@ class FileServiceImpl(
 
     override fun deleteFile(fileEntry: FileEntry) {
         fileStorageService.deleteFile(fileEntry)
+    }
+
+    override fun getUploadHistory(user: User, pageable: Pageable): Page<FileEntry> {
+        return fileEntryRepository.findAllByOwner(user, pageable)
     }
 
     private fun generateFileAccessToken(): FileAccessToken = FileAccessToken(util.secureAlphanumericRandomString(128))
