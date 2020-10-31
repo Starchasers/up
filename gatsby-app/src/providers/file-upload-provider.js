@@ -4,13 +4,14 @@ import Offset from '../components/elements/Offset'
 import GlobalDropZone from '../components/blocks/GlobalDropZone'
 import APIClient from '../api-client'
 import { PAGE, PageContext } from './page-provider'
+import { LoadingContext } from './loading-provider'
 
 export const FileUploadContext = createContext({})
 
 const FileUploadProvider = ({ children }) => {
   const [dragActive, setDragActive] = useState(false)
-  const [loading, setLoading] = useState({ isLoading: false, value: 0})
   const { setPage, setError, setResponse } = useContext(PageContext)
+  const { setLoading } = useContext(LoadingContext)
 
   const handleFileUpload = useCallback(async ({ file }) => {
     try {
@@ -53,7 +54,7 @@ const FileUploadProvider = ({ children }) => {
     } finally {
       setLoading({ isLoading: false, value: 100 })
     }
-  }, [setError, setPage, setResponse])
+  }, [setError, setPage, setResponse, setLoading])
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -106,9 +107,7 @@ const FileUploadProvider = ({ children }) => {
     handleFileUpload,
     getRootProps,
     getInputProps,
-    isDragActive,
-    loading,
-    setLoading
+    isDragActive
   }
 
   return (

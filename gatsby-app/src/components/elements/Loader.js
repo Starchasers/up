@@ -4,7 +4,7 @@ import AfterUploadBox from '../blocks/AfterUploadBox'
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import styled from 'styled-components'
-import { FileUploadContext } from '../../providers/file-upload-provider'
+import { LoadingContext } from '../../providers/loading-provider'
 
 const CustomLoader = styled(CircularProgressbar)`
   max-width: 50%;
@@ -30,7 +30,7 @@ const CustomLoader = styled(CircularProgressbar)`
 `
 
 const Loader = () => {
-  const { loading } = useContext(FileUploadContext)
+  const { loading } = useContext(LoadingContext)
   return (
     <AfterUploadBox>
       <CustomLoader
