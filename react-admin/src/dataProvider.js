@@ -72,7 +72,7 @@ const dataProvider = {
     await checkAuth()
     const token = localStorage.getItem('access_token')
     const request = new Request(`${API_URL}/${resource}/${params.id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: new Headers({
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
