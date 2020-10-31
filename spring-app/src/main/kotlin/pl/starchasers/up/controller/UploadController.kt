@@ -24,6 +24,7 @@ import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.BasicResponseDTO
 import pl.starchasers.up.util.RequestRangeParser
+import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
 import java.security.Principal
@@ -93,21 +94,27 @@ class UploadController(private val fileStorageService: FileStorageService,
 
     @PostMapping("/api/u/{fileKey}/verify")
     fun verifyFileAccess(@PathVariable fileKey: String,
-                         @Validated @RequestBody operationDto: AuthorizedOperationDTO
+                         @RequestBody operationDto: AuthorizedOperationDTO?,
+                         principal: Principal?
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
-        if (!fileService.verifyFileAccess(fileEntry, FileAccessToken(operationDto.accessToken))) throw AccessDeniedException()
+        val user = userService.fromPrincipal(principal)
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+            throw AccessDeniedException()
         return BasicResponseDTO()
     }
 
 
     @DeleteMapping("/api/u/{fileKey}")
     fun deleteFile(@PathVariable fileKey: String,
-                   @Validated @RequestBody operationDto: AuthorizedOperationDTO) {
+                   @RequestBody operationDto: AuthorizedOperationDTO?,
+                   principal: Principal?) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
+        val user = userService.fromPrincipal(principal)
 
-        if (!fileService.verifyFileAccess(fileEntry, FileAccessToken(operationDto.accessToken))) throw AccessDeniedException()
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+            throw AccessDeniedException()
 
         fileService.deleteFile(fileEntry)
     }

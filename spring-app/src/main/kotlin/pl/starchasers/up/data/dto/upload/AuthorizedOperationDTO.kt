@@ -8,6 +8,5 @@ data class AuthorizedOperationDTO(
         /**
          * File access token, obtained during upload
          */
-        @field:NotEmpty
-        val accessToken: String
+        val accessToken: String?
 )

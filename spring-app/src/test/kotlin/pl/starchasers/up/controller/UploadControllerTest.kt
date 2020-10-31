@@ -155,7 +155,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
     ) : MockMvcTestBase() {
         private val content = "example content"
 
-        private fun createFile(contentType: String, fileContent:String=content): String = fileService.createFile(
+        private fun createFile(contentType: String, fileContent: String = content): String = fileService.createFile(
                 fileContent.byteInputStream(),
                 Filename("fileName.txt"),
                 ContentType(contentType),
@@ -240,7 +240,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class VerifyFileAccess(
             @Autowired val fileService: FileService,
-            @Autowired val fileEntryRepository: FileEntryRepository
+            @Autowired val fileEntryRepository: FileEntryRepository,
+            @Autowired val userService: UserService
     ) : MockMvcTestBase() {
         private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
         private val content = "example content"
@@ -254,7 +255,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
                     Filename("filename.txt"),
                     ContentType("text/plain"),
                     FileSize(content.byteInputStream().readAllBytes().size.toLong()),
-                    null).key
+                    userService.getUser(Username("root"))).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(FileKey(fileKey))?.accessToken?.value
                     ?: throw IllegalStateException()
@@ -273,6 +274,25 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
 
         @Test
+        fun `Given valid owner and no token, should return 200`() {
+            mockMvc.post(path = verifyRequestPath(fileKey),
+                    headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())) {
+                isSuccess()
+            }
+        }
+
+        @Test
+        fun `Given invalid owner and valid token, should return 200`() {
+            mockMvc.post(path = verifyRequestPath(fileKey),
+                    headers = HttpHeaders().contentTypeJson(),
+                    body = object {
+                        val accessToken = fileAccessToken
+                    }) {
+                isSuccess()
+            }
+        }
+
+        @Test
         fun `Given invalid access token, should return 403`() {
             mockMvc.post(path = verifyRequestPath(fileKey),
                     headers = HttpHeaders().contentTypeJson(),
@@ -284,11 +304,11 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
 
         @Test
-        fun `Given missing access token, should return 400`() {
+        fun `Given missing access token and no user, should return 403`() {
             mockMvc.post(path = verifyRequestPath(fileKey),
                     headers = HttpHeaders().contentTypeJson(),
                     body = object {}) {
-                isError(HttpStatus.BAD_REQUEST)
+                isError(HttpStatus.FORBIDDEN)
             }
         }
 
@@ -356,7 +376,8 @@ internal class UploadControllerTest : MockMvcTestBase() {
     inner class DeleteFile(
             @Autowired val fileService: FileService,
             @Autowired val uploadRepository: UploadRepository,
-            @Autowired val fileEntryRepository: FileEntryRepository
+            @Autowired val fileEntryRepository: FileEntryRepository,
+            @Autowired val userService: UserService
     ) : MockMvcTestBase() {
 
         private fun getRequestPath(fileKey: String) = Path("/api/u/$fileKey")
@@ -367,12 +388,12 @@ internal class UploadControllerTest : MockMvcTestBase() {
                     Filename("file"),
                     ContentType("text/plain"),
                     FileSize(fileContent.length.toLong()),
-                    null)
+                    userService.getUser(Username("root")))
         }
 
         @Test
         @DocumentResponse
-        fun `Given valid request, should delete file`() {
+        fun `Given valid access token, should delete file`() {
             val response = createTestFile()
             mockMvc.delete(path = getRequestPath(response.key),
                     headers = HttpHeaders().contentTypeJson(),
@@ -384,6 +405,16 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
             assertNull(uploadRepository.find(FileKey(response.key)))
             assertNull(fileEntryRepository.findExistingFileByKey(FileKey(response.key)))
+        }
+
+        @Test
+        fun `Given valid owner, should delete file`(){
+            val response = createTestFile()
+
+            mockMvc.delete(path = getRequestPath(response.key),
+            headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())){
+                isSuccess()
+            }
         }
 
         @Test

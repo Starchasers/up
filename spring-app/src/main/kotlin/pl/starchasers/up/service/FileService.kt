@@ -24,9 +24,9 @@ interface FileService {
 
     fun createFile(tmpFile: InputStream, filename: Filename, contentType: ContentType, size: FileSize, user: User?): UploadCompleteResponseDTO
 
-    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean
+    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean
 
-    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean
+    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?, user: User?): Boolean
 
     fun findFileEntry(fileKey: FileKey): FileEntry?
 
@@ -81,7 +81,8 @@ class FileServiceImpl(
                 toDeleteDate,
                 false,
                 accessToken,
-                size)
+                size,
+                user)
 
         fileEntryRepository.save(fileEntry)
 
@@ -89,13 +90,14 @@ class FileServiceImpl(
         return UploadCompleteResponseDTO(key.value, accessToken.value, toDeleteDate)
     }
 
-    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean =
-            fileEntry.accessToken == accessToken
+    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean {
+        return (user != null && fileEntry.owner == user) || fileEntry.accessToken == accessToken
+    }
 
-    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean =
+    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?, user: User?): Boolean =
             fileEntryRepository
                     .findExistingFileByKey(fileKey)
-                    ?.let { it.accessToken == accessToken } ?: false
+                    ?.let { verifyFileAccess(it, accessToken, user) } ?: false
 
     override fun findFileEntry(fileKey: FileKey): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
 
