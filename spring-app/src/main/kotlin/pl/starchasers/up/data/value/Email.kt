@@ -16,3 +16,5 @@ data class Email(
         }
     }
 }
+
+fun String?.toEmail(): Email? = this?.let { Email(it) }

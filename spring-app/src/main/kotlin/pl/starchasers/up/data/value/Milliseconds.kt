@@ -15,3 +15,4 @@ data class Milliseconds(
         }
     }
 }
+fun Long?.toMilliseconds(): Milliseconds? = this?.let { Milliseconds(it) }

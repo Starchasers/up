@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.*
 import pl.starchasers.up.data.dto.users.CreateUserDTO
 import pl.starchasers.up.data.dto.users.UpdateUserDTO
 import pl.starchasers.up.data.dto.users.UserDTO
+import pl.starchasers.up.data.dto.users.toUserDTO
 import pl.starchasers.up.data.model.User
-import pl.starchasers.up.data.value.Email
-import pl.starchasers.up.data.value.RawPassword
-import pl.starchasers.up.data.value.Username
+import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.security.IsAdmin
@@ -48,14 +47,18 @@ class UserAdminController(
     }
 
     @IsAdmin
-    @PutMapping("/{userId}")
+    @PatchMapping("/{userId}")
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
         userService.updateUser(
                 userId,
-                Username(userDTO.username),
+                userDTO.username.toUsername(),
                 if (userDTO.email.isNullOrBlank()) null else Email(userDTO.email),
                 if (userDTO.password.isNullOrBlank()) null else RawPassword(userDTO.password),
-                userDTO.role)
+                userDTO.role,
+                userDTO.maxTemporaryFileSize.toFileSize(),
+                userDTO.maxPermanentFileSize.toFileSize(),
+                userDTO.defaultFileLifetime.toMilliseconds(),
+                userDTO.maxFileLifetime.toMilliseconds())
     }
 
     @IsAdmin
@@ -63,6 +66,4 @@ class UserAdminController(
     fun delete(@PathVariable userId: Long, principal: Principal) {
         userService.deleteUser(userId, principal.name.toLongOrNull() ?: throw AccessDeniedException())
     }
-
-    private fun User.toUserDTO() = UserDTO(id, username.value, email?.value ?: "", role)
 }

@@ -1,9 +1,7 @@
 package pl.starchasers.up.data.value
 
 import pl.starchasers.up.util.validate
-import javax.persistence.AttributeConverter
 import javax.persistence.Column
-import javax.persistence.Converter
 import javax.persistence.Embeddable
 
 
@@ -22,3 +20,5 @@ data class FileSize(
         return (this.value - fileSize.value).toInt()
     }
 }
+
+fun Long?.toFileSize(): FileSize? = this?.let { FileSize(it) }
