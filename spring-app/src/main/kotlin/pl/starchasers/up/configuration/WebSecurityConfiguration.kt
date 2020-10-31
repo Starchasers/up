@@ -46,7 +46,7 @@ class WebSecurityConfiguration(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
         configuration.allowedOrigins = listOf("*")
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH")
 //        configuration.allowCredentials = true
         configuration.applyPermitDefaultValues()
         val source = UrlBasedCorsConfigurationSource()
