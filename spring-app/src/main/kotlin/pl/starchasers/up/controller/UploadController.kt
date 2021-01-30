@@ -32,33 +32,39 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-class UploadController(private val fileStorageService: FileStorageService,
-                       private val fileService: FileService,
-                       private val requestRangeParser: RequestRangeParser,
-                       private val multipartResolver: CommonsMultipartResolver,
-                       private val userService: UserService) {
+class UploadController(
+    private val fileStorageService: FileStorageService,
+    private val fileService: FileService,
+    private val requestRangeParser: RequestRangeParser,
+    private val multipartResolver: CommonsMultipartResolver,
+    private val userService: UserService
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
+     * Upload new file
      * @param file Uploaded file content
      */
     @PostMapping("/api/upload")
     fun anonymousUpload(@RequestParam file: MultipartFile, principal: Principal?): UploadCompleteResponseDTO {
         val user = userService.fromPrincipal(principal)
         val contentType = ContentType(
-                if (file.contentType == null || file.contentType!!.isBlank()) "application/octet-stream"
-                else file.contentType!!
+            if (file.contentType == null || file.contentType!!.isBlank()) "application/octet-stream"
+            else file.contentType!!
         )
 
-        return fileService.createFile(file.inputStream,
-                Filename(file.originalFilename ?: "file"),
-                contentType,
-                FileSize(file.size),
-                user)
+        return fileService.createFile(
+            file.inputStream,
+            Filename(file.originalFilename ?: "file"),
+            contentType,
+            FileSize(file.size),
+            user
+        )
     }
 
     /**
+     * Download a previously uploaded file
      * @param fileKey File key obtained during upload
      */
     @GetMapping("/u/{fileKey}")
@@ -66,12 +72,14 @@ class UploadController(private val fileStorageService: FileStorageService,
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(FileKey(fileKey))
         response.contentType = fileEntry.contentType.value
 
-        response.addHeader(HttpHeaders.CONTENT_DISPOSITION,
-                ContentDisposition
-                        .builder("inline")
-                        .filename(fileEntry.filename.value.ifBlank { "file" }, Charset.forName("UTF-8"))
-                        .build()
-                        .toString())
+        response.addHeader(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition
+                .builder("inline")
+                .filename(fileEntry.filename.value.ifBlank { "file" }, Charset.forName("UTF-8"))
+                .build()
+                .toString()
+        )
         try {
             val range = requestRangeParser(request.getHeader("Range"), fileEntry.size.value)
 
@@ -92,10 +100,14 @@ class UploadController(private val fileStorageService: FileStorageService,
         }
     }
 
+    /**
+     * Verify requesting user's permission to modify this upload
+     */
     @PostMapping("/api/u/{fileKey}/verify")
-    fun verifyFileAccess(@PathVariable fileKey: String,
-                         @RequestBody operationDto: AuthorizedOperationDTO?,
-                         principal: Principal?
+    fun verifyFileAccess(
+        @PathVariable fileKey: String,
+        @RequestBody operationDto: AuthorizedOperationDTO?,
+        principal: Principal?
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
@@ -107,9 +119,11 @@ class UploadController(private val fileStorageService: FileStorageService,
 
 
     @DeleteMapping("/api/u/{fileKey}")
-    fun deleteFile(@PathVariable fileKey: String,
-                   @RequestBody operationDto: AuthorizedOperationDTO?,
-                   principal: Principal?) {
+    fun deleteFile(
+        @PathVariable fileKey: String,
+        @RequestBody operationDto: AuthorizedOperationDTO?,
+        principal: Principal?
+    ) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
         val user = userService.fromPrincipal(principal)
 
@@ -119,6 +133,9 @@ class UploadController(private val fileStorageService: FileStorageService,
         fileService.deleteFile(fileEntry)
     }
 
+    /**
+     * @return Uploaded file metadata
+     */
     @GetMapping("/api/u/{fileKey}/details")
     fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(FileKey(fileKey))
 
