@@ -13,7 +13,7 @@ import javax.sql.DataSource
 class EmbeddedMariadbConfiguration {
 
     @Bean
-    fun mariaDB3jSpringService() = MariaDB4jSpringService()
+    fun mariaDB4jSpringService() = MariaDB4jSpringService()
 
     @Bean
     fun dataSource(
