@@ -42,19 +42,19 @@ CREATE TABLE `user` (
 
 ALTER TABLE `configuration_entry`
     ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UK_o5qbigl9owijqeeps9on1r19k` (`configuration_key`);
+  ADD UNIQUE KEY `uq_configuration_entry__configuration_key` (`configuration_key`);
 
 ALTER TABLE `file_entry`
     ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `refresh_token`
     ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UK_mpvu2fmreqp9cqddttyfaym9v` (`refresh_token`),
-  ADD KEY `FKfgk1klcib7i15utalmcqo7krt` (`user_id`);
+  ADD UNIQUE KEY `uq_refresh_token__refresh_token` (`refresh_token`),
+  ADD KEY `ix_refresh_token__user_id` (`user_id`);
 
 ALTER TABLE `user`
     ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UK_sb8bbouer5wak8vyiiy4pf2bx` (`username`);
+  ADD UNIQUE KEY `UQ_user__username` (`username`);
 
 ALTER TABLE `configuration_entry`
     MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
@@ -69,6 +69,6 @@ ALTER TABLE `user`
     MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 ALTER TABLE `refresh_token`
-    ADD CONSTRAINT `FKfgk1klcib7i15utalmcqo7krt` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+    ADD CONSTRAINT `FK_user__refresh_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 COMMIT;
 
