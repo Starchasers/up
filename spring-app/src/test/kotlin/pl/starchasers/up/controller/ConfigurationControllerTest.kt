@@ -13,6 +13,7 @@ import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
+import javax.transaction.Transactional
 
 internal class ConfigurationControllerTest(
     @Autowired private val userService: UserService,
