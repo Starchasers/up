@@ -35,20 +35,32 @@ interface ConfigurationService {
 
 @Service
 class ConfigurationServiceImpl(
-        private val configurationRepository: ConfigurationRepository,
-        private val userRepository: UserRepository
+    private val configurationRepository: ConfigurationRepository,
+    private val userRepository: UserRepository
 ) : ConfigurationService {
 
     override fun applyDefaultConfiguration(user: User) {
         user.apply {
-            maxTemporaryFileSize = FileSize(getConfigurationOption(
-                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE).toLong())
-            maxPermanentFileSize = FileSize(getConfigurationOption(
-                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE).toLong())
-            defaultFileLifetime = Milliseconds(getConfigurationOption(
-                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME).toLong())
-            maxFileLifetime = Milliseconds(getConfigurationOption(
-                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME).toLong())
+            maxTemporaryFileSize = FileSize(
+                getConfigurationOption(
+                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE
+                ).toLong()
+            )
+            maxPermanentFileSize = FileSize(
+                getConfigurationOption(
+                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
+                ).toLong()
+            )
+            defaultFileLifetime = Milliseconds(
+                getConfigurationOption(
+                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME
+                ).toLong()
+            )
+            maxFileLifetime = Milliseconds(
+                getConfigurationOption(
+                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME
+                ).toLong()
+            )
         }
     }
 
@@ -74,9 +86,9 @@ class ConfigurationServiceImpl(
     }
 
     override fun getGlobalConfiguration(): Map<ConfigurationKey, String> =
-            mapOf(*ConfigurationKey.values().map {
-                Pair(it, configurationRepository.findFirstByKey(it)?.value ?: it.defaultValue)
-            }.toTypedArray())
+        mapOf(*ConfigurationKey.values().map {
+            Pair(it, configurationRepository.findFirstByKey(it)?.value ?: it.defaultValue)
+        }.toTypedArray())
 
     override fun updateGlobalConfiguration(configuration: Map<ConfigurationKey, String>) {
         if (configuration.values.any { it.toLongOrNull() == null }) throw BadRequestException("Value must be of type Long.")//TODO change if more data types are required
@@ -85,13 +97,13 @@ class ConfigurationServiceImpl(
     }
 
     override fun getAnonymousMaxFileSize(): FileSize =
-            FileSize(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE).toLong())
+        FileSize(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE).toLong())
 
     override fun getAnonymousDefaultFileLifetime(): Milliseconds =
-            Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME).toLong())
+        Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME).toLong())
 
     override fun getAnonymousMaxFileLifetime(): Milliseconds =
-            Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME).toLong())
+        Milliseconds(getConfigurationOption(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME).toLong())
 
     @PostConstruct
     private fun initialize() {
