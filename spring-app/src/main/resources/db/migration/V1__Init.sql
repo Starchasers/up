@@ -54,7 +54,7 @@ ALTER TABLE `refresh_token`
 
 ALTER TABLE `user`
     ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UQ_user__username` (`username`);
+  ADD UNIQUE KEY `uq_user__username` (`username`);
 
 ALTER TABLE `configuration_entry`
     MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
@@ -69,6 +69,6 @@ ALTER TABLE `user`
     MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 ALTER TABLE `refresh_token`
-    ADD CONSTRAINT `FK_user__refresh_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+    ADD CONSTRAINT `fk_user__refresh_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 COMMIT;
 
