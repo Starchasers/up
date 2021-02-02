@@ -35,7 +35,8 @@ interface ConfigurationService {
 
 @Service
 class ConfigurationServiceImpl(
-        private val configurationRepository: ConfigurationRepository
+        private val configurationRepository: ConfigurationRepository,
+        private val userRepository: UserRepository
 ) : ConfigurationService {
 
     override fun applyDefaultConfiguration(user: User) {
@@ -51,7 +52,6 @@ class ConfigurationServiceImpl(
         }
     }
 
-    @Transactional
     override fun updateUserConfiguration(user: User, configuration: UpdateUserConfigurationDTO) {
         user.apply {
             maxTemporaryFileSize = FileSize(configuration.maxTemporaryFileSize)
@@ -59,6 +59,7 @@ class ConfigurationServiceImpl(
             defaultFileLifetime = Milliseconds(configuration.defaultFileLifetime)
             maxFileLifetime = Milliseconds(configuration.maxFileLifetime)
         }
+        userRepository.save(user)
     }
 
     override fun setConfigurationOption(key: ConfigurationKey, value: String) {
