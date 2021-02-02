@@ -32,7 +32,7 @@ dependencies {
     implementation("commons-fileupload:commons-fileupload:1.3.3")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("org.flywaydb:flyway-core:7.5.2")
-    runtimeOnly("com.h2database:h2:1.4.200")
+    implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.4.0")
     implementation("com.ibm.icu:icu4j:67.1")
     runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("mysql:mysql-connector-java")
@@ -43,12 +43,12 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.10")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("capital.scalable:spring-auto-restdocs-core:2.0.8")
+    testImplementation("capital.scalable:spring-auto-restdocs-core:2.0.9")
 
     testImplementation("org.springframework.restdocs:spring-restdocs-asciidoctor")
-    testImplementation("capital.scalable:spring-auto-restdocs-json-doclet-jdk9:2.0.8")
+    testImplementation("capital.scalable:spring-auto-restdocs-json-doclet-jdk9:2.0.9")
 }
 
 tasks.withType<KotlinCompile> {

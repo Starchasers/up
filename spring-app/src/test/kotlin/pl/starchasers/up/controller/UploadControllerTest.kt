@@ -3,7 +3,7 @@ package pl.starchasers.up.controller
 import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.test.annotation.DirtiesContext
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
@@ -23,16 +22,11 @@ import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
-import java.nio.file.Files
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-internal class UploadControllerTest : MockMvcTestBase() {
+internal class UploadControllerTest : JpaTestBase() {
 
-    @Transactional
     @OrderTests
     @Nested
     inner class AnonymousUpload(
@@ -147,7 +141,6 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
     }
 
-    @Transactional
     @OrderTests
     @Nested
     inner class GetAnonymousUpload(
@@ -234,7 +227,6 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
     }
 
-    @Transactional
     @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -248,7 +240,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
         private lateinit var fileKey: String
         private lateinit var fileAccessToken: String
 
-        @BeforeAll
+        @BeforeEach
         fun setup() {
             fileKey = fileService.createFile(content.byteInputStream(),
                     Filename("filename.txt"),
@@ -305,7 +297,6 @@ internal class UploadControllerTest : MockMvcTestBase() {
 
     }
 
-    @Transactional
     @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -319,7 +310,7 @@ internal class UploadControllerTest : MockMvcTestBase() {
         private val filename: String = "filename.txt"
         private val contentType: String = "text/plain; charset=UTF-8"
 
-        @BeforeAll
+        @BeforeEach
         fun setup() {
             fileKey = fileService.createFile(content.byteInputStream(),
                     Filename(filename),
@@ -349,7 +340,6 @@ internal class UploadControllerTest : MockMvcTestBase() {
         }
     }
 
-    @Transactional
     @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)

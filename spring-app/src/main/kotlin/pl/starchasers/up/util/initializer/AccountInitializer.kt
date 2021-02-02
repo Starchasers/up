@@ -1,4 +1,4 @@
-package pl.starchasers.up.util
+package pl.starchasers.up.util.initializer
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -6,18 +6,19 @@ import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
+import pl.starchasers.up.util.Util
 import javax.annotation.PostConstruct
 
 @Component
-class Initializer(
-        private val userService: UserService
-) {
+class AccountInitializer(
+    private val userService: UserService
+) : Initializer() {
 
     private val util = Util()
-    private val logger = LoggerFactory.getLogger(Initializer::class.java)
+    private val logger = LoggerFactory.getLogger(AccountInitializer::class.java)
 
     @PostConstruct
-    fun setupApp() {
+    override fun initialize() {
         ensureRootAccount()
     }
 
