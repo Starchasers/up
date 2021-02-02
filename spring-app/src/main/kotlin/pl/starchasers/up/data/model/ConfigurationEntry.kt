@@ -8,11 +8,11 @@ class ConfigurationEntry(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
 
-        @Column(unique = true, nullable = false)
+        @Column(name="configuration_key", unique = true, nullable = false)
         @Enumerated(EnumType.STRING)
         val key: ConfigurationKey,
 
-        @Column(nullable = false)
+        @Column(name="configuration_value", nullable = false)
         var value: String
 )
 

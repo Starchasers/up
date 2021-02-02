@@ -6,7 +6,6 @@ import capital.scalable.restdocs.response.ResponseModifyingPreprocessors.limitJs
 import capital.scalable.restdocs.response.ResponseModifyingPreprocessors.replaceBinaryContent
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer.objectMapper
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,12 +25,9 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
-import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 import javax.servlet.Filter
 
 @ExtendWith(RestDocumentationExtension::class)
@@ -44,11 +40,7 @@ abstract class MockMvcTestBase {
     @Autowired
     protected lateinit var mapper: ObjectMapper
 
-    @PersistenceContext
-    protected lateinit var entityManager: EntityManager
-
     protected lateinit var mockMvc: MockMvc
-
 
     @Autowired
     private lateinit var springSecurityFilterChain: Filter
@@ -97,11 +89,6 @@ abstract class MockMvcTestBase {
                 replaceBinaryContent(), limitJsonArrayLength(objectMapper),
                 prettyPrint()
         )
-    }
-
-    @AfterEach
-    protected fun flush() {
-        entityManager.flush()
     }
 
     final fun getAdminAccessToken(): String {
