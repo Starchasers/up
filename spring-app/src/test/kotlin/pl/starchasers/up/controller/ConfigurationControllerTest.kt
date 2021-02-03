@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders
 import pl.starchasers.up.*
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.value.Username
-
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 

@@ -21,13 +21,13 @@ class ConfigurationController(
         val user = userService.fromPrincipal(principal)
 
         return UserConfigurationDTO(
-                user?.maxTemporaryFileSize?.value ?: configurationService.getAnonymousMaxFileSize().value,
-                user?.maxFileLifetime?.value ?: configurationService.getAnonymousMaxFileLifetime().value,
-                user?.defaultFileLifetime?.value ?: configurationService.getAnonymousDefaultFileLifetime().value,
-                if (user != null) user.maxFileLifetime.value == 0L else configurationService.getAnonymousDefaultFileLifetime().value == 0L,
-                user?.maxPermanentFileSize?.value ?: if (configurationService.getAnonymousMaxFileLifetime().value == 0L)
-                    configurationService.getAnonymousMaxFileSize().value
-                else 0
+            user?.maxTemporaryFileSize?.value ?: configurationService.getAnonymousMaxFileSize().value,
+            user?.maxFileLifetime?.value ?: configurationService.getAnonymousMaxFileLifetime().value,
+            user?.defaultFileLifetime?.value ?: configurationService.getAnonymousDefaultFileLifetime().value,
+            if (user != null) user.maxFileLifetime.value == 0L else configurationService.getAnonymousDefaultFileLifetime().value == 0L,
+            user?.maxPermanentFileSize?.value ?: if (configurationService.getAnonymousMaxFileLifetime().value == 0L)
+                configurationService.getAnonymousMaxFileSize().value
+            else 0
         )
     }
 }

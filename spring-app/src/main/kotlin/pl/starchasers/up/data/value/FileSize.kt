@@ -4,11 +4,10 @@ import pl.starchasers.up.util.validate
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
-
 @Embeddable
 data class FileSize(
-        @Column(name = "fileSize")
-        val value: Long
+    @Column(name = "fileSize")
+    val value: Long
 ) {
     init {
         validate(this, FileSize::value) {

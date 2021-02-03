@@ -17,16 +17,20 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/auth")
 class AuthenticationController(
-        private val userService: UserService,
-        private val jwtTokenService: JwtTokenService
+    private val userService: UserService,
+    private val jwtTokenService: JwtTokenService
 ) {
 
     @PostMapping("/login")
     fun login(@RequestBody @Validated loginDTO: LoginDTO): TokenDTO {
-        return TokenDTO(jwtTokenService.issueRefreshToken(
+        return TokenDTO(
+            jwtTokenService.issueRefreshToken(
                 userService.getUserFromCredentials(
-                        Username(loginDTO.username),
-                        RawPassword(loginDTO.password))))
+                    Username(loginDTO.username),
+                    RawPassword(loginDTO.password)
+                )
+            )
+        )
     }
 
     @IsUser
@@ -37,9 +41,9 @@ class AuthenticationController(
 
     @PostMapping("/getAccessToken")
     fun getAccessToken(@Validated @RequestBody tokenDTO: TokenDTO): TokenDTO =
-            TokenDTO(jwtTokenService.issueAccessToken(tokenDTO.token))
+        TokenDTO(jwtTokenService.issueAccessToken(tokenDTO.token))
 
     @PostMapping("/refreshToken")
     fun refreshToken(@Validated @RequestBody tokenDTO: TokenDTO): TokenDTO =
-            TokenDTO(jwtTokenService.refreshRefreshToken(tokenDTO.token))
+        TokenDTO(jwtTokenService.refreshRefreshToken(tokenDTO.token))
 }

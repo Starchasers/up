@@ -19,7 +19,6 @@ import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 
-
 internal class ConfigurationAdminControllerTest(
     @Autowired private val userService: UserService,
     @Autowired private val jwtTokenService: JwtTokenService,
@@ -27,7 +26,6 @@ internal class ConfigurationAdminControllerTest(
 ) : JpaTestBase() {
 
     private lateinit var testUser: User
-
 
     @BeforeEach
     fun createTestUser() {

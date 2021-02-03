@@ -9,5 +9,4 @@ class UpApplicationTests {
 	@Test
 	fun contextLoads() {
 	}
-
 }

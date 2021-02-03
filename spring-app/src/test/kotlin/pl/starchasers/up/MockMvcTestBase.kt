@@ -54,30 +54,30 @@ abstract class MockMvcTestBase {
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .addFilters<DefaultMockMvcBuilder>(springSecurityFilterChain)
-                .alwaysDo<DefaultMockMvcBuilder>(JacksonResultHandlers.prepareJackson(mapper))
-                .alwaysDo<DefaultMockMvcBuilder>(commonDocumentation())
-                .apply<DefaultMockMvcBuilder>(
-                        MockMvcRestDocumentation.documentationConfiguration(restDocumentation)
-                                .uris()
-                                .withScheme("http")
-                                .withHost("localhost")
-                                .withPort(8080)
-                                .and().snippets()
-                                .withDefaults(
-                                        CliDocumentation.curlRequest(),
-                                        HttpDocumentation.httpRequest(),
-                                        HttpDocumentation.httpResponse(),
-                                        AutoDocumentation.requestFields(),
-                                        AutoDocumentation.responseFields(),
-                                        AutoDocumentation.pathParameters(),
-                                        AutoDocumentation.requestParameters(),
-                                        AutoDocumentation.description(),
-                                        AutoDocumentation.methodAndPath(),
-                                        AutoDocumentation.section()
-                                )
-                )
-                .build()
+            .addFilters<DefaultMockMvcBuilder>(springSecurityFilterChain)
+            .alwaysDo<DefaultMockMvcBuilder>(JacksonResultHandlers.prepareJackson(mapper))
+            .alwaysDo<DefaultMockMvcBuilder>(commonDocumentation())
+            .apply<DefaultMockMvcBuilder>(
+                MockMvcRestDocumentation.documentationConfiguration(restDocumentation)
+                    .uris()
+                    .withScheme("http")
+                    .withHost("localhost")
+                    .withPort(8080)
+                    .and().snippets()
+                    .withDefaults(
+                        CliDocumentation.curlRequest(),
+                        HttpDocumentation.httpRequest(),
+                        HttpDocumentation.httpResponse(),
+                        AutoDocumentation.requestFields(),
+                        AutoDocumentation.responseFields(),
+                        AutoDocumentation.pathParameters(),
+                        AutoDocumentation.requestParameters(),
+                        AutoDocumentation.description(),
+                        AutoDocumentation.methodAndPath(),
+                        AutoDocumentation.section()
+                    )
+            )
+            .build()
     }
 
     protected fun commonDocumentation(): RestDocumentationResultHandler {
@@ -86,8 +86,9 @@ abstract class MockMvcTestBase {
 
     protected fun commonResponsePreprocessor(): OperationResponsePreprocessor {
         return preprocessResponse(
-                replaceBinaryContent(), limitJsonArrayLength(objectMapper),
-                prettyPrint()
+            replaceBinaryContent(),
+            limitJsonArrayLength(objectMapper),
+            prettyPrint()
         )
     }
 

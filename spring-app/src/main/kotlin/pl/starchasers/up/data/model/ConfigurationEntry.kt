@@ -4,16 +4,16 @@ import javax.persistence.*
 
 @Entity
 class ConfigurationEntry(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long,
 
-        @Column(name="configuration_key", unique = true, nullable = false)
-        @Enumerated(EnumType.STRING)
-        val key: ConfigurationKey,
+    @Column(name = "configuration_key", unique = true, nullable = false)
+    @Enumerated(EnumType.STRING)
+    val key: ConfigurationKey,
 
-        @Column(name="configuration_value", nullable = false)
-        var value: String
+    @Column(name = "configuration_value", nullable = false)
+    var value: String
 )
 
 enum class ConfigurationKey(val defaultValue: String) {

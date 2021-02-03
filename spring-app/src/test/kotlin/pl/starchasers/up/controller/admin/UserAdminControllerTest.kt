@@ -22,7 +22,6 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 
-
 internal class UserAdminControllerTest : JpaTestBase() {
 
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -132,8 +131,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 isError(HttpStatus.FORBIDDEN)
             }
         }
-
-
     }
 
     @OrderTests
@@ -190,7 +187,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 isError(HttpStatus.BAD_REQUEST)
             }
         }
-
     }
 
     @OrderTests
@@ -322,16 +318,19 @@ internal class UserAdminControllerTest : JpaTestBase() {
             val oldUser = userService.createUser(
                 Username("exampleUser"),
                 RawPassword("password"),
-                Email("email@example.com"), Role.USER
+                Email("email@example.com"),
+                Role.USER
             )
-            mockMvc.patch(path = getUpdateUserPath(oldUser.id),
+            mockMvc.patch(
+                path = getUpdateUserPath(oldUser.id),
                 headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
                 body = object {
                     val id = oldUser.id
                     val username = "newExampleUser"
                     val email = ""
                     val role = Role.USER
-                }) {
+                }
+            ) {
 
                 isSuccess()
             }
@@ -343,7 +342,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 assertTrue(passwordEncoder.matches("password", it.password.value))
             }
         }
-
     }
 
     @OrderTests
@@ -364,7 +362,8 @@ internal class UserAdminControllerTest : JpaTestBase() {
             val user = userService.createUser(
                 Username("userToDelete"),
                 RawPassword("password"),
-                Email("mail@example.com"), Role.USER
+                Email("mail@example.com"),
+                Role.USER
             )
 
             mockMvc.delete(
@@ -444,6 +443,4 @@ internal class UserAdminControllerTest : JpaTestBase() {
             }
         }
     }
-
-
 }

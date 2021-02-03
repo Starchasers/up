@@ -5,9 +5,9 @@ import javax.validation.constraints.NotEmpty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AuthorizedOperationDTO(
-        /**
-         * File access token, obtained during upload
-         */
-        @field:NotEmpty
-        val accessToken: String
+    /**
+     * File access token, obtained during upload
+     */
+    @field:NotEmpty
+    val accessToken: String
 )

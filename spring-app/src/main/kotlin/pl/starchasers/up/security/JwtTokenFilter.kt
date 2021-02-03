@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 
 class JwtTokenFilter(
-        private val tokenService: JwtTokenService
+    private val tokenService: JwtTokenService
 ) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain) {
@@ -26,15 +26,12 @@ class JwtTokenFilter(
             authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
             if (Role.valueOf(claims[ROLE_KEY] as String) == Role.ADMIN) authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
 
-
             SecurityContextHolder.getContext().authentication =
-                    UsernamePasswordAuthenticationToken(claims.subject, null, authorities)
+                UsernamePasswordAuthenticationToken(claims.subject, null, authorities)
         } catch (e: Exception) {
             SecurityContextHolder.clearContext()
         }
 
         chain.doFilter(request, response)
     }
-
-
 }
