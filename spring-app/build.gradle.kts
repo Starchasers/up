@@ -66,6 +66,10 @@ ext {
     set("javadocJsonDir", file("$buildDir/generated-javadoc-json"))
 }
 
+ktlint {
+    disabledRules.set(setOf("no-wildcard-imports"))
+}
+
 tasks {
     val dokka by getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
         outputDirectory = file("$buildDir/generated-javadoc-json").toString()
