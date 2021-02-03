@@ -9,7 +9,7 @@ inline fun <reified T, S> validate(obj: T, property: KProperty1<T, S>, validatio
 
     if (!validator.isValid)
         throw ValidationException(
-                "Unable to validate object ${T::class.simpleName}, field ${property.name}. ${validator.errorMessage}"
+            "Unable to validate object ${T::class.simpleName}, field ${property.name}. ${validator.errorMessage}"
         )
 }
 

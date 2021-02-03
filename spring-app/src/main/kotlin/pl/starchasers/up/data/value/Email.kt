@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class Email(
-        @Column(name = "email", length = 64)
-        val value: String
+    @Column(name = "email", length = 64)
+    val value: String
 ) {
     init {
         validate(this, Email::value) {

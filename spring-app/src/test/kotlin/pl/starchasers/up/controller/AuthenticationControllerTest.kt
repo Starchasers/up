@@ -20,7 +20,6 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 
-
 internal class AuthenticationControllerTest(
     @Autowired private val userService: UserService,
     @Autowired private val jwtTokenService: JwtTokenService
@@ -85,7 +84,6 @@ internal class AuthenticationControllerTest(
                 isError(HttpStatus.BAD_REQUEST)
             }
         }
-
     }
 
     @OrderTests
@@ -129,14 +127,12 @@ internal class AuthenticationControllerTest(
 
             assertEquals(3, refreshTokenRepository.findAllByUser(testUser).size)
         }
-
     }
 
     @OrderTests
     @Nested
     inner class GetAccessToken() : MockMvcTestBase() {
         private val getAccessTokenRequestPath = Path("/api/auth/getAccessToken")
-
 
         @Test
         @DocumentResponse
@@ -168,7 +164,6 @@ internal class AuthenticationControllerTest(
                 isError(HttpStatus.FORBIDDEN)
             }
         }
-
     }
 
     @OrderTests
@@ -176,7 +171,6 @@ internal class AuthenticationControllerTest(
     inner class RefreshRefreshToken() : MockMvcTestBase() {
 
         private val refreshTokenRequestPath = Path("/api/auth/refreshToken")
-
 
         @Test
         @DocumentResponse
@@ -205,7 +199,6 @@ internal class AuthenticationControllerTest(
             ) {
                 isError(HttpStatus.FORBIDDEN)
             }
-
         }
     }
 }

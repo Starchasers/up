@@ -15,25 +15,23 @@ import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.exception.BadRangeException
-import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
 @ControllerAdvice
 class ExceptionHandler() {
 
-
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(applicationException: ApplicationException): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO(applicationException.errorMessage), applicationException.responseStatus)
+        ResponseEntity(BasicErrorResponseDTO(applicationException.errorMessage), applicationException.responseStatus)
 
     @ExceptionHandler(BadRangeException::class)
     fun handleBadRangeException(badRangeException: BadRangeException): ResponseEntity<BasicErrorResponseDTO> {
         val httpHeaders = HttpHeaders()
         httpHeaders.set(HttpHeaders.CONTENT_RANGE, "bytes */${badRangeException.fileSize}")
         return ResponseEntity(
-                BasicErrorResponseDTO(badRangeException.errorMessage),
-                httpHeaders,
-                badRangeException.responseStatus
+            BasicErrorResponseDTO(badRangeException.errorMessage),
+            httpHeaders,
+            badRangeException.responseStatus
         )
     }
 
@@ -48,36 +46,41 @@ class ExceptionHandler() {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationErrors(exception: MethodArgumentNotValidException): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO(
-                    "Bad request. Missing or invalid parameter '${exception.parameter.parameterName}.'"),
-                    HttpStatus.BAD_REQUEST)
+        ResponseEntity(
+            BasicErrorResponseDTO(
+                "Bad request. Missing or invalid parameter '${exception.parameter.parameterName}.'"
+            ),
+            HttpStatus.BAD_REQUEST
+        )
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Access denied."), HttpStatus.FORBIDDEN)
+        ResponseEntity(BasicErrorResponseDTO("Access denied."), HttpStatus.FORBIDDEN)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleUnsupportedMethodException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Not Found."), HttpStatus.NOT_FOUND)
+        ResponseEntity(BasicErrorResponseDTO("Not Found."), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(MissingServletRequestPartException::class)
     fun handleMissingServletRequestException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
+        ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
     fun handleMissingServletRequestParameterException(exception: MissingServletRequestParameterException): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO(
-                    "Bad Request. Missing required parameter '${exception.parameterName}'."),
-                    HttpStatus.BAD_REQUEST)
+        ResponseEntity(
+            BasicErrorResponseDTO(
+                "Bad Request. Missing required parameter '${exception.parameterName}'."
+            ),
+            HttpStatus.BAD_REQUEST
+        )
 
     @ExceptionHandler(MultipartException::class)
     fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
-            ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
+        ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(Exception::class)
     fun handleAll(exception: Exception): ResponseEntity<BasicErrorResponseDTO> {
         exception.printStackTrace()
         return ResponseEntity(BasicErrorResponseDTO("Internal sever error."), HttpStatus.INTERNAL_SERVER_ERROR)
     }
-
 }

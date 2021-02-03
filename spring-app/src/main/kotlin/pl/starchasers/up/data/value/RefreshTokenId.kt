@@ -6,11 +6,11 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class RefreshTokenId(
-        @Column(name = "refreshToken", nullable = false, unique = true, updatable = false)
-        val value: String
+    @Column(name = "refreshToken", nullable = false, unique = true, updatable = false)
+    val value: String
 ) {
     init {
-        validate(this, RefreshTokenId::value){
+        validate(this, RefreshTokenId::value) {
             check { it.isNotBlank() }
         }
     }

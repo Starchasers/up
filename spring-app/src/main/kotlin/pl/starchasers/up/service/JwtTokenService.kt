@@ -39,8 +39,8 @@ interface JwtTokenService {
 
 @Service
 class JwtTokenServiceImpl(
-        private val refreshTokenRepository: RefreshTokenRepository,
-        private val userService: UserService
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val userService: UserService
 ) : JwtTokenService {
 
     @Value("\${up.jwt-secret}")
@@ -65,21 +65,21 @@ class JwtTokenServiceImpl(
 
         claims[TOKEN_ID_KEY] = tokenId.value
         val refreshToken = RefreshToken(
-                0,
-                user,
-                tokenId,
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now().plusNanos(refreshTokenValidTime * 1000))
+            0,
+            user,
+            tokenId,
+            Timestamp.valueOf(LocalDateTime.now()),
+            Timestamp.valueOf(LocalDateTime.now().plusNanos(refreshTokenValidTime * 1000))
         )
 
         refreshTokenRepository.save(refreshToken)
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(Date(now.time + refreshTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secret)
-                .compact()
+            .setClaims(claims)
+            .setIssuedAt(now)
+            .setExpiration(Date(now.time + refreshTokenValidTime))
+            .signWith(SignatureAlgorithm.HS256, secret)
+            .compact()
     }
 
     override fun refreshRefreshToken(oldRefreshToken: String): String {
@@ -90,7 +90,6 @@ class JwtTokenServiceImpl(
 
         return issueRefreshToken(user)
     }
-
 
     override fun issueAccessToken(refreshToken: String): String {
         val refreshTokenClaims = parseToken(refreshToken)
@@ -104,12 +103,11 @@ class JwtTokenServiceImpl(
         val now = Date()
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(Date(now.time + accessTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secret)
-                .compact()
-
+            .setClaims(claims)
+            .setIssuedAt(now)
+            .setExpiration(Date(now.time + accessTokenValidTime))
+            .signWith(SignatureAlgorithm.HS256, secret)
+            .compact()
     }
 
     override fun verifyRefreshToken(token: RefreshTokenId, user: User) {
@@ -138,6 +136,6 @@ class JwtTokenServiceImpl(
 
 fun Claims.getTokenId(): RefreshTokenId {
     val idString = this[TOKEN_ID_KEY]
-    if(idString !is String) throw JwtTokenException("Invalid refresh token")
+    if (idString !is String) throw JwtTokenException("Invalid refresh token")
     return RefreshTokenId(idString)
 }

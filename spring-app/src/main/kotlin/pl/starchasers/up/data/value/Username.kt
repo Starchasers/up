@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class Username(
-        @Column(name = "username", length = 32, unique = true, updatable = true, nullable = false)
-        val value: String
+    @Column(name = "username", length = 32, unique = true, updatable = true, nullable = false)
+    val value: String
 ) {
     init {
         validate(this, Username::value) {
@@ -17,6 +17,5 @@ data class Username(
         }
     }
 }
-
 
 fun String?.toUsername(): Username? = this?.let { Username(it) }

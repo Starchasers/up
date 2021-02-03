@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class ContentType(
-        @Column(name = "contentType", nullable = false, length = 256)
-        val value: String
+    @Column(name = "contentType", nullable = false, length = 256)
+    val value: String
 ) {
     init {
         validate(this, ContentType::value) {

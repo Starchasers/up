@@ -6,6 +6,7 @@ plugins {
     id("org.asciidoctor.jvm.convert") version "3.1.0"
     id("org.jetbrains.dokka") version "0.9.18"
     id("org.flywaydb.flyway") version "7.5.2"
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 
     kotlin("jvm") version "1.4.21"
     kotlin("plugin.spring") version "1.4.21"
@@ -65,6 +66,10 @@ ext {
     set("javadocJsonDir", file("$buildDir/generated-javadoc-json"))
 }
 
+ktlint {
+    disabledRules.set(setOf("no-wildcard-imports"))
+}
+
 tasks {
     val dokka by getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
         outputDirectory = file("$buildDir/generated-javadoc-json").toString()
@@ -97,6 +102,7 @@ tasks {
     test {
         useJUnitPlatform()
         dependsOn(dokka)
+        dependsOn(ktlintCheck)
     }
 
     register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDev") {

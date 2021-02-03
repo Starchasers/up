@@ -16,5 +16,4 @@ class CharsetDetectionServiceImpl : CharsetDetectionService {
         detector.setText(inputStream)
         return detector.detect().name
     }
-
 }

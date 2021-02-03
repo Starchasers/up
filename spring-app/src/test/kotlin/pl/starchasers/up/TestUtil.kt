@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 
-
 fun MockMvcData.isSuccess() {
     printResponseBody()
     statusIsOk()
@@ -47,20 +46,19 @@ class AnnotationMethodOrderer : MethodOrderer {
 @TestMethodOrder(AnnotationMethodOrderer::class)
 annotation class OrderTests
 
-//TODO make library pull request
-fun MockMvc.multipart(path: Path,
-                      headers: HttpHeaders? = null,
-                      fnBuilder: MockMultipartHttpServletRequestBuilder.() -> Unit,
-                      fn: MockMvcData.() -> Unit
+// TODO make library pull request
+fun MockMvc.multipart(
+    path: Path,
+    headers: HttpHeaders? = null,
+    fnBuilder: MockMultipartHttpServletRequestBuilder.() -> Unit,
+    fn: MockMvcData.() -> Unit
 ) {
 
-
     val builder = MockMvcRequestBuilders
-            .multipart(path.url, *path.vars)
-            .apply { addHeaders(headers) }
+        .multipart(path.url, *path.vars)
+        .apply { addHeaders(headers) }
 
     fnBuilder(builder)
-
 
     val resultActions = this.perform(builder)
     val mock = MockMvcData(path, resultActions)
@@ -71,4 +69,4 @@ fun MockMvc.multipart(path: Path,
 }
 
 private fun MockHttpServletRequestBuilder.addHeaders(headers: HttpHeaders?) =
-        headers?.let { this.headers(it) } ?: this
+    headers?.let { this.headers(it) } ?: this
