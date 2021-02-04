@@ -6,10 +6,12 @@ import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.PropertySource
 import javax.sql.DataSource
 
 @Configuration
 @Profile("test", "localdb")
+@PropertySource("classpath:application-localdb.properties")
 class EmbeddedMariadbConfiguration {
 
     @Bean
@@ -19,8 +21,6 @@ class EmbeddedMariadbConfiguration {
     fun dataSource(
         mariaDB4jSpringService: MariaDB4jSpringService,
         @Value("\${app.mariaDB4j.databaseName}") databaseName: String,
-        @Value("\${spring.datasource.username}") datasourceUsername: String,
-        @Value("\${spring.datasource.password}") datasourcePassword: String,
         @Value("\${spring.datasource.driver-class-name}") datasourceDriver: String
     ): DataSource {
         mariaDB4jSpringService.db.createDB(databaseName)
@@ -29,8 +29,6 @@ class EmbeddedMariadbConfiguration {
 
         return DataSourceBuilder
             .create()
-            .username(datasourceUsername)
-            .password(datasourcePassword)
             .url(config.getURL(databaseName))
             .driverClassName(datasourceDriver)
             .build()
