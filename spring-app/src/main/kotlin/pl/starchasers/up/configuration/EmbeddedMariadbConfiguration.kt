@@ -12,7 +12,7 @@ import javax.sql.DataSource
 @Configuration
 @Profile("test", "localdb")
 @PropertySource("classpath:application-localdb.properties")
-class EmbeddedMariadbConfiguration {
+class EmbeddedMariadbConfiguration{
 
     @Bean
     fun mariaDB4jSpringService() = MariaDB4jSpringService()
