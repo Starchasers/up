@@ -1,0 +1,12 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  checkLint:
+    runs-on: ubuntu-latest
+
+    steps:
+       - uses: le0nidas/ktlint-pr-comments@v1
+        with:
+          repotoken: ${{ secrets.GITHUB_TOKEN }}
