@@ -105,7 +105,7 @@ tasks {
         finalizedBy(ktlintCheck)
     }
 
-    register("bootRunDev"){
+    register("bootRunDev") {
         group = "Application"
         doFirst {
             bootRun.configure {
