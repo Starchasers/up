@@ -102,6 +102,7 @@ tasks {
     test {
         useJUnitPlatform()
         dependsOn(dokka)
+        finalizedBy(ktlintCheck)
     }
 
     register("bootRunDev"){
