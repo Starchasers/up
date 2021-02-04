@@ -19,7 +19,10 @@ class RequestRangeParserImpl : RequestRangeParser {
 
     override fun invoke(header: String?, fileSize: Long): RequestRange {
         val fullFile = RequestRange(
-                from = 0, to = fileSize, responseSize = fileSize, partial = false
+            from = 0,
+            to = fileSize,
+            responseSize = fileSize,
+            partial = false
         )
         header ?: return fullFile
         if (!validHeaderRegex.matches(header)) return fullFile
@@ -38,17 +41,17 @@ class RequestRangeParserImpl : RequestRangeParser {
         if (from >= fileSize) throw BadRangeException(fileSize)
 
         return RequestRange(
-                from = from,
-                to = to,
-                responseSize = responseSize,
-                partial = true
+            from = from,
+            to = to,
+            responseSize = responseSize,
+            partial = true
         )
     }
 }
 
 data class RequestRange(
-        val from: Long,
-        val to: Long,
-        val responseSize: Long,
-        val partial: Boolean
+    val from: Long,
+    val to: Long,
+    val responseSize: Long,
+    val partial: Boolean
 )

@@ -15,26 +15,25 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/user")
 class UserController(
-        val fileService: FileService,
-        val userService: UserService
+    val fileService: FileService,
+    val userService: UserService
 ) {
-
 
     @GetMapping("/history")
     @IsUser
     fun listUserUploadHistory(principal: Principal, pageable: Pageable): Page<UploadHistoryEntryDTO> {
         return fileService.getUploadHistory(
-                userService.fromPrincipal(principal) ?: throw AccessDeniedException(),
-                pageable
+            userService.fromPrincipal(principal) ?: throw AccessDeniedException(),
+            pageable
         ).map {
             UploadHistoryEntryDTO(
-                    it.filename.value,
-                    it.createdDate,
-                    it.permanent,
-                    it.toDeleteDate,
-                    it.size.value,
-                    it.contentType.value,
-                    it.key.value
+                it.filename.value,
+                it.createdDate,
+                it.permanent,
+                it.toDeleteDate,
+                it.size.value,
+                it.contentType.value,
+                it.key.value
             )
         }
     }

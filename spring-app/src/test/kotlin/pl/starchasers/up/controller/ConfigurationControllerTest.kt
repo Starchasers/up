@@ -1,31 +1,25 @@
 package pl.starchasers.up.controller
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
+import no.skatteetaten.aurora.mockmvc.extensions.Path
+import no.skatteetaten.aurora.mockmvc.extensions.authorization
+import no.skatteetaten.aurora.mockmvc.extensions.get
+import no.skatteetaten.aurora.mockmvc.extensions.responseJsonPath
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.test.annotation.DirtiesContext
-import pl.starchasers.up.DocumentResponse
-import pl.starchasers.up.MockMvcTestBase
-import pl.starchasers.up.OrderTests
+import pl.starchasers.up.*
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.value.Username
-import pl.starchasers.up.isSuccess
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
-import javax.transaction.Transactional
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 internal class ConfigurationControllerTest(
-        @Autowired private val userService: UserService,
-        @Autowired private val jwtTokenService: JwtTokenService
-) : MockMvcTestBase() {
+    @Autowired private val userService: UserService,
+    @Autowired private val jwtTokenService: JwtTokenService
+) : JpaTestBase() {
 
     @Nested
-    @Transactional
     @OrderTests
     inner class GetConfiguration() : MockMvcTestBase() {
 
@@ -36,15 +30,15 @@ internal class ConfigurationControllerTest(
             mockMvc.get(path = requestPath) {
                 isSuccess()
                 responseJsonPath("$.maxTemporaryFileSize")
-                        .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
+                    .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
                 responseJsonPath("$.maxFileLifetime")
-                        .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
+                    .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
                 responseJsonPath("$.defaultFileLifetime")
-                        .equalsValue(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
+                    .equalsValue(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
                 responseJsonPath("$.permanentAllowed")
-                        .equalsValue(false)
+                    .equalsValue(false)
                 responseJsonPath("$.maxPermanentFileSize")
-                        .equalsValue(0)
+                    .equalsValue(0)
             }
         }
 
@@ -55,19 +49,21 @@ internal class ConfigurationControllerTest(
             val refreshToken = jwtTokenService.issueRefreshToken(user)
             val accessToken = jwtTokenService.issueAccessToken(refreshToken)
 
-            mockMvc.get(path = requestPath,
-            headers = HttpHeaders().authorization(accessToken)) {
+            mockMvc.get(
+                path = requestPath,
+                headers = HttpHeaders().authorization(accessToken)
+            ) {
                 isSuccess()
                 responseJsonPath("$.maxTemporaryFileSize")
-                        .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
+                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
                 responseJsonPath("$.maxFileLifetime")
-                        .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
+                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
                 responseJsonPath("$.defaultFileLifetime")
-                        .equalsValue(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
+                    .equalsValue(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
                 responseJsonPath("$.permanentAllowed")
-                        .equalsValue(true)
+                    .equalsValue(true)
                 responseJsonPath("$.maxPermanentFileSize")
-                        .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
+                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
             }
         }
     }

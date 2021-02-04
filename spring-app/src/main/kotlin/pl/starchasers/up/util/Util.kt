@@ -1,6 +1,5 @@
 package pl.starchasers.up.util
 
-import java.lang.IllegalArgumentException
 import java.security.SecureRandom
 
 class Util() {
@@ -8,7 +7,6 @@ class Util() {
 
     private val readableCharacters = "abcdefghijkmnprstuvwxyzABCDEFGHJKLMNPRSTUVWXYZ123456789"
     private val alphanumericCharacters = "abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ1234567890"
-
 
     fun secureReadableRandomString(length: Int): String = secureRandomString(readableCharacters, length)
 
@@ -18,5 +16,4 @@ class Util() {
         if (length < 1) throw IllegalArgumentException("String length < 1: $length")
         return String(CharArray(length) { characters[random.nextInt(characters.length)] })
     }
-
 }

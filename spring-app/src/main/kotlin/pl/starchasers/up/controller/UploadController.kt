@@ -9,22 +9,17 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartResolver
-import pl.starchasers.up.data.dto.VerifyUploadSizeDTO
-import pl.starchasers.up.data.dto.VerifyUploadSizeResponseDTO
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
-import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.NotFoundException
-import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.BasicResponseDTO
 import pl.starchasers.up.util.RequestRangeParser
-import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
 import java.security.Principal
@@ -106,7 +101,7 @@ class UploadController(
     @PostMapping("/api/u/{fileKey}/verify")
     fun verifyFileAccess(
         @PathVariable fileKey: String,
-        @RequestBody operationDto: AuthorizedOperationDTO?,
+        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
         principal: Principal?
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
@@ -117,11 +112,10 @@ class UploadController(
         return BasicResponseDTO()
     }
 
-
     @DeleteMapping("/api/u/{fileKey}")
     fun deleteFile(
         @PathVariable fileKey: String,
-        @RequestBody operationDto: AuthorizedOperationDTO?,
+        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
         principal: Principal?
     ) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
@@ -138,5 +132,4 @@ class UploadController(
      */
     @GetMapping("/api/u/{fileKey}/details")
     fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(FileKey(fileKey))
-
 }

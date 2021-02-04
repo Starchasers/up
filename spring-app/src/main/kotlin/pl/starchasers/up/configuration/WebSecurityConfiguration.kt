@@ -15,28 +15,27 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import pl.starchasers.up.security.JwtTokenFilter
 import pl.starchasers.up.service.JwtTokenService
 
-
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfiguration(
-        private val jwtTokenService: JwtTokenService
+    private val jwtTokenService: JwtTokenService
 ) : WebSecurityConfigurerAdapter() {
 
     private val logger = LoggerFactory.getLogger(WebSecurityConfiguration::class.java)
 
     @Value("\${up.dev.cors}")
-    private val devCors:Boolean = false
+    private val devCors: Boolean = false
 
     override fun configure(web: HttpSecurity) {
         http
-                .csrf().disable()
+            .csrf().disable()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.addFilterBefore(
-                JwtTokenFilter(jwtTokenService),
-                UsernamePasswordAuthenticationFilter::class.java
+            JwtTokenFilter(jwtTokenService),
+            UsernamePasswordAuthenticationFilter::class.java
         )
 
-        if(devCors){
+        if (devCors) {
             logger.info("Development environment set. Enabling CORS for all origins.")
             http.cors()
         }
@@ -53,5 +52,4 @@ class WebSecurityConfiguration(
         source.registerCorsConfiguration("/**", configuration)
         return source
     }
-
 }

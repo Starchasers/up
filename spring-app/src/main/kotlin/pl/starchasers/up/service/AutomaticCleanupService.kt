@@ -11,8 +11,10 @@ import java.io.StringWriter
 import javax.transaction.Transactional
 
 @Service
-class AutomaticCleanupService(private val fileEntryRepository: FileEntryRepository,
-                              private val uploadRepository: UploadRepository) {
+class AutomaticCleanupService(
+    private val fileEntryRepository: FileEntryRepository,
+    private val uploadRepository: UploadRepository
+) {
 
     private val logger = LoggerFactory.getLogger(AutomaticCleanupService::class.java)
 

@@ -11,7 +11,6 @@ import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.util.Util
 import java.io.InputStream
-import java.time.LocalDateTime
 
 interface FileStorageService {
     fun storeNonPermanentFile(tmpFile: InputStream, filename: Filename): FileKey
@@ -21,16 +20,15 @@ interface FileStorageService {
     fun deleteFile(fileEntry: FileEntry)
 }
 
-//TODO move to app configuration
+// TODO move to app configuration
 const val NON_PERMANENT_FILE_KEY_LENGTH = 5
 const val PERMANENT_FILE_KEY_LENGTH = 8
 
 @Service
 class FileStorageServiceImpl(
-        private val uploadRepository: UploadRepository,
-        private val fileEntryRepository: FileEntryRepository
+    private val uploadRepository: UploadRepository,
+    private val fileEntryRepository: FileEntryRepository
 ) : FileStorageService {
-
 
     private val util = Util()
 
@@ -46,7 +44,7 @@ class FileStorageServiceImpl(
     override fun getStoredFileRaw(key: FileKey): Pair<FileEntry, InputStream> {
         val fileEntry = fileEntryRepository.findExistingFileByKey(key) ?: throw NotFoundException()
 
-        val upload = uploadRepository.find(key) ?: throw NotFoundException()//TODO handle possible data inconsistency
+        val upload = uploadRepository.find(key) ?: throw NotFoundException() // TODO handle possible data inconsistency
 
         return Pair(fileEntry, upload.data)
     }

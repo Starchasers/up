@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class Milliseconds(
-        @Column(name = "miliseconds")
-        val value: Long
+    @Column(name = "miliseconds")
+    val value: Long
 ) {
     init {
         validate(this, Milliseconds::value) {

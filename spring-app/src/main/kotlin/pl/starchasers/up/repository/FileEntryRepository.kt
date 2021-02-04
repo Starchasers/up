@@ -10,16 +10,20 @@ import pl.starchasers.up.data.value.FileKey
 
 interface FileEntryRepository : JpaRepository<FileEntry, Long> {
 
-    @Query("""
+    @Query(
+        """
         from FileEntry f where f.key=:key 
-    """)
+    """
+    )
     fun findExistingFileByKey(key: FileKey): FileEntry?
 
-    @Query("""
+    @Query(
+        """
         from FileEntry f
         where f.permanent = false
             and f.toDeleteDate < current_timestamp
-    """)
+    """
+    )
     fun findExpiredFiles(): Set<FileEntry>
 
     fun findAllByOwner(owner: User, pageable: Pageable): Page<FileEntry>

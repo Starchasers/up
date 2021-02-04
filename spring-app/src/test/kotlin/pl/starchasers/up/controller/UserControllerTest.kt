@@ -26,25 +26,27 @@ class UserControllerTest : MockMvcTestBase() {
     @OrderTests
     @Nested
     inner class ListUserUploadHistory(
-            @Autowired private val userService: UserService,
-            @Autowired private val fileService: FileService
+        @Autowired private val userService: UserService,
+        @Autowired private val fileService: FileService
     ) : MockMvcTestBase() {
 
         private val listHistoryRequestPath = Path("/api/user/history")
 
         @DocumentResponse
         @Test
-        fun `Given valid request, should return upload history`(){
+        fun `Given valid request, should return upload history`() {
             val file = fileService.createFile(
-                    "content".byteInputStream(),
-                    Filename("file"),
-                    ContentType("text/html"),
-                    FileSize(7),
-                    userService.getUser(Username("root"))
+                "content".byteInputStream(),
+                Filename("file"),
+                ContentType("text/html"),
+                FileSize(7),
+                userService.getUser(Username("root"))
             )
             val fileEntry = fileService.findFileEntry(FileKey(file.key)) ?: throw IllegalStateException()
-            mockMvc.get(path = listHistoryRequestPath,
-            headers = HttpHeaders().authorization(getAdminAccessToken())){
+            mockMvc.get(
+                path = listHistoryRequestPath,
+                headers = HttpHeaders().authorization(getAdminAccessToken())
+            ) {
                 isSuccess()
                 responseJsonPath("$.content[0].filename").equalsValue(fileEntry.filename.value)
                 responseJsonPath("$.content[0].permanent").equalsValue(fileEntry.permanent)
@@ -55,8 +57,8 @@ class UserControllerTest : MockMvcTestBase() {
         }
 
         @Test
-        fun `Given unauthenticated request, should return 403`(){
-            mockMvc.get(path = listHistoryRequestPath){
+        fun `Given unauthenticated request, should return 403`() {
+            mockMvc.get(path = listHistoryRequestPath) {
                 isError(HttpStatus.FORBIDDEN)
             }
         }
