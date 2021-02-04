@@ -1,7 +1,6 @@
 name: CI
 
-on:
-  push:
+on: [push, pull_request]
 
 jobs:
   build:
@@ -65,10 +64,9 @@ jobs:
         with:
           java-version: 11
 
-      - name: Lint check
-        run: ./gradlew --continue ktlintCheck
-
       - uses: le0nidas/ktlint-pr-comments@v1
         with:
           repotoken: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lint check
+        run: ./gradlew --continue ktlintCheck
