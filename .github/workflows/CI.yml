@@ -51,4 +51,19 @@ jobs:
         -H 'secret: ${{ secrets.CD_DEPLOY_SECRET }}' \
         -F 'app=1' \
         -F "key=${branch#refs/heads/}" \
-        -F 'file=@spring-app/build/libs/up-1.0.jar;type=application/octet-stream' 
+        -F 'file=@spring-app/build/libs/up-1.0.jar;type=application/octet-stream'
+
+  checkLint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11
+
+      - name: Lint check
+        run: ./gradlew --continue ktlintCheck
