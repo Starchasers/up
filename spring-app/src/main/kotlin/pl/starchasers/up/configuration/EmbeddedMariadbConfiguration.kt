@@ -19,8 +19,6 @@ class EmbeddedMariadbConfiguration {
     fun dataSource(
         mariaDB4jSpringService: MariaDB4jSpringService,
         @Value("\${app.mariaDB4j.databaseName}") databaseName: String,
-        @Value("\${spring.datasource.username}") datasourceUsername: String,
-        @Value("\${spring.datasource.password}") datasourcePassword: String,
         @Value("\${spring.datasource.driver-class-name}") datasourceDriver: String
     ): DataSource {
         mariaDB4jSpringService.db.createDB(databaseName)
@@ -29,8 +27,6 @@ class EmbeddedMariadbConfiguration {
 
         return DataSourceBuilder
             .create()
-            .username(datasourceUsername)
-            .password(datasourcePassword)
             .url(config.getURL(databaseName))
             .driverClassName(datasourceDriver)
             .build()
