@@ -20,6 +20,7 @@ import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.BasicResponseDTO
 import pl.starchasers.up.util.RequestRangeParser
+import java.io.BufferedInputStream
 import java.io.IOException
 import java.nio.charset.Charset
 import java.security.Principal
@@ -50,7 +51,7 @@ class UploadController(
         )
 
         return fileService.createFile(
-            file.inputStream,
+            BufferedInputStream(file.inputStream),
             Filename(file.originalFilename ?: "file"),
             contentType,
             FileSize(file.size),
