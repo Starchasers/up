@@ -68,6 +68,10 @@ class UploadController(
         response.contentType = fileEntry.contentType.value
 
         response.addHeader(
+            HttpHeaders.ACCEPT_RANGES,
+            "bytes"
+        )
+        response.addHeader(
             HttpHeaders.CONTENT_DISPOSITION,
             ContentDisposition
                 .builder("inline")

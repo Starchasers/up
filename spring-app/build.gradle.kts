@@ -102,18 +102,16 @@ tasks {
     test {
         useJUnitPlatform()
         dependsOn(dokka)
-        dependsOn(ktlintCheck)
+        finalizedBy(ktlintCheck)
     }
 
-    register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDev") {
-        dependsOn("bootJar")
+    register("bootRunDev") {
         group = "Application"
-        val bootJar by getting(org.springframework.boot.gradle.tasks.bundling.BootJar::class)
         doFirst {
-            main = bootJar.mainClassName
-            classpath = sourceSets["main"].runtimeClasspath
-            systemProperty("UP_DEV_CORS", "true")
-            systemProperty("UP_JWT_SECRET", "devSecret")
+            bootRun.configure {
+                args("--spring.profiles.active=localdb")
+            }
         }
+        finalizedBy("bootRun")
     }
 }
