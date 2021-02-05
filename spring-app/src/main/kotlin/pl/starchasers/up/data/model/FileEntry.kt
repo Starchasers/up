@@ -38,5 +38,8 @@ class FileEntry(
     val accessToken: FileAccessToken,
 
     @Embedded
-    val size: FileSize
+    val size: FileSize,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    val owner: User?
 )

@@ -1,6 +1,8 @@
 package pl.starchasers.up.service
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
@@ -19,17 +21,25 @@ import javax.transaction.Transactional
 
 interface FileService {
 
-    fun createFile(tmpFile: InputStream, filename: Filename, contentType: ContentType, size: FileSize, user: User?): UploadCompleteResponseDTO
+    fun createFile(
+        tmpFile: InputStream,
+        filename: Filename,
+        contentType: ContentType,
+        size: FileSize,
+        user: User?
+    ): UploadCompleteResponseDTO
 
-    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean
+    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean
 
-    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean
+    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?, user: User?): Boolean
 
     fun findFileEntry(fileKey: FileKey): FileEntry?
 
     fun getFileDetails(fileKey: FileKey): FileDetailsDTO
 
     fun deleteFile(fileEntry: FileEntry)
+
+    fun getUploadHistory(user: User, pageable: Pageable): Page<FileEntry>
 }
 
 @Service
@@ -55,7 +65,11 @@ class FileServiceImpl(
     ): UploadCompleteResponseDTO {
         val actualContentType = when {
             contentType.value.isBlank() -> ContentType("application/octet-stream")
-            contentType.value == "text/plain" -> ContentType("text/plain; charset=" + charsetDetectionService.detect(tmpFile))
+            contentType.value == "text/plain" -> ContentType(
+                "text/plain; charset=" + charsetDetectionService.detect(
+                    tmpFile
+                )
+            )
             else -> contentType
         }
         val personalLimit: FileSize = user?.maxTemporaryFileSize
@@ -78,7 +92,8 @@ class FileServiceImpl(
             toDeleteDate,
             false,
             accessToken,
-            size
+            size,
+            user
         )
 
         fileEntryRepository.save(fileEntry)
@@ -86,13 +101,14 @@ class FileServiceImpl(
         return UploadCompleteResponseDTO(key.value, accessToken.value, toDeleteDate)
     }
 
-    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean =
-        fileEntry.accessToken == accessToken
+    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean {
+        return (user != null && fileEntry.owner == user) || fileEntry.accessToken == accessToken
+    }
 
-    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean =
+    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?, user: User?): Boolean =
         fileEntryRepository
             .findExistingFileByKey(fileKey)
-            ?.let { it.accessToken == accessToken } ?: false
+            ?.let { verifyFileAccess(it, accessToken, user) } ?: false
 
     override fun findFileEntry(fileKey: FileKey): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
 
@@ -112,6 +128,10 @@ class FileServiceImpl(
 
     override fun deleteFile(fileEntry: FileEntry) {
         fileStorageService.deleteFile(fileEntry)
+    }
+
+    override fun getUploadHistory(user: User, pageable: Pageable): Page<FileEntry> {
+        return fileEntryRepository.findAllByOwner(user, pageable)
     }
 
     private fun generateFileAccessToken(): FileAccessToken = FileAccessToken(util.secureAlphanumericRandomString(128))

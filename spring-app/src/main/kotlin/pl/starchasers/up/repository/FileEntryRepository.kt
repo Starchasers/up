@@ -1,8 +1,11 @@
 package pl.starchasers.up.repository
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import pl.starchasers.up.data.model.FileEntry
+import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.FileKey
 
 interface FileEntryRepository : JpaRepository<FileEntry, Long> {
@@ -22,4 +25,6 @@ interface FileEntryRepository : JpaRepository<FileEntry, Long> {
     """
     )
     fun findExpiredFiles(): Set<FileEntry>
+
+    fun findAllByOwner(owner: User, pageable: Pageable): Page<FileEntry>
 }

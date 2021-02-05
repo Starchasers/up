@@ -38,6 +38,7 @@ class UploadController(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
+     * Upload new file
      * @param file Uploaded file content
      */
     @PostMapping("/api/upload")
@@ -58,6 +59,7 @@ class UploadController(
     }
 
     /**
+     * Download a previously uploaded file
      * @param fileKey File key obtained during upload
      */
     @GetMapping("/u/{fileKey}")
@@ -97,29 +99,41 @@ class UploadController(
         }
     }
 
+    /**
+     * Verify requesting user's permission to modify this upload
+     */
     @PostMapping("/api/u/{fileKey}/verify")
     fun verifyFileAccess(
         @PathVariable fileKey: String,
-        @Validated @RequestBody operationDto: AuthorizedOperationDTO
+        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
+        principal: Principal?
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
-        if (!fileService.verifyFileAccess(fileEntry, FileAccessToken(operationDto.accessToken))) throw AccessDeniedException()
+        val user = userService.fromPrincipal(principal)
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+            throw AccessDeniedException()
         return BasicResponseDTO()
     }
 
     @DeleteMapping("/api/u/{fileKey}")
     fun deleteFile(
         @PathVariable fileKey: String,
-        @Validated @RequestBody operationDto: AuthorizedOperationDTO
+        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
+        principal: Principal?
     ) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
+        val user = userService.fromPrincipal(principal)
 
-        if (!fileService.verifyFileAccess(fileEntry, FileAccessToken(operationDto.accessToken))) throw AccessDeniedException()
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+            throw AccessDeniedException()
 
         fileService.deleteFile(fileEntry)
     }
 
+    /**
+     * @return Uploaded file metadata
+     */
     @GetMapping("/api/u/{fileKey}/details")
     fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(FileKey(fileKey))
 }

@@ -247,7 +247,8 @@ internal class UploadControllerTest : JpaTestBase() {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class VerifyFileAccess(
         @Autowired val fileService: FileService,
-        @Autowired val fileEntryRepository: FileEntryRepository
+        @Autowired val fileEntryRepository: FileEntryRepository,
+        @Autowired val userService: UserService
     ) : MockMvcTestBase() {
         private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
         private val content = "example content"
@@ -262,7 +263,7 @@ internal class UploadControllerTest : JpaTestBase() {
                 Filename("filename.txt"),
                 ContentType("text/plain"),
                 FileSize(content.byteInputStream().readAllBytes().size.toLong()),
-                null
+                userService.getUser(Username("root"))
             ).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(FileKey(fileKey))?.accessToken?.value
@@ -286,6 +287,29 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
+        fun `Given valid owner and no token, should return 200`() {
+            mockMvc.post(
+                path = verifyRequestPath(fileKey),
+                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
+            ) {
+                isSuccess()
+            }
+        }
+
+        @Test
+        fun `Given invalid owner and valid token, should return 200`() {
+            mockMvc.post(
+                path = verifyRequestPath(fileKey),
+                headers = HttpHeaders().contentTypeJson(),
+                body = object {
+                    val accessToken = fileAccessToken
+                }
+            ) {
+                isSuccess()
+            }
+        }
+
+        @Test
         fun `Given invalid access token, should return 403`() {
             mockMvc.post(
                 path = verifyRequestPath(fileKey),
@@ -299,13 +323,12 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
-        fun `Given missing access token, should return 400`() {
+        fun `Given missing access token and no user, should return 403`() {
             mockMvc.post(
                 path = verifyRequestPath(fileKey),
                 headers = HttpHeaders().contentTypeJson(),
-                body = object {}
             ) {
-                isError(HttpStatus.BAD_REQUEST)
+                isError(HttpStatus.FORBIDDEN)
             }
         }
 
@@ -374,7 +397,8 @@ internal class UploadControllerTest : JpaTestBase() {
     inner class DeleteFile(
         @Autowired val fileService: FileService,
         @Autowired val uploadRepository: UploadRepository,
-        @Autowired val fileEntryRepository: FileEntryRepository
+        @Autowired val fileEntryRepository: FileEntryRepository,
+        @Autowired val userService: UserService
     ) : MockMvcTestBase() {
 
         private fun getRequestPath(fileKey: String) = Path("/api/u/$fileKey")
@@ -386,13 +410,13 @@ internal class UploadControllerTest : JpaTestBase() {
                 Filename("file"),
                 ContentType("text/plain"),
                 FileSize(fileContent.length.toLong()),
-                null
+                userService.getUser(Username("root"))
             )
         }
 
         @Test
         @DocumentResponse
-        fun `Given valid request, should delete file`() {
+        fun `Given valid access token, should delete file`() {
             val response = createTestFile()
             mockMvc.delete(
                 path = getRequestPath(response.key),
@@ -406,6 +430,18 @@ internal class UploadControllerTest : JpaTestBase() {
 
             assertNull(uploadRepository.find(FileKey(response.key)))
             assertNull(fileEntryRepository.findExistingFileByKey(FileKey(response.key)))
+        }
+
+        @Test
+        fun `Given valid owner, should delete file`() {
+            val response = createTestFile()
+
+            mockMvc.delete(
+                path = getRequestPath(response.key),
+                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
+            ) {
+                isSuccess()
+            }
         }
 
         @Test
