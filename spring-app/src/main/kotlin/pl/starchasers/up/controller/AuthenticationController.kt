@@ -6,11 +6,9 @@ import pl.starchasers.up.data.dto.authentication.LoginDTO
 import pl.starchasers.up.data.dto.authentication.TokenDTO
 import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
-import pl.starchasers.up.security.IsUser
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.SetCookieHeaderValueBuilder
-import java.security.Principal
 import javax.servlet.http.HttpServletResponse
 
 @RestController
@@ -22,29 +20,57 @@ class AuthenticationController(
 
     @PostMapping("/login")
     fun login(response: HttpServletResponse, @RequestBody @Validated loginDTO: LoginDTO) {
+        val refreshToken = jwtTokenService.issueRefreshToken(
+            userService.getUserFromCredentials(
+                Username(loginDTO.username),
+                RawPassword(loginDTO.password)
+            )
+        )
         response.addHeader(
             "Set-Cookie",
             SetCookieHeaderValueBuilder()
                 .withName(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)
-                .withValue(
-                    jwtTokenService.issueRefreshToken(
-                        userService.getUserFromCredentials(
-                            Username(loginDTO.username),
-                            RawPassword(loginDTO.password)
-                        )
-                    )
-                )
+                .withValue(refreshToken)
                 .withMaxAge(JwtTokenService.REFRESH_TOKEN_VALID_TIME)
+                .withPath("/")
+                .httpOnly()
+                .build()
+        )
+        response.addHeader(
+            "Set-Cookie",
+            SetCookieHeaderValueBuilder()
+                .withName(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)
+                .withValue(jwtTokenService.issueAccessToken(refreshToken))
+                .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
                 .withPath("/")
                 .httpOnly()
                 .build()
         )
     }
 
-    @IsUser
     @PostMapping("/logout")
-    fun logout(principal: Principal) {
-        jwtTokenService.invalidateUser(userService.getUser(principal.name.toLong()))
+    fun logout(@CookieValue(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME) refreshToken: String, response: HttpServletResponse) {
+        jwtTokenService.invalidateRefreshToken(refreshToken)
+        response.addHeader(
+            "Set-Cookie",
+            SetCookieHeaderValueBuilder()
+                .withName(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)
+                .withValue("null")
+                .withMaxAge(JwtTokenService.REFRESH_TOKEN_VALID_TIME)
+                .withPath("/")
+                .httpOnly()
+                .build()
+        )
+        response.addHeader(
+            "Set-Cookie",
+            SetCookieHeaderValueBuilder()
+                .withName(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)
+                .withValue("null")
+                .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
+                .withPath("/")
+                .httpOnly()
+                .build()
+        )
     }
 
     @PostMapping("/getAccessToken")

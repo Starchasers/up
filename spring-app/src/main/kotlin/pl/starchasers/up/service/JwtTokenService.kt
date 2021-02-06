@@ -1,8 +1,6 @@
 package pl.starchasers.up.service
 
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -17,7 +15,6 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 import javax.annotation.PostConstruct
-
 
 interface JwtTokenService {
     fun issueRefreshToken(user: User): String
@@ -38,7 +35,9 @@ interface JwtTokenService {
         const val TOKEN_ID_KEY = "tokenId"
         const val ROLE_KEY = "role"
         const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+        const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
         const val REFRESH_TOKEN_VALID_TIME: Long = 7 * 24 * 60 * 60 * 1000
+        const val ACCESS_TOKEN_VALID_TIME: Long = 10 * 60 * 1000
     }
 }
 
@@ -51,7 +50,6 @@ class JwtTokenServiceImpl(
     @Value("\${up.jwt-secret}")
     private var secret = ""
 
-    private val accessTokenValidTime: Long = 15 * 60 * 1000
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostConstruct
@@ -109,7 +107,7 @@ class JwtTokenServiceImpl(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + accessTokenValidTime))
+            .setExpiration(Date(now.time + JwtTokenService.ACCESS_TOKEN_VALID_TIME))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
@@ -121,6 +119,8 @@ class JwtTokenServiceImpl(
     override fun parseToken(token: String): Claims {
         try {
             return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).body
+        } catch (e: ExpiredJwtException) {
+            throw JwtException("Token expired")
         } catch (e: Exception) {
             throw JwtTokenException("Invalid or corrupted token.")
         }
