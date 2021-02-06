@@ -18,8 +18,6 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.annotation.PostConstruct
 
-const val TOKEN_ID_KEY = "tokenId"
-const val ROLE_KEY = "role"
 
 interface JwtTokenService {
     fun issueRefreshToken(user: User): String
@@ -35,6 +33,13 @@ interface JwtTokenService {
     fun invalidateUser(user: User)
 
     fun invalidateRefreshToken(refreshToken: String)
+
+    companion object JwtTokenService {
+        const val TOKEN_ID_KEY = "tokenId"
+        const val ROLE_KEY = "role"
+        const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+        const val REFRESH_TOKEN_VALID_TIME: Long = 7 * 24 * 60 * 60 * 1000
+    }
 }
 
 @Service
@@ -46,7 +51,6 @@ class JwtTokenServiceImpl(
     @Value("\${up.jwt-secret}")
     private var secret = ""
 
-    private val refreshTokenValidTime: Long = 7 * 24 * 60 * 60 * 1000
     private val accessTokenValidTime: Long = 15 * 60 * 1000
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -63,13 +67,13 @@ class JwtTokenServiceImpl(
         val now = Date()
         val tokenId = RefreshTokenId(UUID.randomUUID().toString())
 
-        claims[TOKEN_ID_KEY] = tokenId.value
+        claims[JwtTokenService.TOKEN_ID_KEY] = tokenId.value
         val refreshToken = RefreshToken(
             0,
             user,
             tokenId,
             Timestamp.valueOf(LocalDateTime.now()),
-            Timestamp.valueOf(LocalDateTime.now().plusNanos(refreshTokenValidTime * 1000))
+            Timestamp.valueOf(LocalDateTime.now().plusNanos(JwtTokenService.REFRESH_TOKEN_VALID_TIME * 1000))
         )
 
         refreshTokenRepository.save(refreshToken)
@@ -77,7 +81,7 @@ class JwtTokenServiceImpl(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + refreshTokenValidTime))
+            .setExpiration(Date(now.time + JwtTokenService.REFRESH_TOKEN_VALID_TIME))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
@@ -96,9 +100,9 @@ class JwtTokenServiceImpl(
         val user = userService.getUser(refreshTokenClaims.subject.toLong())
 
         val claims = Jwts.claims().setSubject(user.id.toString())
-        claims[ROLE_KEY] = user.role
+        claims[JwtTokenService.ROLE_KEY] = user.role
 
-        verifyRefreshToken(RefreshTokenId(refreshTokenClaims[TOKEN_ID_KEY] as String), user)
+        verifyRefreshToken(RefreshTokenId(refreshTokenClaims[JwtTokenService.TOKEN_ID_KEY] as String), user)
 
         val now = Date()
 
@@ -135,7 +139,7 @@ class JwtTokenServiceImpl(
 }
 
 fun Claims.getTokenId(): RefreshTokenId {
-    val idString = this[TOKEN_ID_KEY]
+    val idString = this[JwtTokenService.TOKEN_ID_KEY]
     if (idString !is String) throw JwtTokenException("Invalid refresh token")
     return RefreshTokenId(idString)
 }
