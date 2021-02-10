@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class UIController {
 
-    @GetMapping("/")
+    @GetMapping("/", "{_:^(?!api|.*\\.).*$}")
     fun index(): String {
         return "forward:/index.html"
     }
