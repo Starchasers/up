@@ -13,12 +13,25 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
+import org.springframework.web.servlet.NoHandlerFoundException
 import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.exception.BadRangeException
+import pl.starchasers.up.exception.NotFoundUIException
 import pl.starchasers.up.util.BasicErrorResponseDTO
+import javax.servlet.ServletContext
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @ControllerAdvice
-class ExceptionHandler() {
+class ExceptionHandler(
+    private val servletContext: ServletContext
+) {
+    @ExceptionHandler(NotFoundUIException::class)
+    fun handleNotFoundUIException(request: HttpServletRequest, response: HttpServletResponse) {
+        response.status = HttpStatus.NOT_FOUND.value()
+        servletContext.getRequestDispatcher("/index.html")
+            .forward(request, response)
+    }
 
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(applicationException: ApplicationException): ResponseEntity<BasicErrorResponseDTO> =

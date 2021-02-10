@@ -35,7 +35,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.5.2")
     implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.4.0")
     implementation("com.ibm.icu:icu4j:67.1")
-    implementation("javax.servlet:javax.servlet-api:4.0.1")
     runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")

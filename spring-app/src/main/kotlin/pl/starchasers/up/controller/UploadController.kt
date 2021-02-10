@@ -15,6 +15,7 @@ import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
+import pl.starchasers.up.exception.NotFoundUIException
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.FileStorageService
 import pl.starchasers.up.service.UserService
@@ -65,7 +66,11 @@ class UploadController(
      */
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
-        val (fileEntry, stream) = fileStorageService.getStoredFileRaw(FileKey(fileKey))
+        val (fileEntry, stream) = try {
+            fileStorageService.getStoredFileRaw(FileKey(fileKey))
+        } catch (e: NotFoundException) {
+            throw NotFoundUIException()
+        }
         response.contentType = fileEntry.contentType.value
 
         response.addHeader(
