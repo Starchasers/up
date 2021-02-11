@@ -1,28 +1,28 @@
 package pl.starchasers.up
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.hamcrest.Matcher
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.MethodOrdererContext
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.test.web.servlet.MockMvc
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-fun MockMvcData.isSuccess() {
+/*fun MockMvcData.isSuccess() {
     printResponseBody()
     statusIsOk()
 //    responseJsonPath("$.success").isTrue()
-}
-
+}*/
+/*
 fun MockMvcData.isError(expectedStatus: HttpStatus) {
     printResponseBody()
     status(expectedStatus)
 //    responseJsonPath("$.success").isFalse()
     responseJsonPath("$.message").isNotEmpty()
-}
+}*/
 
 /**
  * Response from this test will be included as "Example Response" when generating REST documentation.
@@ -46,7 +46,7 @@ class AnnotationMethodOrderer : MethodOrderer {
 @TestMethodOrder(AnnotationMethodOrderer::class)
 annotation class OrderTests
 
-// TODO make library pull request
+/*// TODO make library pull request
 fun MockMvc.multipart(
     path: Path,
     headers: HttpHeaders? = null,
@@ -66,7 +66,24 @@ fun MockMvc.multipart(
 
 //    mock.setupWireMock(headers, method)
 //            .addDocumentation(method, docsIdentifier)
-}
+}*/
 
 private fun MockHttpServletRequestBuilder.addHeaders(headers: HttpHeaders?) =
     headers?.let { this.headers(it) } ?: this
+
+fun MockHttpServletRequestDsl.content(content: Any) {
+    val jsonString = if (content is String) {
+        content
+    } else {
+        jacksonObjectMapper().writeValueAsString(content)
+    }
+    this.content = jsonString
+}
+
+fun HttpHeaders.contentTypeJson() {
+    this.contentType = MediaType.APPLICATION_JSON
+}
+
+inline fun <reified T> responsePath(expression: String, matcher: Matcher<T>) =
+    MockMvcResultMatchers.jsonPath(expression, matcher, T::class)
+

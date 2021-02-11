@@ -1,21 +1,19 @@
 package pl.starchasers.up.controller
 
-import no.skatteetaten.aurora.mockmvc.extensions.Path
-import no.skatteetaten.aurora.mockmvc.extensions.authorization
-import no.skatteetaten.aurora.mockmvc.extensions.get
-import no.skatteetaten.aurora.mockmvc.extensions.responseJsonPath
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
-import pl.starchasers.up.*
+import org.springframework.test.web.servlet.get
+import pl.starchasers.up.DocumentResponse
+import pl.starchasers.up.MockMvcTestBase
+import pl.starchasers.up.OrderTests
 import pl.starchasers.up.data.value.*
+import pl.starchasers.up.responsePath
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.UserService
-import java.lang.IllegalStateException
 import javax.transaction.Transactional
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -30,7 +28,7 @@ class UserControllerTest : MockMvcTestBase() {
         @Autowired private val fileService: FileService
     ) : MockMvcTestBase() {
 
-        private val listHistoryRequestPath = Path("/api/user/history")
+        private val listHistoryRequestPath = "/api/user/history"
 
         @DocumentResponse
         @Test
@@ -43,23 +41,24 @@ class UserControllerTest : MockMvcTestBase() {
                 userService.getUser(Username("root"))
             )
             val fileEntry = fileService.findFileEntry(FileKey(file.key)) ?: throw IllegalStateException()
-            mockMvc.get(
-                path = listHistoryRequestPath,
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
-                responseJsonPath("$.content[0].filename").equalsValue(fileEntry.filename.value)
-                responseJsonPath("$.content[0].permanent").equalsValue(fileEntry.permanent)
-                responseJsonPath("$.content[0].size").equalsValue(fileEntry.size.value)
-                responseJsonPath("$.content[0].mimeType").equalsValue(fileEntry.contentType.value)
-                responseJsonPath("$.content[0].key").equalsValue(fileEntry.key.value)
+            mockMvc.get(listHistoryRequestPath) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
+                content {
+                    responsePath("$.content[0].filename", Matchers.equalTo(fileEntry.filename.value))
+                    responsePath("$.content[0].permanent", Matchers.equalTo(fileEntry.permanent))
+                    responsePath("$.content[0].size", Matchers.equalTo(fileEntry.size.value))
+                    responsePath("$.content[0].mimeType", Matchers.equalTo(fileEntry.contentType.value))
+                    responsePath("$.content[0].key", Matchers.equalTo(fileEntry.key.value))
+                }
             }
         }
 
         @Test
         fun `Given unauthenticated request, should return 403`() {
-            mockMvc.get(path = listHistoryRequestPath) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.get(listHistoryRequestPath).andExpect {
+                status { isForbidden() }
             }
         }
     }

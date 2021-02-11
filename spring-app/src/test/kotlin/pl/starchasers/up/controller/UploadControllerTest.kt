@@ -1,7 +1,7 @@
 package pl.starchasers.up.controller
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
 import org.apache.commons.fileupload.util.Streams
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -9,8 +9,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.test.web.servlet.delete
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.multipart
+import org.springframework.test.web.servlet.post
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
@@ -23,6 +27,7 @@ import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
 import java.time.LocalDateTime
+import javax.servlet.http.Cookie
 
 internal class UploadControllerTest : JpaTestBase() {
 
@@ -36,7 +41,7 @@ internal class UploadControllerTest : JpaTestBase() {
         @Autowired private val jwtTokenService: JwtTokenService
     ) : MockMvcTestBase() {
 
-        private val uploadFileRequestPath = Path("/api/upload")
+        private val uploadFileRequestPath = "/api/upload"
 
         // TODO integrate access token
 
@@ -50,17 +55,16 @@ internal class UploadControllerTest : JpaTestBase() {
                 "example content".toByteArray()
             )
 
-            mockMvc.multipart(
-                path = uploadFileRequestPath,
-                fnBuilder = {
-                    file(exampleTextFile)
-                }
-            ) {
-                isSuccess()
+            mockMvc.multipart(uploadFileRequestPath) {
+                file(exampleTextFile)
+            }.andExpect {
+                status { isOk() }
                 fileEntryRepository.findAll()[0].let { fileEntry ->
-                    responseJsonPath("$.key").equalsValue(fileEntry.key.value)
-                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken.value)
-                    responseJsonPath("$.toDelete").isNotEmpty()
+                    content {
+                        responsePath("$.key", Matchers.equalTo(fileEntry.key.value))
+                        responsePath("$.accessToken", Matchers.equalTo(fileEntry.accessToken.value))
+                        responsePath("$.toDelete", Matchers.notNullValue())
+                    }
                 }
             }
 
@@ -81,8 +85,8 @@ internal class UploadControllerTest : JpaTestBase() {
 
         @Test
         fun `Given missing file, should return 400`() {
-            mockMvc.multipart(path = uploadFileRequestPath, fnBuilder = {}) {
-                isError(HttpStatus.BAD_REQUEST)
+            mockMvc.multipart(uploadFileRequestPath).andExpect {
+                status { isBadRequest() }
             }
         }
 
@@ -95,17 +99,16 @@ internal class UploadControllerTest : JpaTestBase() {
                 "example content".toByteArray()
             )
 
-            mockMvc.multipart(
-                path = uploadFileRequestPath,
-                fnBuilder = {
-                    file(exampleTextFile)
-                }
-            ) {
-                isSuccess()
+            mockMvc.multipart(uploadFileRequestPath) {
+                file(exampleTextFile)
+            }.andExpect {
+                status { is2xxSuccessful() }
                 fileEntryRepository.findAll()[0].let { fileEntry ->
-                    responseJsonPath("$.key").equalsValue(fileEntry.key.value)
-                    responseJsonPath("$.accessToken").equalsValue(fileEntry.accessToken.value)
-                    responseJsonPath("$.toDelete").isNotEmpty()
+                    content {
+                        responsePath("$.key", Matchers.equalTo(fileEntry.key.value))
+                        responsePath("$.accessToken", Matchers.equalTo(fileEntry.accessToken.value))
+                        responsePath("$.toDelete", Matchers.notNullValue())
+                    }
                 }
             }
 
@@ -144,15 +147,12 @@ internal class UploadControllerTest : JpaTestBase() {
                 "text/plain",
                 "example content".toByteArray()
             )
-
-            mockMvc.multipart(
-                path = uploadFileRequestPath,
-                headers = HttpHeaders().authorization(accessToken),
-                fnBuilder = {
-                    file(exampleTextFile)
-                }
-            ) {
-                isError(HttpStatus.PAYLOAD_TOO_LARGE)
+            mockMvc.multipart(uploadFileRequestPath) {
+                headers { contentTypeJson() }
+                cookie(Cookie(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, accessToken))
+                file(exampleTextFile)
+            }.andExpect {
+                status { isPayloadTooLarge() }
             }
         }
     }
@@ -177,11 +177,17 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given valid key, should return raw file`() {
             val key = createFile("application/octet-stream")
 
-            mockMvc.get(path = Path("/u/$key")) {
-                responseJsonPath("$").equalsValue("example content")
-                responseHeader(HttpHeaders.CONTENT_TYPE).equals("application/octet-stream")
-                responseHeader(HttpHeaders.CONTENT_LENGTH).equals("${content.length}")
-            }
+            mockMvc.get("/u/$key")
+                .andExpect {
+                    status { isOk() }
+                    header {
+                        string(
+                            HttpHeaders.CONTENT_TYPE,
+                            Matchers.equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                        )
+                    }
+                    header { string(HttpHeaders.CONTENT_LENGTH, Matchers.equalTo("${content.length}")) }
+                }
         }
 
         @Test
@@ -189,13 +195,17 @@ internal class UploadControllerTest : JpaTestBase() {
             val contentSize = content.byteInputStream().readAllBytes().size.toLong()
             val key = createFile("text/plain")
 
-            val headers = HttpHeaders()
-            headers.set(HttpHeaders.RANGE, "bytes=0-")
-
-            mockMvc.get(path = Path("/u/$key"), headers = headers) {
-                status(HttpStatus.PARTIAL_CONTENT)
-                responseHeader(HttpHeaders.CONTENT_RANGE).equals("bytes 0-${contentSize - 1}/$contentSize")
-                responseHeader(HttpHeaders.CONTENT_LENGTH).equals("$contentSize")
+            mockMvc.get("/u/$key") {
+                headers { set(HttpHeaders.RANGE, "bytes=0-") }
+            }.andExpect {
+                status { isPartialContent() }
+                header {
+                    string(
+                        HttpHeaders.CONTENT_RANGE,
+                        Matchers.equalTo("bytes 0-${contentSize - 1}/$contentSize")
+                    )
+                }
+                header { string(HttpHeaders.CONTENT_LENGTH, Matchers.equalTo("$contentSize")) }
             }
         }
 
@@ -203,29 +213,29 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given invalid Range header, should return 200`() {
             val key = createFile("text/plain")
 
-            val headers = HttpHeaders()
-            headers.set(HttpHeaders.RANGE, "mb=-1024")
-
-            mockMvc.get(path = Path("/u/$key"), headers = headers) {
-                statusIsOk()
+            mockMvc.get("/u/$key") {
+                headers { set(HttpHeaders.RANGE, "mb=-1024") }
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given incorrect key, should return 404`() {
-            mockMvc.get(path = Path("/u/qweasd")) {
-                isError(HttpStatus.NOT_FOUND)
+            mockMvc.get("/u/qweasd").andExpect {
+                status { isNotFound() }
             }
         }
 
         @Test
         fun `Given unspecified text file encoding, should guess based on content`() {
-            val key = createFile("text/plain", fileContent = "Ā ā Ă অ আ ই ঈ উ")
+            val content = "Ā ā Ă অ আ ই ঈ উ"
+            val key = createFile("text/plain", fileContent = content)
 
-            mockMvc.get(path = Path("/u/$key")) {
-                isSuccess()
-                responseJsonPath("$").equalsValue("Ā ā Ă অ আ ই ঈ উ")
-                responseHeader("Content-Type").equals("text/plain; charset=UTF-8")
+            mockMvc.get("/u/$key").andExpect {
+                status { isOk() }
+                content { responsePath("$", Matchers.equalTo(content)) }
+                header { string(HttpHeaders.CONTENT_TYPE, Matchers.equalTo("text/plain; charset=UTF-8")) }
             }
         }
 
@@ -234,10 +244,10 @@ internal class UploadControllerTest : JpaTestBase() {
             val contentType = "text/plain; charset=us-ascii"
             val key = createFile(contentType)
 
-            mockMvc.get(path = Path("/u/$key")) {
-                isSuccess()
-                responseJsonPath("$").equalsValue("example content")
-                responseHeader("Content-Type").equals(contentType)
+            mockMvc.get("/u/$key").andExpect {
+                status { isOk() }
+                content { responsePath("$", Matchers.equalTo("example content")) }
+                header { string(HttpHeaders.CONTENT_TYPE, Matchers.equalTo(contentType)) }
             }
         }
     }
@@ -250,7 +260,7 @@ internal class UploadControllerTest : JpaTestBase() {
         @Autowired val fileEntryRepository: FileEntryRepository,
         @Autowired val userService: UserService
     ) : MockMvcTestBase() {
-        private fun verifyRequestPath(key: String): Path = Path("/api/u/$key/verify")
+        private fun verifyRequestPath(key: String) = "/api/u/$key/verify"
         private val content = "example content"
 
         private lateinit var fileKey: String
@@ -273,75 +283,69 @@ internal class UploadControllerTest : JpaTestBase() {
         @Test
         @DocumentResponse
         fun `Given valid access token, should return 200`() {
-            mockMvc.post(
-                path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson(),
-                body = mapper.writeValueAsString(
-                    object {
-                        val accessToken = fileAccessToken
-                    }
-                )
-            ) {
-                isSuccess()
+            mockMvc.post(verifyRequestPath(fileKey)) {
+                headers { contentTypeJson() }
+                content(object {
+                    val accessToken = fileAccessToken
+                })
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given valid owner and no token, should return 200`() {
-            mockMvc.post(
-                path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
+            mockMvc.post(verifyRequestPath(fileKey)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given invalid owner and valid token, should return 200`() {
-            mockMvc.post(
-                path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
+            mockMvc.post(verifyRequestPath(fileKey)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(object {
                     val accessToken = fileAccessToken
-                }
-            ) {
-                isSuccess()
+                })
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given invalid access token, should return 403`() {
-            mockMvc.post(
-                path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
+            mockMvc.post(verifyRequestPath(fileKey)) {
+                headers { contentTypeJson() }
+                content(object {
                     val accessToken = "qweasd"
-                }
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+                })
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
         @Test
         fun `Given missing access token and no user, should return 403`() {
-            mockMvc.post(
-                path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson(),
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.post(verifyRequestPath(fileKey)) {
+                headers { contentTypeJson() }
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
         @Test
         fun `Given invalid file key, should return 404`() {
-            mockMvc.post(
-                path = verifyRequestPath("qweasd"),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
+            mockMvc.post(verifyRequestPath("qweasd")) {
+                headers { contentTypeJson() }
+                content(object {
                     val accessToken = fileAccessToken
-                }
-            ) {
-                isError(HttpStatus.NOT_FOUND)
+                })
+            }.andExpect {
+                status { isNotFound() }
             }
         }
     }
@@ -353,7 +357,7 @@ internal class UploadControllerTest : JpaTestBase() {
         @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
 
-        private fun getRequestPath(key: String): Path = Path("/api/u/$key/details")
+        private fun getRequestPath(key: String) = "/api/u/$key/details"
         private val content = "example content"
         private lateinit var fileKey: String
         private val filename: String = "filename.txt"
@@ -373,20 +377,22 @@ internal class UploadControllerTest : JpaTestBase() {
         @Test
         @DocumentResponse
         fun `Given correct key, should return file details`() {
-            mockMvc.get(path = getRequestPath(fileKey)) {
-                responseJsonPath("$.key").equalsValue(fileKey)
-                responseJsonPath("$.name").equalsValue(filename)
-                responseJsonPath("$.permanent").equalsValue(false) // TODO support permanent files
-                responseJsonPath("$.expirationDate").isNotEmpty() // TODO fix objectMapper
-                responseJsonPath("$.size").equalsValue(content.byteInputStream().readAllBytes().size.toLong())
-                responseJsonPath("$.type").equalsValue(contentType)
+            mockMvc.get(getRequestPath(fileKey)).andExpect {
+                content {
+                    responsePath("$.key", Matchers.equalTo(fileKey))
+                    responsePath("$.name", Matchers.equalTo(filename))
+                    responsePath("$.permanent", Matchers.equalTo(false)) // TODO support permanent files
+                    responsePath("$.expirationDate", Matchers.notNullValue()) // TODO fix objectMapper
+                    responsePath("$.size", Matchers.equalTo(content.byteInputStream().readAllBytes().size.toLong()))
+                    responsePath("$.type", Matchers.equalTo(contentType))
+                }
             }
         }
 
         @Test
         fun `Given incorrect key, should return 404`() {
-            mockMvc.get(path = getRequestPath("incorrectKey")) {
-                isError(HttpStatus.NOT_FOUND)
+            mockMvc.get(getRequestPath("incorrectKey")).andExpect {
+                status { isNotFound() }
             }
         }
     }
@@ -401,7 +407,7 @@ internal class UploadControllerTest : JpaTestBase() {
         @Autowired val userService: UserService
     ) : MockMvcTestBase() {
 
-        private fun getRequestPath(fileKey: String) = Path("/api/u/$fileKey")
+        private fun getRequestPath(fileKey: String) = "/api/u/$fileKey"
 
         private fun createTestFile(): UploadCompleteResponseDTO {
             val fileContent = "fileContent"
@@ -418,14 +424,14 @@ internal class UploadControllerTest : JpaTestBase() {
         @DocumentResponse
         fun `Given valid access token, should delete file`() {
             val response = createTestFile()
-            mockMvc.delete(
-                path = getRequestPath(response.key),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
+
+            mockMvc.delete(getRequestPath(response.key)) {
+                headers { contentTypeJson() }
+                content(object {
                     val accessToken = response.accessToken
-                }
-            ) {
-                isSuccess()
+                })
+            }.andExpect {
+                status { is2xxSuccessful() }
             }
 
             assertNull(uploadRepository.find(FileKey(response.key)))
@@ -436,25 +442,25 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given valid owner, should delete file`() {
             val response = createTestFile()
 
-            mockMvc.delete(
-                path = getRequestPath(response.key),
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
+            mockMvc.delete(getRequestPath(response.key)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { is2xxSuccessful() }
             }
         }
 
         @Test
         fun `Given wrong access token, should return 403`() {
             val response = createTestFile()
-            mockMvc.delete(
-                path = getRequestPath(response.key),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
-                    val accessToken = "forSureNotRealToken"
-                }
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+
+            mockMvc.delete(getRequestPath(response.key)) {
+                headers { contentTypeJson() }
+                content(object {
+                    val accessToken = "realTokenNoScamHere"
+                })
+            }.andExpect {
+                status { isForbidden() }
             }
 
             assertNotNull(uploadRepository.find(FileKey(response.key)))
@@ -465,14 +471,13 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given not existing file, should return 404`() {
             val response = createTestFile()
 
-            mockMvc.delete(
-                path = getRequestPath("qwe"),
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {
+            mockMvc.delete(getRequestPath("qweasd")) {
+                headers { contentTypeJson() }
+                content(object {
                     val accessToken = response.accessToken
-                }
-            ) {
-                isError(HttpStatus.NOT_FOUND)
+                })
+            }.andExpect {
+                status { isNotFound() }
             }
 
             assertNotNull(uploadRepository.find(FileKey(response.key)))

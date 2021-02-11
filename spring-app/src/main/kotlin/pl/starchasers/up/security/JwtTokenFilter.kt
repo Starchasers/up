@@ -22,7 +22,7 @@ class JwtTokenFilter(
         try {
             var accessToken =
                 WebUtils.getCookie((request as HttpServletRequest), JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)?.value
-            val refreshToken = WebUtils.getCookie(request, JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)!!.value
+            val refreshToken = WebUtils.getCookie(request, JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)?.value
 
             if (accessToken == null && refreshToken != null) {
                 accessToken = tokenService.issueAccessToken(refreshToken)
@@ -30,7 +30,7 @@ class JwtTokenFilter(
                     "Set-Cookie",
                     SetCookieHeaderValueBuilder()
                         .withName(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)
-                        .withValue(tokenService.issueAccessToken(refreshToken))
+                        .withValue(accessToken)
                         .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
                         .withPath("/")
                         .httpOnly()

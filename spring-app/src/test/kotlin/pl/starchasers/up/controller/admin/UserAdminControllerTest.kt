@@ -1,15 +1,17 @@
 package pl.starchasers.up.controller.admin
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
+import org.springframework.test.web.servlet.delete
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
+import org.springframework.test.web.servlet.post
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.users.CreateUserDTO
 import pl.starchasers.up.data.dto.users.UpdateUserDTO
@@ -48,42 +50,41 @@ internal class UserAdminControllerTest : JpaTestBase() {
             )
         }
 
-        private fun getOnePath(id: Long): Path = Path("/api/admin/users/$id")
+        private fun getOnePath(id: Long) = "/api/admin/users/$id"
 
         @DocumentResponse
         @Test
         fun `Given valid request, should return user details`() {
-            mockMvc.get(
-                path = getOnePath(user.id),
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
-
-                responseJsonPath("$.id").equalsValue(user.id)
-                responseJsonPath("$.username").equalsValue(user.username.value)
-                responseJsonPath("$.email").equalsValue(user.email?.value)
-                responseJsonPath("$.role").equalsValue(user.role.toString())
-                responseJsonPath("$.maxTemporaryFileSize").equalsValue(user.maxTemporaryFileSize.value)
-                responseJsonPath("$.maxPermanentFileSize").equalsValue(user.maxPermanentFileSize.value)
-                responseJsonPath("$.defaultFileLifetime").equalsValue(user.defaultFileLifetime.value)
-                responseJsonPath("$.maxFileLifetime").equalsValue(user.maxFileLifetime.value)
+            mockMvc.get(getOnePath(user.id)) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
+                content {
+                    responsePath("$.id", Matchers.equalTo(user.id))
+                    responsePath("$.username", Matchers.equalTo(user.username.value))
+                    responsePath("$.email", Matchers.equalTo(user.email?.value))
+                    responsePath("$.role", Matchers.equalTo(user.role.toString()))
+                    responsePath("$.maxTemporaryFileSize", Matchers.equalTo(user.maxTemporaryFileSize.value))
+                    responsePath("$.maxPermanentFileSize", Matchers.equalTo(user.maxPermanentFileSize.value))
+                    responsePath("$.defaultFileLifetime", Matchers.equalTo(user.defaultFileLifetime.value))
+                    responsePath("$.maxFileLifetime", Matchers.equalTo(user.maxFileLifetime.value))
+                }
             }
         }
 
         @Test
         fun `Given unauthorized user, should throw 403`() {
-            mockMvc.get(path = getOnePath(user.id)) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.get(getOnePath(user.id)).andExpect {
+                status { isForbidden() }
             }
         }
 
         @Test
         fun `Given invalid id, should throw 404`() {
-            mockMvc.get(
-                path = getOnePath(user.id + 123),
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isError(HttpStatus.NOT_FOUND)
+            mockMvc.get(getOnePath(user.id + 1024)) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isNotFound() }
             }
         }
     }
@@ -112,23 +113,22 @@ internal class UserAdminControllerTest : JpaTestBase() {
             )
         }
 
-        private val getOnePath: Path = Path("/api/admin/users")
+        private val onePath = "/api/admin/users"
 
         @DocumentResponse
         @Test
         fun `Given valid request, should return page`() {
-            mockMvc.get(
-                path = getOnePath,
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
+            mockMvc.get(onePath) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given unauthorized user, should throw 403`() {
-            mockMvc.get(path = getOnePath) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.get(onePath).andExpect {
+                status { isForbidden() }
             }
         }
     }
@@ -137,7 +137,7 @@ internal class UserAdminControllerTest : JpaTestBase() {
     @Nested
     inner class UsersCreate : MockMvcTestBase() {
 
-        private val path = Path("/api/admin/users")
+        private val path = "/api/admin/users"
 
         @Autowired
         private lateinit var userService: UserService
@@ -145,29 +145,30 @@ internal class UserAdminControllerTest : JpaTestBase() {
         @DocumentResponse
         @Test
         fun `Given valid request, should create user`() {
-            mockMvc.post(
-                path = path,
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = CreateUserDTO("createdUser", "password", "mail@example.com", Role.USER)
-            ) {
-                isSuccess()
+            mockMvc.post(path) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(CreateUserDTO("createdUser", "password", "mail@example.com", Role.USER))
+            }.andExpect {
+                status { is2xxSuccessful() }
                 userService.getUser(Username("createdUser")).let {
-                    responseJsonPath("$.id").equalsValue(it.id)
-                    responseJsonPath("$.username").equalsValue(it.username.value)
-                    responseJsonPath("$.email").equalsValue(it.email?.value)
-                    responseJsonPath("$.role").equalsValue(it.role.toString())
+                    content {
+                        responsePath("$.id", Matchers.equalTo(it.id))
+                        responsePath("$.username", Matchers.equalTo(it.username.value))
+                        responsePath("$.email", Matchers.equalTo(it.email?.value))
+                        responsePath("$.role", Matchers.equalTo(it.role.toString()))
+                    }
                 }
             }
         }
 
         @Test
         fun `Given unauthorized user, should throw 403`() {
-            mockMvc.post(
-                path = path,
-                headers = HttpHeaders().contentTypeJson(),
-                body = CreateUserDTO("createdUser", "password", "mail@example.com", Role.USER)
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.post(path) {
+                headers { contentTypeJson() }
+                content(CreateUserDTO("createdUser", "password", "mail@example.com", Role.USER))
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
@@ -179,12 +180,13 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("mail@example.com"),
                 Role.USER
             )
-            mockMvc.post(
-                path = path,
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = CreateUserDTO("duplicateUser", "password", "mail2@example.com", Role.ADMIN)
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+
+            mockMvc.post(path) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(CreateUserDTO("duplicateUser", "password", "mail2@example.com", Role.ADMIN))
+            }.andExpect {
+                status { isBadRequest() }
             }
         }
     }
@@ -193,7 +195,7 @@ internal class UserAdminControllerTest : JpaTestBase() {
     @Nested
     inner class UsersUpdate : MockMvcTestBase() {
 
-        private fun getUpdateUserPath(id: Long): Path = Path("/api/admin/users/$id")
+        private fun getUpdateUserPath(id: Long) = "/api/admin/users/$id"
 
         @Autowired
         private lateinit var userService: UserService
@@ -210,21 +212,23 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("email@example.com"),
                 Role.USER
             )
-            mockMvc.patch(
-                path = getUpdateUserPath(oldUser.id),
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = UpdateUserDTO(
-                    "newExampleUser",
-                    "mail2@example.com",
-                    "password2",
-                    Role.ADMIN,
-                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+            mockMvc.patch(getUpdateUserPath(oldUser.id)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(
+                    UpdateUserDTO(
+                        "newExampleUser",
+                        "mail2@example.com",
+                        "password2",
+                        Role.ADMIN,
+                        ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+                    )
                 )
-            ) {
-                isSuccess()
+            }.andExpect {
+                status { is2xxSuccessful() }
             }
             userService.getUser(oldUser.id).let {
                 assertEquals("mail2@example.com", it.email?.value)
@@ -242,21 +246,22 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("email@example.com"),
                 Role.USER
             )
-            mockMvc.patch(
-                path = getUpdateUserPath(oldUser.id),
-                headers = HttpHeaders().contentTypeJson(),
-                body = UpdateUserDTO(
-                    "newExampleUser",
-                    "mail2@example.com",
-                    "password2",
-                    Role.ADMIN,
-                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+            mockMvc.patch(getUpdateUserPath(oldUser.id)) {
+                headers { contentTypeJson() }
+                content(
+                    UpdateUserDTO(
+                        "newExampleUser",
+                        "mail2@example.com",
+                        "password2",
+                        Role.ADMIN,
+                        ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+                    )
                 )
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
@@ -268,21 +273,23 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("email@example.com"),
                 Role.USER
             )
-            mockMvc.patch(
-                path = getUpdateUserPath(oldUser.id),
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = UpdateUserDTO(
-                    "newExampleUser",
-                    "mail2@example.com",
-                    null,
-                    Role.ADMIN,
-                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+            mockMvc.patch(getUpdateUserPath(oldUser.id)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(
+                    UpdateUserDTO(
+                        "newExampleUser",
+                        "mail2@example.com",
+                        null,
+                        Role.ADMIN,
+                        ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+                    )
                 )
-            ) {
-                isSuccess()
+            }.andExpect {
+                status { isOk() }
             }
             assertTrue(passwordEncoder.matches("password", userService.getUser(oldUser.id).password.value))
         }
@@ -295,21 +302,23 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("email@example.com"),
                 Role.USER
             )
-            mockMvc.patch(
-                path = getUpdateUserPath(oldUser.id + 123),
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = UpdateUserDTO(
-                    "newExampleUser",
-                    "mail2@example.com",
-                    null,
-                    Role.ADMIN,
-                    ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
-                    ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+            mockMvc.patch(getUpdateUserPath(oldUser.id + 1024)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(
+                    UpdateUserDTO(
+                        "newExampleUser",
+                        "mail2@example.com",
+                        null,
+                        Role.ADMIN,
+                        ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue.toLong(),
+                        ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue.toLong()
+                    )
                 )
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+            }.andExpect {
+                status { isBadRequest() }
             }
         }
 
@@ -321,18 +330,17 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Email("email@example.com"),
                 Role.USER
             )
-            mockMvc.patch(
-                path = getUpdateUserPath(oldUser.id),
-                headers = HttpHeaders().authorization(getAdminAccessToken()).contentTypeJson(),
-                body = object {
+            mockMvc.patch(getUpdateUserPath(oldUser.id)) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(object {
                     val id = oldUser.id
                     val username = "newExampleUser"
                     val email = ""
                     val role = Role.USER
-                }
-            ) {
-
-                isSuccess()
+                })
+            }.andExpect {
+                status { isOk() }
             }
 
             userService.getUser(oldUser.id).let {
@@ -354,7 +362,7 @@ internal class UserAdminControllerTest : JpaTestBase() {
         @Autowired
         private lateinit var jwtTokenService: JwtTokenService
 
-        private fun getDeleteUserPath(id: Long) = Path("/api/admin/users/$id")
+        private fun getDeleteUserPath(id: Long) = "/api/admin/users/$id"
 
         @Test
         @DocumentResponse
@@ -366,11 +374,10 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Role.USER
             )
 
-            mockMvc.delete(
-                path = getDeleteUserPath(user.id),
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
+            mockMvc.delete(getDeleteUserPath(user.id)) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
             }
             assertNull(userService.findUser(user.id))
         }
@@ -384,8 +391,8 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Role.USER
             )
 
-            mockMvc.delete(path = getDeleteUserPath(user.id)) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.delete(getDeleteUserPath(user.id)).andExpect {
+                status { isForbidden() }
             }
             assertNotNull(userService.findUser(user.id))
         }
@@ -399,11 +406,10 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 Role.USER
             )
 
-            mockMvc.delete(
-                path = getDeleteUserPath(user.id + 123),
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+            mockMvc.delete(getDeleteUserPath(user.id + 1024)) {
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isBadRequest() }
             }
         }
 
@@ -417,11 +423,10 @@ internal class UserAdminControllerTest : JpaTestBase() {
             )
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
-            mockMvc.delete(
-                path = getDeleteUserPath(userService.getUser(Username("root")).id),
-                headers = HttpHeaders().authorization(accessToken)
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.delete(getDeleteUserPath(userService.getUser(Username("root")).id)) {
+                cookie(createAccessTokenCookie(accessToken))
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
@@ -435,11 +440,10 @@ internal class UserAdminControllerTest : JpaTestBase() {
             )
             val accessToken = jwtTokenService.issueAccessToken(jwtTokenService.issueRefreshToken(user))
 
-            mockMvc.delete(
-                path = getDeleteUserPath(user.id),
-                headers = HttpHeaders().authorization(accessToken)
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+            mockMvc.delete(getDeleteUserPath(user.id)) {
+                cookie(createAccessTokenCookie(accessToken))
+            }.andExpect {
+                status { isBadRequest() }
             }
         }
     }

@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingRequestCookieException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -71,6 +72,13 @@ class ExceptionHandler() {
             BasicErrorResponseDTO(
                 "Bad Request. Missing required parameter '${exception.parameterName}'."
             ),
+            HttpStatus.BAD_REQUEST
+        )
+
+    @ExceptionHandler(MissingRequestCookieException::class)
+    fun handleMissingCookieException(exception: MissingRequestCookieException): ResponseEntity<BasicErrorResponseDTO> =
+        ResponseEntity(
+            BasicErrorResponseDTO("Bad Request. Cookie \"${exception.cookieName}\" not present."),
             HttpStatus.BAD_REQUEST
         )
 

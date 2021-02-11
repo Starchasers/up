@@ -15,7 +15,7 @@ class ConfigurationAdminController(
      * Update many options in global configuration
      */
     @IsAdmin
-    @PatchMapping("")
+    @PatchMapping
     fun updateConfiguration(@RequestBody configurationDTO: ConfigurationDTO) {
         configurationService.updateGlobalConfiguration(configurationDTO.options)
     }
@@ -24,7 +24,7 @@ class ConfigurationAdminController(
      * Get entire global configuration
      */
     @IsAdmin
-    @GetMapping("")
+    @GetMapping
     fun getAppConfiguration(): ConfigurationDTO {
         return ConfigurationDTO(configurationService.getGlobalConfiguration())
     }
