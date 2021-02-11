@@ -16,6 +16,10 @@ class MvcConfiguration : WebMvcConfigurer {
         registry.addResourceHandler("/page-data/**")
             .addResourceLocations("classpath:static/page-data/")
 
+        registry.addResourceHandler("/manifest.webmanifest")
+            .addResourceLocations("classpath:static/manifest.webmanifest")
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
+
         registry.addResourceHandler("/**")
             .addResourceLocations("classpath:static/")
             .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
