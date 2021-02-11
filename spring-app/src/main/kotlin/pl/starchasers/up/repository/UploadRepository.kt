@@ -8,8 +8,6 @@ import pl.starchasers.up.data.value.FileKey
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import java.nio.file.Paths
 import javax.annotation.PostConstruct
 
@@ -27,7 +25,6 @@ interface UploadRepository {
 class UploadRepositoryImpl() : UploadRepository {
     @Value("\${up.datastore}")
     private lateinit var dataStorePath: String
-
 
     @PostConstruct
     fun initializeDataStore() {
@@ -79,7 +76,7 @@ class UploadRepositoryImpl() : UploadRepository {
         if (file.isDirectory || !file.isFile)
             throwExceptionDataStoreCorrupted(key)
 
-        if(!file.delete()) throw IllegalStateException("Unable to delete file $key")
+        if (!file.delete()) throw IllegalStateException("Unable to delete file $key")
         deleteDirIfEmpty(file.parentFile)
         deleteDirIfEmpty(file.parentFile.parentFile)
     }
@@ -92,13 +89,15 @@ class UploadRepositoryImpl() : UploadRepository {
         return file.exists()
     }
 
-    private fun getFileFromKey(key: FileKey): File = Paths.get(dataStorePath,
-            key.value.substring(0, 2),
-            key.value.substring(2, 4),
-            key.value).toFile()
+    private fun getFileFromKey(key: FileKey): File = Paths.get(
+        dataStorePath,
+        key.value.substring(0, 2),
+        key.value.substring(2, 4),
+        key.value
+    ).toFile()
 
     private fun throwExceptionDataStoreCorrupted(key: FileKey): Nothing =
-            throw IllegalStateException("Requested file ${key.value} is not a regular file - datastore corrupted!")
+        throw IllegalStateException("Requested file ${key.value} is not a regular file - datastore corrupted!")
 
     private fun deleteDirIfEmpty(file: File) {
         if (file.listFiles()?.isEmpty() ?: throw IllegalArgumentException("Not a directory!")) {

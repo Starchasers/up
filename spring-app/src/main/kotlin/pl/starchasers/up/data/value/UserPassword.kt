@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class UserPassword(
-        @Column(name = "password", length = 160, nullable = false)
-        val value: String
+    @Column(name = "password", length = 160, nullable = false)
+    val value: String
 ) {
     init {
         validate(this, UserPassword::value) {

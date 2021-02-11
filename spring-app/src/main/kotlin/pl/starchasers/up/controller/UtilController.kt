@@ -12,16 +12,17 @@ class UtilController {
     private val domain: String = ""
 
     @GetMapping("/sharex")
-    fun sharexConfig(): String = """
+    fun sharexConfig(): String =
+        """
         {
           "Version": "13.1.0",
           "Name": "UP file hosting",
           "DestinationType": "ImageUploader, TextUploader, FileUploader",
           "RequestMethod": "POST",
-          "RequestURL": "${domain}/api/upload",
+          "RequestURL": "$domain/api/upload",
           "Body": "MultipartFormData",
           "FileFormName": "file",
-          "URL": "${domain}/u/${'$'}json:key${'$'}"
+          "URL": "$domain/u/${'$'}json:key${'$'}"
         }
     """.trimIndent()
 }

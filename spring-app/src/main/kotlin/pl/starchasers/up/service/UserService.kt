@@ -34,15 +34,17 @@ interface UserService {
 
     fun listUsers(pageable: Pageable): Page<User>
 
-    fun updateUser(userId: Long,
-                   username: Username?,
-                   email: Email?,
-                   password: RawPassword?,
-                   role: Role?,
-                   maxTemporaryFileSize: FileSize?,
-                   maxPermanentFileSize: FileSize?,
-                   defaultFileLifetime: Milliseconds?,
-                   maxFileLifetime: Milliseconds?)
+    fun updateUser(
+        userId: Long,
+        username: Username?,
+        email: Email?,
+        password: RawPassword?,
+        role: Role?,
+        maxTemporaryFileSize: FileSize?,
+        maxPermanentFileSize: FileSize?,
+        defaultFileLifetime: Milliseconds?,
+        maxFileLifetime: Milliseconds?
+    )
 
     fun deleteUser(user: User)
 
@@ -51,15 +53,15 @@ interface UserService {
 
 @Service
 class UserServiceImpl(
-        private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder,
-        private val configurationService: ConfigurationService
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder,
+    private val configurationService: ConfigurationService
 ) : UserService {
     override fun getUser(id: Long): User = userRepository.findFirstById(id)
-            ?: throw UserException("User with ID `$id` doesn't exist")
+        ?: throw UserException("User with ID `$id` doesn't exist")
 
     override fun getUser(username: Username): User = userRepository.findFirstByUsername(username)
-            ?: throw UserException("User with username '$username' doesn't exist")
+        ?: throw UserException("User with username '$username' doesn't exist")
 
     override fun findUser(id: Long): User? = userRepository.findFirstById(id)
 
@@ -74,11 +76,11 @@ class UserServiceImpl(
         val oldUser = findUser(username)
         if (oldUser != null) throw BadRequestException("Username already taken.")
         val user = User(
-                0,
-                username,
-                passwordEncoder.encode(rawPassword),
-                email,
-                role
+            0,
+            username,
+            passwordEncoder.encode(rawPassword),
+            email,
+            role
         )
         configurationService.applyDefaultConfiguration(user)
         userRepository.save(user)
@@ -86,21 +88,21 @@ class UserServiceImpl(
     }
 
     override fun getUserFromCredentials(username: Username, password: RawPassword): User =
-            findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
-                    ?: throw AccessDeniedException("Incorrect username or password")
+        findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
+            ?: throw AccessDeniedException("Incorrect username or password")
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 
     override fun updateUser(
-            userId: Long,
-            username: Username?,
-            email: Email?,
-            password: RawPassword?,
-            role: Role?,
-            maxTemporaryFileSize: FileSize?,
-            maxPermanentFileSize: FileSize?,
-            defaultFileLifetime: Milliseconds?,
-            maxFileLifetime: Milliseconds?
+        userId: Long,
+        username: Username?,
+        email: Email?,
+        password: RawPassword?,
+        role: Role?,
+        maxTemporaryFileSize: FileSize?,
+        maxPermanentFileSize: FileSize?,
+        defaultFileLifetime: Milliseconds?,
+        maxFileLifetime: Milliseconds?
     ) {
         val user = findUser(userId) ?: throw BadRequestException("User does not exist.")
 
@@ -131,5 +133,4 @@ class UserServiceImpl(
         val toDelete = findUser(userId) ?: throw BadRequestException("User does not exist")
         userRepository.delete(toDelete)
     }
-
 }

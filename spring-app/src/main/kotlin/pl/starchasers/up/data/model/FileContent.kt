@@ -4,6 +4,6 @@ import pl.starchasers.up.data.value.FileKey
 import java.io.InputStream
 
 class FileContent(
-        val key: FileKey,
-        val data: InputStream
+    val key: FileKey,
+    val data: InputStream
 )

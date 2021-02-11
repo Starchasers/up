@@ -1,12 +1,11 @@
 package pl.starchasers.up.data.value
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pl.starchasers.up.exception.ValidationException
 
 internal class UsernameTest {
-
 
     @Test
     fun `should allow valid usernames`() {
@@ -25,7 +24,7 @@ internal class UsernameTest {
     }
 
     @Test
-    fun `given too long username, should throw ValidationException`(){
+    fun `given too long username, should throw ValidationException`() {
         assertThrows<ValidationException> { Username("a".repeat(33)) }
     }
 }

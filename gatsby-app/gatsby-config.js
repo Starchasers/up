@@ -85,7 +85,7 @@ module.exports = {
         component: require.resolve(`./src/providers`),
       },
     },
-    'gatsby-plugin-offline',
+    'gatsby-plugin-remove-serviceworker',
   ],
 }
 

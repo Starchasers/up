@@ -6,8 +6,8 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class FileKey(
-        @Column(name = "fileKey", nullable = false, length = 32)
-        val value: String
+    @Column(name = "fileKey", nullable = false, length = 32)
+    val value: String
 ) {
     init {
         validate(this, FileKey::value) {

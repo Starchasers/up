@@ -5,10 +5,10 @@ import pl.starchasers.up.data.model.ConfigurationKey
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ConfigurationOptionDTO(
-        val key: ConfigurationKey,
+    val key: ConfigurationKey,
 
-        /**
-         * Value associated with given key
-         */
-        val value: String
+    /**
+     * Value associated with given key
+     */
+    val value: String
 )

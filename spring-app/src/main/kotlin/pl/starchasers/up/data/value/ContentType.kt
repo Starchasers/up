@@ -6,12 +6,12 @@ import javax.persistence.Embeddable
 
 @Embeddable
 data class ContentType(
-        @Column(name = "contentType", nullable = false, length = 32)
-        val value: String
+    @Column(name = "contentType", nullable = false, length = 256)
+    val value: String
 ) {
     init {
         validate(this, ContentType::value) {
-            check { it.length <= 32 }
+            check { it.length <= 256 }
             check { it.isNotBlank() }
         }
     }

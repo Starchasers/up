@@ -6,15 +6,16 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ShellUtilController(
-        @Value("\${up.domain}")
-        private val domain: String
+    @Value("\${up.domain}")
+    private val domain: String
 ) {
     @GetMapping("/sh")
     fun bashUploadUtil(): String {
         return getBashUploadScript()
     }
 
-    private fun getBashUploadScript() = """
+    private fun getBashUploadScript() =
+        """
         #!/bin/bash
         if [ -f $1 ]; then
             echo $domain/u/$(curl '$domain/api/upload' -X POST \
@@ -24,5 +25,5 @@ class ShellUtilController(
             echo 'Invalid file path'
             echo 'Usage: bash <(curl $domain/sh) fileToUpload'
         fi
-    """.trimIndent()
+        """.trimIndent()
 }

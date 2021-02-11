@@ -7,20 +7,20 @@ import javax.persistence.*
 
 @Entity
 class RefreshToken(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long,
 
-        @NotNull
-        @ManyToOne(targetEntity = User::class, fetch = FetchType.LAZY)
-        val user: User,
+    @NotNull
+    @ManyToOne(targetEntity = User::class, fetch = FetchType.LAZY)
+    val user: User,
 
-        @Embedded
-        val token: RefreshTokenId,
+    @Embedded
+    val token: RefreshTokenId,
 
-        @Column(nullable = false, updatable = false)
-        val creationDate: Timestamp,
+    @Column(nullable = false, updatable = false)
+    val creationDate: Timestamp,
 
-        @Column(nullable = false, updatable = false)
-        val expirationDate: Timestamp
+    @Column(nullable = false, updatable = false)
+    val expirationDate: Timestamp
 )
