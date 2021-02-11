@@ -33,5 +33,4 @@ class SetCookieHeaderValueBuilder {
         if (builder.isEmpty()) throw IllegalStateException("Cookie can't b empty")
         return builder.toString()
     }
-
 }

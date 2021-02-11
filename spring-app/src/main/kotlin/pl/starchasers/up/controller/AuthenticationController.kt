@@ -58,7 +58,6 @@ class AuthenticationController(
         clearCookies(response)
     }
 
-
     @PostMapping("/logoutAll")
     fun logoutAll(principal: Principal, response: HttpServletResponse) {
         jwtTokenService.invalidateUser(userService.fromPrincipal(principal) ?: throw AccessDeniedException())
@@ -119,5 +118,4 @@ class AuthenticationController(
                 .build()
         )
     }
-
 }
