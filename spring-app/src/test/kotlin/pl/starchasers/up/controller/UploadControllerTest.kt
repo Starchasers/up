@@ -214,7 +214,7 @@ internal class UploadControllerTest : JpaTestBase() {
         @Test
         fun `Given incorrect key, should return 404`() {
             mockMvc.get(path = Path("/u/qweasd")) {
-                isError(HttpStatus.NOT_FOUND)
+                status(HttpStatus.NOT_FOUND)
             }
         }
 
