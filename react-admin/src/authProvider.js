@@ -95,6 +95,12 @@ export default {
         }
         return response.json()
       })
+      .then(response => {
+        if (response.type !== 'ADMIN') {
+          throw new Error('Not valid user')
+        }
+        return response.json()
+      })
       .then(({ token }) => {
         localStorage.setItem('refresh_token', token)
       })
