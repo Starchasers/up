@@ -49,6 +49,7 @@ internal class AuthenticationControllerTest(
             ) {
                 isSuccess()
                 responseJsonPath("$.token").isNotEmpty()
+                responseJsonPath("$.role").equalsValue("USER")
             }
         }
 
