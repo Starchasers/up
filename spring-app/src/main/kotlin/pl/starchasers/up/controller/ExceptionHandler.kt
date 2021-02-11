@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
-import org.springframework.web.servlet.NoHandlerFoundException
 import pl.starchasers.up.exception.ApplicationException
 import pl.starchasers.up.exception.BadRangeException
 import pl.starchasers.up.exception.NotFoundUIException
