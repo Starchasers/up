@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pl.starchasers.up.data.dto.authentication.LoginDTO
+import pl.starchasers.up.data.dto.authentication.LoginResponseDTO
 import pl.starchasers.up.data.dto.authentication.TokenDTO
 import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
@@ -22,14 +23,14 @@ class AuthenticationController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody @Validated loginDTO: LoginDTO): TokenDTO {
-        return TokenDTO(
-            jwtTokenService.issueRefreshToken(
-                userService.getUserFromCredentials(
-                    Username(loginDTO.username),
-                    RawPassword(loginDTO.password)
-                )
-            )
+    fun login(@RequestBody @Validated loginDTO: LoginDTO): LoginResponseDTO {
+        val user = userService.getUserFromCredentials(
+            Username(loginDTO.username),
+            RawPassword(loginDTO.password)
+        )
+        return LoginResponseDTO(
+            jwtTokenService.issueRefreshToken(user),
+            user.role
         )
     }
 
