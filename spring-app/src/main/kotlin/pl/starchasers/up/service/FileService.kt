@@ -28,7 +28,7 @@ interface FileService {
         contentType: ContentType,
         size: FileSize,
         user: User?,
-        validTime: ValidTime?
+        validTime: ValidTime? = null
     ): UploadCompleteResponseDTO
 
     fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean
@@ -125,7 +125,6 @@ class FileServiceImpl(
         user.defaultFileLifetime.value == 0L -> null
         else -> user.defaultFileLifetime.fromNow()
     }
-
 
     private fun getMaxDeleteDate(user: User?): LocalDateTime? = when {
         user == null -> configurationService.getAnonymousMaxFileLifetime().fromNow()
