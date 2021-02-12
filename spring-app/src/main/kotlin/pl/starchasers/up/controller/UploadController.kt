@@ -12,6 +12,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.dto.upload.ValidTime
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
@@ -43,7 +44,11 @@ class UploadController(
      * @param file Uploaded file content
      */
     @PostMapping("/api/upload")
-    fun anonymousUpload(@RequestParam file: MultipartFile, principal: Principal?): UploadCompleteResponseDTO {
+    fun anonymousUpload(
+        @RequestParam file: MultipartFile,
+        @RequestParam expires: ValidTime?,
+        principal: Principal?
+    ): UploadCompleteResponseDTO {
         val user = userService.fromPrincipal(principal)
         val contentType = ContentType(
             if (file.contentType == null || file.contentType!!.isBlank()) "application/octet-stream"
@@ -55,7 +60,8 @@ class UploadController(
             Filename(file.originalFilename ?: "file"),
             contentType,
             FileSize(file.size),
-            user
+            user,
+            expires
         )
     }
 

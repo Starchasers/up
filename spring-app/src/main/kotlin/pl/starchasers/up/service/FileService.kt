@@ -6,16 +6,17 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.dto.upload.ValidTime
 import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
 import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.*
+import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.exception.FileTooLargeException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.util.Util
 import java.io.InputStream
-import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -26,7 +27,8 @@ interface FileService {
         filename: Filename,
         contentType: ContentType,
         size: FileSize,
-        user: User?
+        user: User?,
+        validTime: ValidTime?
     ): UploadCompleteResponseDTO
 
     fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean
@@ -61,26 +63,20 @@ class FileServiceImpl(
         filename: Filename,
         contentType: ContentType,
         size: FileSize,
-        user: User?
+        user: User?,
+        validTime: ValidTime?
     ): UploadCompleteResponseDTO {
-        val actualContentType = when {
-            contentType.value.isBlank() -> ContentType("application/octet-stream")
-            contentType.value == "text/plain" -> ContentType(
-                "text/plain; charset=" + charsetDetectionService.detect(
-                    tmpFile
-                )
-            )
-            else -> contentType
-        }
-        val personalLimit: FileSize = user?.maxTemporaryFileSize
-            ?: FileSize(configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong())
+        checkSizeLimit(user, size)
 
-        if (size > personalLimit) throw FileTooLargeException()
+        val toDeleteDate = getDeleteDate(user, validTime)
+        checkDeleteDate(toDeleteDate, user)
+
+        val actualContentType = getContentType(contentType, tmpFile)
 
         val key = fileStorageService.storeNonPermanentFile(tmpFile, filename)
         // TODO check key already used
+
         val accessToken = generateFileAccessToken()
-        val toDeleteDate = Timestamp.valueOf(LocalDateTime.now().plusDays(1))
         val fileEntry = FileEntry(
             0,
             key,
@@ -88,7 +84,7 @@ class FileServiceImpl(
             actualContentType,
             null,
             false,
-            Timestamp.valueOf(LocalDateTime.now()),
+            LocalDateTime.now(),
             toDeleteDate,
             false,
             accessToken,
@@ -99,6 +95,49 @@ class FileServiceImpl(
         fileEntryRepository.save(fileEntry)
 
         return UploadCompleteResponseDTO(key.value, accessToken.value, toDeleteDate)
+    }
+
+    private fun getContentType(declaredContentType: ContentType, tmpFile: InputStream): ContentType = when {
+        declaredContentType.value.isBlank() -> ContentType("application/octet-stream")
+        declaredContentType.value == "text/plain" -> ContentType(
+            "text/plain; charset=" + charsetDetectionService.detect(
+                tmpFile
+            )
+        )
+        else -> declaredContentType
+    }
+
+    private fun checkSizeLimit(user: User?, size: FileSize) {
+        val personalLimit: FileSize = user?.maxTemporaryFileSize
+            ?: FileSize(configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong())
+
+        if (size > personalLimit) throw FileTooLargeException()
+    }
+
+    private fun getDeleteDate(user: User?, validTime: ValidTime?): LocalDateTime? = when {
+        validTime == null -> getDefaultDeleteDate(user)
+        validTime.permanent -> null
+        else -> LocalDateTime.now().plus(validTime.duration)
+    }
+
+    private fun getDefaultDeleteDate(user: User?): LocalDateTime? = when {
+        user == null -> configurationService.getAnonymousMaxFileLifetime().fromNow()
+        user.defaultFileLifetime.value == 0L -> null
+        else -> user.defaultFileLifetime.fromNow()
+    }
+
+
+    private fun getMaxDeleteDate(user: User?): LocalDateTime? = when {
+        user == null -> configurationService.getAnonymousMaxFileLifetime().fromNow()
+        user.maxFileLifetime.value == 0L -> null
+        else -> user.maxFileLifetime.fromNow()
+    }
+
+    private fun checkDeleteDate(deleteDate: LocalDateTime?, user: User?) {
+        val maxDate = getMaxDeleteDate(user) ?: return // skip check if permanent allowed
+
+        if (deleteDate == null) throw BadRequestException("Permanent files not allowed.")
+        if (deleteDate.isAfter(maxDate)) throw BadRequestException("Expiration time too big.")
     }
 
     override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean {

@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.dto.upload
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 
 data class UploadHistoryEntryDTO(
     /**
@@ -10,7 +10,7 @@ data class UploadHistoryEntryDTO(
     /**
      * When was this file uploaded
      */
-    val uploadDate: Timestamp,
+    val uploadDate: LocalDateTime,
     /**
      * Whether this file will be automatically deleted
      */
@@ -18,7 +18,7 @@ data class UploadHistoryEntryDTO(
     /**
      * When will this file be automatically deleted. Null if temporary == false
      */
-    val deleteDate: Timestamp?,
+    val deleteDate: LocalDateTime?,
     /**
      * File size in bytes
      */
