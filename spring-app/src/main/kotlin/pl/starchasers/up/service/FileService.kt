@@ -17,7 +17,7 @@ import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.util.Util
 import java.io.InputStream
-import java.time.LocalDateTime
+import java.time.Instant
 import javax.transaction.Transactional
 
 interface FileService {
@@ -84,7 +84,7 @@ class FileServiceImpl(
             actualContentType,
             null,
             false,
-            LocalDateTime.now(),
+            Instant.now(),
             toDeleteDate,
             false,
             accessToken,
@@ -114,25 +114,25 @@ class FileServiceImpl(
         if (size > personalLimit) throw FileTooLargeException()
     }
 
-    private fun getDeleteDate(user: User?, validTime: ValidTime?): LocalDateTime? = when {
+    private fun getDeleteDate(user: User?, validTime: ValidTime?): Instant? = when {
         validTime == null -> getDefaultDeleteDate(user)
         validTime.permanent -> null
-        else -> LocalDateTime.now().plus(validTime.duration)
+        else -> Instant.now().plus(validTime.duration)
     }
 
-    private fun getDefaultDeleteDate(user: User?): LocalDateTime? = when {
+    private fun getDefaultDeleteDate(user: User?): Instant? = when {
         user == null -> configurationService.getAnonymousMaxFileLifetime().fromNow()
         user.defaultFileLifetime.value == 0L -> null
         else -> user.defaultFileLifetime.fromNow()
     }
 
-    private fun getMaxDeleteDate(user: User?): LocalDateTime? = when {
+    private fun getMaxDeleteDate(user: User?): Instant? = when {
         user == null -> configurationService.getAnonymousMaxFileLifetime().fromNow()
         user.maxFileLifetime.value == 0L -> null
         else -> user.maxFileLifetime.fromNow()
     }
 
-    private fun checkDeleteDate(deleteDate: LocalDateTime?, user: User?) {
+    private fun checkDeleteDate(deleteDate: Instant?, user: User?) {
         val maxDate = getMaxDeleteDate(user) ?: return // skip check if permanent allowed
 
         if (deleteDate == null) throw BadRequestException("Permanent files not allowed.")

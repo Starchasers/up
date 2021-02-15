@@ -2,7 +2,7 @@ package pl.starchasers.up.data.value
 
 import pl.starchasers.up.util.validate
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.Instant
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
@@ -17,8 +17,8 @@ data class Milliseconds(
         }
     }
 
-    fun fromNow(): LocalDateTime {
-        return LocalDateTime.now().plus(Duration.ofMillis(value))
+    fun fromNow(): Instant {
+        return Instant.now().plus(Duration.ofMillis(value))
     }
 }
 

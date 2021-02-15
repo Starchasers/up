@@ -1,7 +1,7 @@
 package pl.starchasers.up.data.model
 
 import pl.starchasers.up.data.value.*
-import java.time.LocalDateTime
+import java.time.Instant
 import javax.persistence.*
 
 @Entity
@@ -26,10 +26,10 @@ class FileEntry(
     val encrypted: Boolean,
 
     @Column(nullable = false, unique = false)
-    val createdDate: LocalDateTime,
+    val createdDate: Instant,
 
     @Column(nullable = true, unique = false)
-    val toDeleteDate: LocalDateTime?,
+    val toDeleteDate: Instant?,
 
     @Column(nullable = false, unique = false)
     val permanent: Boolean,
