@@ -11,8 +11,8 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.FileLifetime
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
-import pl.starchasers.up.data.dto.upload.ValidTime
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
@@ -46,7 +46,7 @@ class UploadController(
     @PostMapping("/api/upload")
     fun anonymousUpload(
         @RequestParam file: MultipartFile,
-        @RequestParam expires: ValidTime?,
+        @RequestParam expires: FileLifetime?,
         principal: Principal?
     ): UploadCompleteResponseDTO {
         val user = userService.fromPrincipal(principal)

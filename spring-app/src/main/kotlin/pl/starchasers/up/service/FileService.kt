@@ -5,8 +5,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.FileLifetime
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
-import pl.starchasers.up.data.dto.upload.ValidTime
 import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
 import pl.starchasers.up.data.model.FileEntry
 import pl.starchasers.up.data.model.User
@@ -28,7 +28,7 @@ interface FileService {
         contentType: ContentType,
         size: FileSize,
         user: User?,
-        validTime: ValidTime? = null
+        fileLifetime: FileLifetime? = null
     ): UploadCompleteResponseDTO
 
     fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?, user: User?): Boolean
@@ -64,11 +64,11 @@ class FileServiceImpl(
         contentType: ContentType,
         size: FileSize,
         user: User?,
-        validTime: ValidTime?
+        fileLifetime: FileLifetime?
     ): UploadCompleteResponseDTO {
         checkSizeLimit(user, size)
 
-        val toDeleteDate = getDeleteDate(user, validTime)
+        val toDeleteDate = getDeleteDate(user, fileLifetime)
         checkDeleteDate(toDeleteDate, user)
 
         val actualContentType = getContentType(contentType, tmpFile)
@@ -114,10 +114,10 @@ class FileServiceImpl(
         if (size > personalLimit) throw FileTooLargeException()
     }
 
-    private fun getDeleteDate(user: User?, validTime: ValidTime?): Instant? = when {
-        validTime == null -> getDefaultDeleteDate(user)
-        validTime.permanent -> null
-        else -> Instant.now().plus(validTime.duration)
+    private fun getDeleteDate(user: User?, fileLifetime: FileLifetime?): Instant? = when {
+        fileLifetime == null -> getDefaultDeleteDate(user)
+        fileLifetime.permanent -> null
+        else -> Instant.now().plus(fileLifetime.duration)
     }
 
     private fun getDefaultDeleteDate(user: User?): Instant? = when {
