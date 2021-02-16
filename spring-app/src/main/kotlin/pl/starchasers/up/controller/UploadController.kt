@@ -42,9 +42,11 @@ class UploadController(
     /**
      * Upload new file
      * @param file Uploaded file content
+     * @param expires Represents the time until the file will be deleted, by default in milliseconds.
+     * Follow it with h to specify the time in hours. w for weeks, m for months, y for years.
      */
     @PostMapping("/api/upload")
-    fun anonymousUpload(
+    fun upload(
         @RequestParam file: MultipartFile,
         @RequestParam expires: FileLifetime?,
         principal: Principal?
@@ -70,7 +72,7 @@ class UploadController(
      * @param fileKey File key obtained during upload
      */
     @GetMapping("/u/{fileKey}")
-    fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
+    fun getUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(FileKey(fileKey))
         response.contentType = fileEntry.contentType.value
 

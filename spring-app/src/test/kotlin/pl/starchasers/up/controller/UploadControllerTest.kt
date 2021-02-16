@@ -28,7 +28,7 @@ internal class UploadControllerTest : JpaTestBase() {
 
     @OrderTests
     @Nested
-    inner class AnonymousUpload(
+    inner class Upload(
         @Autowired private val fileEntryRepository: FileEntryRepository,
         @Autowired private val uploadRepository: UploadRepository,
         @Autowired private val userService: UserService,
@@ -180,7 +180,7 @@ internal class UploadControllerTest : JpaTestBase() {
 
     @OrderTests
     @Nested
-    inner class GetAnonymousUpload(
+    inner class GetUpload(
         @Autowired val fileService: FileService
     ) : MockMvcTestBase() {
         private val content = "example content"
