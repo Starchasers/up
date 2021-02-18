@@ -1,6 +1,6 @@
 package pl.starchasers.up.controller
 
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,23 +29,23 @@ internal class ConfigurationControllerTest(
                 content {
                     responsePath(
                         "$.maxTemporaryFileSize",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
                     )
                     responsePath(
                         "$.maxFileLifetime",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.defaultFileLifetime",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.permanentAllowed",
-                        Matchers.equalTo(false)
+                        equalTo(false)
                     )
                     responsePath(
                         "$.maxPermanentFileSize",
-                        Matchers.equalTo(0)
+                        equalTo(0)
                     )
                 }
             }
@@ -65,22 +65,22 @@ internal class ConfigurationControllerTest(
                 content {
                     responsePath(
                         "$.maxTemporaryFileSize",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
                     )
                     responsePath(
                         "$.maxFileLifetime",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.defaultFileLifetime",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
-                        "$.permanentAllowed", Matchers.equalTo(true)
+                        "$.permanentAllowed", equalTo(true)
                     )
                     responsePath(
                         "$.maxPermanentFileSize",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
                     )
                 }
             }

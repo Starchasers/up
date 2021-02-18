@@ -1,6 +1,6 @@
 package pl.starchasers.up.controller
 
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -46,11 +46,11 @@ class UserControllerTest : MockMvcTestBase() {
             }.andExpect {
                 status { isOk() }
                 content {
-                    responsePath("$.content[0].filename", Matchers.equalTo(fileEntry.filename.value))
-                    responsePath("$.content[0].permanent", Matchers.equalTo(fileEntry.permanent))
-                    responsePath("$.content[0].size", Matchers.equalTo(fileEntry.size.value))
-                    responsePath("$.content[0].mimeType", Matchers.equalTo(fileEntry.contentType.value))
-                    responsePath("$.content[0].key", Matchers.equalTo(fileEntry.key.value))
+                    responsePath("$.content[0].filename", equalTo(fileEntry.filename.value))
+                    responsePath("$.content[0].permanent", equalTo(fileEntry.permanent))
+                    responsePath("$.content[0].size", equalTo(fileEntry.size.value))
+                    responsePath("$.content[0].mimeType", equalTo(fileEntry.contentType.value))
+                    responsePath("$.content[0].key", equalTo(fileEntry.key.value))
                 }
             }
         }

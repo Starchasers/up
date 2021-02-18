@@ -16,18 +16,23 @@ include::build/generated-snippets/DeleteFile/auto-section.adoc[]
 include::build/generated-snippets/ListUserUploadHistory/auto-section.adoc[]
 
 == Configuration Controller
+
 include::build/generated-snippets/GetConfiguration/auto-section.adoc[]
 
 == Authentication Controller
+
 include::build/generated-snippets/LogIn/auto-section.adoc[]
 '''
 include::build/generated-snippets/LogOut/auto-section.adoc[]
+'''
+include::build/generated-snippets/LogOutAll/auto-section.adoc[]
 '''
 include::build/generated-snippets/GetAccessToken/auto-section.adoc[]
 '''
 include::build/generated-snippets/RefreshRefreshToken/auto-section.adoc[]
 
 == Admin - App Configuration
+
 include::build/generated-snippets/UpdateConfiguration/auto-section.adoc[]
 '''
 include::build/generated-snippets/GetAppConfiguration/auto-section.adoc[]

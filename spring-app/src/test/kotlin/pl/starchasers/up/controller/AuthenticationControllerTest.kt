@@ -55,7 +55,7 @@ internal class AuthenticationControllerTest(
                 headers { contentTypeJson() }
                 content(LoginDTO(testUserUsername.value, testUserPassword.value + "qwe"))
             }.andExpect {
-                status { isForbidden() }
+                status { isUnauthorized() }
             }
         }
 
@@ -65,7 +65,7 @@ internal class AuthenticationControllerTest(
                 headers { contentTypeJson() }
                 content(LoginDTO(testUserUsername.value + "qwe", testUserPassword.value))
             }.andExpect {
-                status { isForbidden() }
+                status { isUnauthorized() }
             }
         }
 
@@ -111,7 +111,7 @@ internal class AuthenticationControllerTest(
         }
 
         @Test
-        fun `Given incorrect access token or logged out user, should return 403`() {
+        fun `Given incorrect refresh token or logged out user, should return 403`() {
             mockMvc.post(logoutRequestPath).andExpect {
                 status { isBadRequest() }
             }

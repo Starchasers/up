@@ -28,9 +28,7 @@ class JwtTokenFilter(
                 accessToken = tokenService.issueAccessToken(refreshToken)
                 (response as HttpServletResponse).addHeader(
                     "Set-Cookie",
-                    SetCookieHeaderValueBuilder()
-                        .withName(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)
-                        .withValue(accessToken)
+                    SetCookieHeaderValueBuilder(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, accessToken)
                         .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
                         .withPath("/")
                         .httpOnly()

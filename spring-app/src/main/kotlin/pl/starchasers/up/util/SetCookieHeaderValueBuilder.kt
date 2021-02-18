@@ -1,15 +1,20 @@
 package pl.starchasers.up.util
 
-class SetCookieHeaderValueBuilder {
+class SetCookieHeaderValueBuilder(name: String, value: String) {
 
     private var builder: StringBuilder = StringBuilder()
 
-    fun withName(name: String): SetCookieHeaderValueBuilder {
+    init {
+        withName(name)
+        withValue(value)
+    }
+
+    private fun withName(name: String): SetCookieHeaderValueBuilder {
         builder.append(name)
         return this
     }
 
-    fun withValue(value: String): SetCookieHeaderValueBuilder {
+    private fun withValue(value: String): SetCookieHeaderValueBuilder {
         builder.append("=").append(value)
         return this
     }

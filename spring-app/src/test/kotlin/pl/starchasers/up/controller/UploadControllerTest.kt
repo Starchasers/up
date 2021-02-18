@@ -1,7 +1,8 @@
 package pl.starchasers.up.controller
 
 import org.apache.commons.fileupload.util.Streams
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -61,9 +62,9 @@ internal class UploadControllerTest : JpaTestBase() {
                 status { isOk() }
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     content {
-                        responsePath("$.key", Matchers.equalTo(fileEntry.key.value))
-                        responsePath("$.accessToken", Matchers.equalTo(fileEntry.accessToken.value))
-                        responsePath("$.toDelete", Matchers.notNullValue())
+                        responsePath("$.key", equalTo(fileEntry.key.value))
+                        responsePath("$.accessToken", equalTo(fileEntry.accessToken.value))
+                        responsePath("$.toDelete", notNullValue())
                     }
                 }
             }
@@ -105,9 +106,9 @@ internal class UploadControllerTest : JpaTestBase() {
                 status { is2xxSuccessful() }
                 fileEntryRepository.findAll()[0].let { fileEntry ->
                     content {
-                        responsePath("$.key", Matchers.equalTo(fileEntry.key.value))
-                        responsePath("$.accessToken", Matchers.equalTo(fileEntry.accessToken.value))
-                        responsePath("$.toDelete", Matchers.notNullValue())
+                        responsePath("$.key", equalTo(fileEntry.key.value))
+                        responsePath("$.accessToken", equalTo(fileEntry.accessToken.value))
+                        responsePath("$.toDelete", notNullValue())
                     }
                 }
             }
@@ -183,10 +184,10 @@ internal class UploadControllerTest : JpaTestBase() {
                     header {
                         string(
                             HttpHeaders.CONTENT_TYPE,
-                            Matchers.equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                            equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                         )
                     }
-                    header { string(HttpHeaders.CONTENT_LENGTH, Matchers.equalTo("${content.length}")) }
+                    header { string(HttpHeaders.CONTENT_LENGTH, equalTo("${content.length}")) }
                 }
         }
 
@@ -202,10 +203,10 @@ internal class UploadControllerTest : JpaTestBase() {
                 header {
                     string(
                         HttpHeaders.CONTENT_RANGE,
-                        Matchers.equalTo("bytes 0-${contentSize - 1}/$contentSize")
+                        equalTo("bytes 0-${contentSize - 1}/$contentSize")
                     )
                 }
-                header { string(HttpHeaders.CONTENT_LENGTH, Matchers.equalTo("$contentSize")) }
+                header { string(HttpHeaders.CONTENT_LENGTH, equalTo("$contentSize")) }
             }
         }
 
@@ -234,8 +235,8 @@ internal class UploadControllerTest : JpaTestBase() {
 
             mockMvc.get("/u/$key").andExpect {
                 status { isOk() }
-                content { responsePath("$", Matchers.equalTo(content)) }
-                header { string(HttpHeaders.CONTENT_TYPE, Matchers.equalTo("text/plain; charset=UTF-8")) }
+                content { responsePath("$", equalTo(content)) }
+                header { string(HttpHeaders.CONTENT_TYPE, equalTo("text/plain; charset=UTF-8")) }
             }
         }
 
@@ -246,8 +247,8 @@ internal class UploadControllerTest : JpaTestBase() {
 
             mockMvc.get("/u/$key").andExpect {
                 status { isOk() }
-                content { responsePath("$", Matchers.equalTo("example content")) }
-                header { string(HttpHeaders.CONTENT_TYPE, Matchers.equalTo(contentType)) }
+                content { responsePath("$", equalTo("example content")) }
+                header { string(HttpHeaders.CONTENT_TYPE, equalTo(contentType)) }
             }
         }
     }
@@ -379,12 +380,12 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given correct key, should return file details`() {
             mockMvc.get(getRequestPath(fileKey)).andExpect {
                 content {
-                    responsePath("$.key", Matchers.equalTo(fileKey))
-                    responsePath("$.name", Matchers.equalTo(filename))
-                    responsePath("$.permanent", Matchers.equalTo(false)) // TODO support permanent files
-                    responsePath("$.expirationDate", Matchers.notNullValue()) // TODO fix objectMapper
-                    responsePath("$.size", Matchers.equalTo(content.byteInputStream().readAllBytes().size.toLong()))
-                    responsePath("$.type", Matchers.equalTo(contentType))
+                    responsePath("$.key", equalTo(fileKey))
+                    responsePath("$.name", equalTo(filename))
+                    responsePath("$.permanent", equalTo(false)) // TODO support permanent files
+                    responsePath("$.expirationDate", notNullValue()) // TODO fix objectMapper
+                    responsePath("$.size", equalTo(content.byteInputStream().readAllBytes().size.toLong()))
+                    responsePath("$.type", equalTo(contentType))
                 }
             }
         }

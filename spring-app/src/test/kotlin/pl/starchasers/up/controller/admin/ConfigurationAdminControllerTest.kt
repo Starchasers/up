@@ -1,6 +1,6 @@
 package pl.starchasers.up.controller.admin
 
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -141,31 +141,31 @@ internal class ConfigurationAdminControllerTest(
                 content {
                     responsePath(
                         "$.options.ANONYMOUS_MAX_FILE_SIZE",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
                     )
                     responsePath(
                         "$.options.ANONYMOUS_DEFAULT_FILE_LIFETIME",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.options.ANONYMOUS_MAX_FILE_LIFETIME",
-                        Matchers.equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.options.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
                     )
                     responsePath(
                         "$.options.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
                     )
                     responsePath(
                         "$.options.DEFAULT_USER_DEFAULT_FILE_LIFETIME",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
                     )
                     responsePath(
                         "$.options.DEFAULT_USER_MAX_FILE_LIFETIME",
-                        Matchers.equalTo(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
                     )
                 }
             }

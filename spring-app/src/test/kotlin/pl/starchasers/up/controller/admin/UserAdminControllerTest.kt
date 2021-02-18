@@ -1,6 +1,6 @@
 package pl.starchasers.up.controller.admin
 
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -60,14 +60,14 @@ internal class UserAdminControllerTest : JpaTestBase() {
             }.andExpect {
                 status { isOk() }
                 content {
-                    responsePath("$.id", Matchers.equalTo(user.id))
-                    responsePath("$.username", Matchers.equalTo(user.username.value))
-                    responsePath("$.email", Matchers.equalTo(user.email?.value))
-                    responsePath("$.role", Matchers.equalTo(user.role.toString()))
-                    responsePath("$.maxTemporaryFileSize", Matchers.equalTo(user.maxTemporaryFileSize.value))
-                    responsePath("$.maxPermanentFileSize", Matchers.equalTo(user.maxPermanentFileSize.value))
-                    responsePath("$.defaultFileLifetime", Matchers.equalTo(user.defaultFileLifetime.value))
-                    responsePath("$.maxFileLifetime", Matchers.equalTo(user.maxFileLifetime.value))
+                    responsePath("$.id", equalTo(user.id))
+                    responsePath("$.username", equalTo(user.username.value))
+                    responsePath("$.email", equalTo(user.email?.value))
+                    responsePath("$.role", equalTo(user.role.toString()))
+                    responsePath("$.maxTemporaryFileSize", equalTo(user.maxTemporaryFileSize.value))
+                    responsePath("$.maxPermanentFileSize", equalTo(user.maxPermanentFileSize.value))
+                    responsePath("$.defaultFileLifetime", equalTo(user.defaultFileLifetime.value))
+                    responsePath("$.maxFileLifetime", equalTo(user.maxFileLifetime.value))
                 }
             }
         }
@@ -153,10 +153,10 @@ internal class UserAdminControllerTest : JpaTestBase() {
                 status { is2xxSuccessful() }
                 userService.getUser(Username("createdUser")).let {
                     content {
-                        responsePath("$.id", Matchers.equalTo(it.id))
-                        responsePath("$.username", Matchers.equalTo(it.username.value))
-                        responsePath("$.email", Matchers.equalTo(it.email?.value))
-                        responsePath("$.role", Matchers.equalTo(it.role.toString()))
+                        responsePath("$.id", equalTo(it.id))
+                        responsePath("$.username", equalTo(it.username.value))
+                        responsePath("$.email", equalTo(it.email?.value))
+                        responsePath("$.role", equalTo(it.role.toString()))
                     }
                 }
             }
