@@ -44,9 +44,9 @@ const NotFoundPage = () => (
             </Grid.Unit>
             <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
               <ErrorBox>
-                <ErrorBox.Header>Not Found</ErrorBox.Header>
+                <ErrorBox.Header>Server kaput</ErrorBox.Header>
                 <ErrorBox.Text>Oopsie woopsie,</ErrorBox.Text>
-                <ErrorBox.Text>your desired file doesn't exists</ErrorBox.Text>
+                <ErrorBox.Text>something went wrong</ErrorBox.Text>
                 <ErrorBox.Back
                   as={Link}
                   to='/'

@@ -44,9 +44,9 @@ const NotFoundPage = () => (
             </Grid.Unit>
             <Grid.Unit size={{ xs: 1, md: 2 / 3 }}>
               <ErrorBox>
-                <ErrorBox.Header>Not Found</ErrorBox.Header>
+                <ErrorBox.Header>Forbidden</ErrorBox.Header>
                 <ErrorBox.Text>Oopsie woopsie,</ErrorBox.Text>
-                <ErrorBox.Text>your desired file doesn't exists</ErrorBox.Text>
+                <ErrorBox.Text>you don't have permission to view this file</ErrorBox.Text>
                 <ErrorBox.Back
                   as={Link}
                   to='/'

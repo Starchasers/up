@@ -6,7 +6,7 @@ import Back from './Back'
 import Icon from './Icon'
 import Text from './Text'
 
-const NotFoundBox = styled('div')`
+const ErrorBox = styled('div')`
   position: relative;
   width: 100%;
   display: flex;
@@ -16,9 +16,9 @@ const NotFoundBox = styled('div')`
   ${pl({md: 4})};
 `
 
-NotFoundBox.Header = Header
-NotFoundBox.Back = Back
-NotFoundBox.Icon = Icon
-NotFoundBox.Text = Text
+ErrorBox.Header = Header
+ErrorBox.Back = Back
+ErrorBox.Icon = Icon
+ErrorBox.Text = Text
 
-export default NotFoundBox
+export default ErrorBox
