@@ -132,13 +132,13 @@ const FileUploadProvider = ({ children }) => {
       >
         {({ getRootProps }) => (
           <>
-            <Offset blur={dragActive} {...getRootProps()}>
+            <Offset {...getRootProps()}>
               {children}
             </Offset>
             <GlobalDropZone active={dragActive} {...getRootProps()}>
               <GlobalDropZone.Container>
                 <GlobalDropZone.Text>
-                  Drop file here
+                  Drop file in the box
                 </GlobalDropZone.Text>
               </GlobalDropZone.Container>
             </GlobalDropZone>

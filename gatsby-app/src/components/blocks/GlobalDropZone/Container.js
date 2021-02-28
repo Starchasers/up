@@ -5,7 +5,7 @@ const Container = styled('div')`
   height: 100%;
   border: 5px dashed ${props => props.theme.colors.primary.two}; 
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   border-radius: ${props => props.theme.border.radius};
 `
