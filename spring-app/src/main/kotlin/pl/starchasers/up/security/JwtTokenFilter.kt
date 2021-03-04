@@ -1,13 +1,15 @@
 package pl.starchasers.up.security
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.util.SetCookieHeaderValueBuilder
+import java.time.Duration
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
 import javax.servlet.FilterChain
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
@@ -19,37 +21,85 @@ class JwtTokenFilter(
 ) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain) {
-        try {
-            var accessToken =
-                WebUtils.getCookie((request as HttpServletRequest), JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)?.value
-            val refreshToken = WebUtils.getCookie(request, JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)?.value
+        val accessTokenString = WebUtils.getCookie(
+            (request as HttpServletRequest), JwtTokenService.ACCESS_TOKEN_COOKIE_NAME
+        )?.value
+        val refreshTokenString = WebUtils.getCookie(
+            request, JwtTokenService.REFRESH_TOKEN_COOKIE_NAME
+        )?.value
 
-            if (accessToken == null && refreshToken != null) {
-                accessToken = tokenService.issueAccessToken(refreshToken)
+        var newAccessTokenString: String?
+        val newRefreshTokenString: String?
+
+        try {
+            newRefreshTokenString = refreshRefreshToken(refreshTokenString)
+            newAccessTokenString = refreshAccessToken(accessTokenString, newRefreshTokenString)
+            newAccessTokenString = issueAccessToken(newAccessTokenString, newRefreshTokenString)
+            val claims = tokenService.parseToken(newAccessTokenString!!)
+
+            SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
+                claims.subject, null, JwtTokenService.extractGrantedAuthorities(claims)
+            )
+            if (newAccessTokenString != accessTokenString) {
                 (response as HttpServletResponse).addHeader(
                     "Set-Cookie",
-                    SetCookieHeaderValueBuilder(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, accessToken)
+                    SetCookieHeaderValueBuilder(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, newAccessTokenString)
                         .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
                         .withPath("/")
                         .httpOnly()
                         .build()
                 )
             }
-
-            val claims = tokenService.parseToken(accessToken!!)
-
-            val authorities = mutableListOf<GrantedAuthority>()
-            authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
-            if (Role.valueOf(claims[JwtTokenService.ROLE_KEY] as String) == Role.ADMIN) authorities.add(
-                SimpleGrantedAuthority(Role.ADMIN.roleString())
-            )
-
-            SecurityContextHolder.getContext().authentication =
-                UsernamePasswordAuthenticationToken(claims.subject, null, authorities)
+            if (newRefreshTokenString != refreshTokenString && newRefreshTokenString != null) {
+                (response as HttpServletResponse).addHeader(
+                    "Set-Cookie",
+                    SetCookieHeaderValueBuilder(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME, newRefreshTokenString)
+                        .withMaxAge(JwtTokenService.REFRESH_TOKEN_VALID_TIME)
+                        .withPath("/")
+                        .httpOnly()
+                        .build()
+                )
+            }
         } catch (e: Exception) {
             SecurityContextHolder.clearContext()
         }
 
         chain.doFilter(request, response)
     }
+
+    //Reissue refresh token if close to expiration
+    private fun refreshRefreshToken(refreshToken: String?): String? {
+        if (refreshToken == null) return null
+        val claims = tokenService.parseToken(refreshToken)
+        if (isCloseTo((claims["exp"] as Int).toLong(), 20, ChronoUnit.DAYS)) {
+            return tokenService.refreshRefreshToken(refreshToken)
+        }
+        return refreshToken
+    }
+
+    //Reissue refresh token if close to expiration
+    private fun refreshAccessToken(accessToken: String?, refreshToken: String?): String? {
+        if (accessToken == null || refreshToken == null) return accessToken
+        val claims = tokenService.parseToken(accessToken)
+        if (isCloseTo((claims["exp"] as Int).toLong(), 50, ChronoUnit.MINUTES)) {
+            return tokenService.issueAccessToken(refreshToken)
+        }
+        return accessToken
+    }
+
+    //Issue access token if not present, but refresh token is present
+    private fun issueAccessToken(accessToken: String?, refreshToken: String?): String? {
+        return if (accessToken == null && refreshToken != null) {
+            tokenService.issueAccessToken(refreshToken)
+        } else {
+            accessToken
+        }
+    }
+
+    fun isCloseTo(secondsEpoh: Long, amount: Long, unit: TemporalUnit): Boolean {
+        val now = Instant.now()
+        val exp = Instant.ofEpochSecond(secondsEpoh)
+        return (Duration.between(exp, now) < Duration.of(amount, unit))
+    }
+
 }

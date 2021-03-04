@@ -3,6 +3,8 @@ package pl.starchasers.up.service
 import io.jsonwebtoken.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.model.RefreshToken
@@ -10,6 +12,7 @@ import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.RefreshTokenId
 import pl.starchasers.up.exception.JwtTokenException
 import pl.starchasers.up.repository.RefreshTokenRepository
+import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.Util
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -38,6 +41,18 @@ interface JwtTokenService {
         const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
         const val REFRESH_TOKEN_VALID_TIME: Long = 7 * 24 * 60 * 60 * 1000
         const val ACCESS_TOKEN_VALID_TIME: Long = 10 * 60 * 1000
+
+        /**
+         *  Extracts granted authorities from claims and adds USER role
+         */
+        fun extractGrantedAuthorities(claims: Claims): List<GrantedAuthority> {
+            val authorities = mutableListOf<GrantedAuthority>()
+            authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
+            if (Role.valueOf(claims[ROLE_KEY] as String) == Role.ADMIN) authorities.add(
+                SimpleGrantedAuthority(Role.ADMIN.roleString())
+            )
+            return authorities
+        }
     }
 }
 
@@ -84,11 +99,13 @@ class JwtTokenServiceImpl(
             .compact()
     }
 
+    @Transactional
     override fun refreshRefreshToken(oldRefreshToken: String): String {
         val oldClaims = parseToken(oldRefreshToken)
         val user = userService.getUser(oldClaims.subject.toLong())
 
         verifyRefreshToken(oldClaims.getTokenId(), user)
+        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId())
 
         return issueRefreshToken(user)
     }
