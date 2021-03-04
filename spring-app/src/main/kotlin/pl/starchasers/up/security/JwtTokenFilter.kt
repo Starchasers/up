@@ -71,7 +71,7 @@ class JwtTokenFilter(
     private fun refreshRefreshToken(refreshToken: String?): String? {
         if (refreshToken == null) return null
         val claims = tokenService.parseToken(refreshToken)
-        if (isCloseTo((claims["exp"] as Int).toLong(), 20, ChronoUnit.DAYS)) {
+        if (isCloseTo((claims["exp"] as Int).toLong(), 2, ChronoUnit.DAYS)) {
             return tokenService.refreshRefreshToken(refreshToken)
         }
         return refreshToken
@@ -81,7 +81,7 @@ class JwtTokenFilter(
     private fun refreshAccessToken(accessToken: String?, refreshToken: String?): String? {
         if (accessToken == null || refreshToken == null) return accessToken
         val claims = tokenService.parseToken(accessToken)
-        if (isCloseTo((claims["exp"] as Int).toLong(), 50, ChronoUnit.MINUTES)) {
+        if (isCloseTo((claims["exp"] as Int).toLong(), 5, ChronoUnit.MINUTES)) {
             return tokenService.issueAccessToken(refreshToken)
         }
         return accessToken
