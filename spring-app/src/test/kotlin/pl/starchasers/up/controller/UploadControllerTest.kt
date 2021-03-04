@@ -188,6 +188,7 @@ internal class UploadControllerTest : JpaTestBase() {
                         )
                     }
                     header { string(HttpHeaders.CONTENT_LENGTH, equalTo("${content.length}")) }
+                    content { responsePath("$", equalTo("example content")) }
                 }
         }
 

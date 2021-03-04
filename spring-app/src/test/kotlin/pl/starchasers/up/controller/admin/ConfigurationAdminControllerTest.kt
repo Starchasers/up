@@ -118,8 +118,10 @@ internal class ConfigurationAdminControllerTest(
         fun `Given unauthorized request, should return 403`() {
             mockMvc.patch(requestPath) {
                 headers { contentTypeJson() }
-                cookie(getAdminAccessTokenCookie())
+                cookie(getUserAccessTokenCookie())
                 content(ConfigurationDTO(mapOf(Pair(key1, value1), Pair(key2, value2))))
+            }.andExpect {
+                status { isForbidden() }
             }
         }
     }
