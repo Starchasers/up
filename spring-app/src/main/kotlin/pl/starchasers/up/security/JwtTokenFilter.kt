@@ -67,7 +67,7 @@ class JwtTokenFilter(
         chain.doFilter(request, response)
     }
 
-    //Reissue refresh token if close to expiration
+//    Reissue refresh token if close to expiration
     private fun refreshRefreshToken(refreshToken: String?): String? {
         if (refreshToken == null) return null
         val claims = tokenService.parseToken(refreshToken)
@@ -77,7 +77,7 @@ class JwtTokenFilter(
         return refreshToken
     }
 
-    //Reissue refresh token if close to expiration
+    //    Reissue refresh token if close to expiration
     private fun refreshAccessToken(accessToken: String?, refreshToken: String?): String? {
         if (accessToken == null || refreshToken == null) return accessToken
         val claims = tokenService.parseToken(accessToken)
@@ -87,7 +87,7 @@ class JwtTokenFilter(
         return accessToken
     }
 
-    //Issue access token if not present, but refresh token is present
+    //    Issue access token if not present, but refresh token is present
     private fun issueAccessToken(accessToken: String?, refreshToken: String?): String? {
         return if (accessToken == null && refreshToken != null) {
             tokenService.issueAccessToken(refreshToken)
@@ -101,5 +101,4 @@ class JwtTokenFilter(
         val exp = Instant.ofEpochSecond(secondsEpoh)
         return (Duration.between(exp, now) < Duration.of(amount, unit))
     }
-
 }
