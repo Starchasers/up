@@ -10,5 +10,6 @@ const Icon = styled.span`
     font-family: 'Bree Serif', serif;
     font-weight: 600;
     z-index: 1;
+    user-select: none;
 `
 export default Icon

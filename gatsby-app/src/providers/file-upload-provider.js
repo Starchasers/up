@@ -132,7 +132,7 @@ const FileUploadProvider = ({ children }) => {
       >
         {({ getRootProps }) => (
           <>
-            <Offset blur={dragActive} {...getRootProps()}>
+            <Offset dragActive={dragActive} {...getRootProps()}>
               {children}
             </Offset>
             <GlobalDropZone active={dragActive} {...getRootProps()}>

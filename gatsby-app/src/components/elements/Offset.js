@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
-const blur = css`
-  filter: blur(8px) brightness(50%);
+const dragActive = css`
+  filter: brightness(50%);
 `
 
 const Offset = styled('div')`
@@ -13,7 +13,7 @@ const Offset = styled('div')`
     outline: unset;
   }
   
-  ${props => props.blur && blur};
+  ${props => props.dragActive && dragActive}
 `
 
 export default Offset
