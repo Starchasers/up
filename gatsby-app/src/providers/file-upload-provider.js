@@ -138,7 +138,7 @@ const FileUploadProvider = ({ children }) => {
             <GlobalDropZone active={dragActive} {...getRootProps()}>
               <GlobalDropZone.Container>
                 <GlobalDropZone.Text>
-                  Drop file here!
+                  Drop file here
                 </GlobalDropZone.Text>
               </GlobalDropZone.Container>
             </GlobalDropZone>
