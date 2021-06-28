@@ -32,14 +32,10 @@ class JwtTokenFilter(
 
         try {
             newRefreshTokenString = refreshRefreshToken(refreshTokenString)
-            newAccessTokenString = refreshAccessToken(accessTokenString, newRefreshTokenString)//TODO wtf
+            newAccessTokenString = refreshAccessToken(accessTokenString, newRefreshTokenString)
             newAccessTokenString = issueAccessToken(newAccessTokenString, newRefreshTokenString)
             val claims = tokenService.parseToken(newAccessTokenString!!)
 
-            //TODO put tokens in authentication and don't use cookies in controllers
-//            SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
-//                claims.subject, null, JwtTokenService.extractGrantedAuthorities(claims)
-//            )
             SecurityContextHolder.getContext().authentication = JwtAuthenticationToken(
                 claims.subject, null, newRefreshTokenString, JwtTokenService.extractGrantedAuthorities(claims)
             )
