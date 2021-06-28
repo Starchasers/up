@@ -3,7 +3,6 @@ package pl.starchasers.up.util
 import pl.starchasers.up.service.JwtTokenService
 import javax.servlet.http.HttpServletResponse
 
-
 fun HttpServletResponse.addCookie(content: String) {
     this.addHeader("Set-Cookie", content)
 }
@@ -34,5 +33,5 @@ private fun toSetCookieString(name: String, value: String = "null", maxAge: Long
         .withPath("/")
         .sameSite()
         .httpOnly()
-        .secure()//Comment this to get cookies working in insomnia (or make a https connection to localhost)
+        .secure() // Comment this to get cookies working in insomnia (or make a https connection to localhost)
         .build()

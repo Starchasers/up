@@ -84,5 +84,4 @@ class JwtTokenFilter(
             accessToken
         }
     }
-
 }
