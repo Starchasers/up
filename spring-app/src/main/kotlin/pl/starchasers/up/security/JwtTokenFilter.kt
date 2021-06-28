@@ -1,15 +1,14 @@
 package pl.starchasers.up.security
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
 import pl.starchasers.up.service.JwtTokenService
-import pl.starchasers.up.util.SetCookieHeaderValueBuilder
-import java.time.Duration
-import java.time.Instant
+import pl.starchasers.up.util.addCookie
+import pl.starchasers.up.util.getSetAccessTokenCookieContent
+import pl.starchasers.up.util.getSetRefreshTokenCookieContent
+import pl.starchasers.up.util.isCloseTo
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 import javax.servlet.FilterChain
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
@@ -33,31 +32,25 @@ class JwtTokenFilter(
 
         try {
             newRefreshTokenString = refreshRefreshToken(refreshTokenString)
-            newAccessTokenString = refreshAccessToken(accessTokenString, newRefreshTokenString)
+            newAccessTokenString = refreshAccessToken(accessTokenString, newRefreshTokenString)//TODO wtf
             newAccessTokenString = issueAccessToken(newAccessTokenString, newRefreshTokenString)
             val claims = tokenService.parseToken(newAccessTokenString!!)
 
-            SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
-                claims.subject, null, JwtTokenService.extractGrantedAuthorities(claims)
+            //TODO put tokens in authentication and don't use cookies in controllers
+//            SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
+//                claims.subject, null, JwtTokenService.extractGrantedAuthorities(claims)
+//            )
+            SecurityContextHolder.getContext().authentication = JwtAuthenticationToken(
+                claims.subject, null, newRefreshTokenString, JwtTokenService.extractGrantedAuthorities(claims)
             )
             if (newAccessTokenString != accessTokenString) {
-                (response as HttpServletResponse).addHeader(
-                    "Set-Cookie",
-                    SetCookieHeaderValueBuilder(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, newAccessTokenString)
-                        .withMaxAge(JwtTokenService.ACCESS_TOKEN_VALID_TIME)
-                        .withPath("/")
-                        .httpOnly()
-                        .build()
+                (response as HttpServletResponse).addCookie(
+                    getSetAccessTokenCookieContent(newAccessTokenString)
                 )
             }
             if (newRefreshTokenString != refreshTokenString && newRefreshTokenString != null) {
-                (response as HttpServletResponse).addHeader(
-                    "Set-Cookie",
-                    SetCookieHeaderValueBuilder(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME, newRefreshTokenString)
-                        .withMaxAge(JwtTokenService.REFRESH_TOKEN_VALID_TIME)
-                        .withPath("/")
-                        .httpOnly()
-                        .build()
+                (response as HttpServletResponse).addCookie(
+                    getSetRefreshTokenCookieContent(newRefreshTokenString)
                 )
             }
         } catch (e: Exception) {
@@ -96,9 +89,4 @@ class JwtTokenFilter(
         }
     }
 
-    fun isCloseTo(secondsEpoh: Long, amount: Long, unit: TemporalUnit): Boolean {
-        val now = Instant.now()
-        val exp = Instant.ofEpochSecond(secondsEpoh)
-        return (Duration.between(exp, now) < Duration.of(amount, unit))
-    }
 }

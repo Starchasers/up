@@ -6,9 +6,12 @@ import pl.starchasers.up.data.dto.authentication.LoginDTO
 import pl.starchasers.up.data.value.RawPassword
 import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.exception.AccessDeniedException
+import pl.starchasers.up.exception.JwtTokenException
+import pl.starchasers.up.security.IsUser
+import pl.starchasers.up.security.JwtAuthenticationToken
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
-import pl.starchasers.up.util.SetCookieHeaderValueBuilder
+import pl.starchasers.up.util.*
 import java.security.Principal
 import javax.servlet.http.HttpServletResponse
 
@@ -31,27 +34,14 @@ class AuthenticationController(
                 RawPassword(loginDTO.password)
             )
         )
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(
-                JwtTokenService.REFRESH_TOKEN_COOKIE_NAME,
-                refreshToken,
-                JwtTokenService.REFRESH_TOKEN_VALID_TIME
-            )
-        )
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(
-                JwtTokenService.ACCESS_TOKEN_COOKIE_NAME,
-                jwtTokenService.issueAccessToken(refreshToken),
-                JwtTokenService.ACCESS_TOKEN_VALID_TIME
-            )
-        )
+        response.addCookie(getSetRefreshTokenCookieContent(refreshToken))
+        response.addCookie(getSetAccessTokenCookieContent(jwtTokenService.issueAccessToken(refreshToken)))
     }
 
     /**
      * Invalidates refresh token and clears cookies
      */
+    @IsUser
     @PostMapping("/logout")
     fun logout(
         @CookieValue(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME) refreshToken: String,
@@ -64,6 +54,7 @@ class AuthenticationController(
     /**
      * Invalidates all refresh tokens for user and clears cookies
      */
+    @IsUser
     @PostMapping("/logoutAll")
     fun logoutAll(principal: Principal, response: HttpServletResponse) {
         jwtTokenService.invalidateUser(userService.fromPrincipal(principal) ?: throw AccessDeniedException())
@@ -74,51 +65,38 @@ class AuthenticationController(
      * Given valid refresh token returns cookie with new access token
      */
     @PostMapping("/getAccessToken")
+    @IsUser
     fun getAccessToken(
-        @Validated @CookieValue(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME) refreshToken: String,
-        response: HttpServletResponse
-    ) =
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(
-                JwtTokenService.ACCESS_TOKEN_COOKIE_NAME,
-                jwtTokenService.issueAccessToken(refreshToken),
-                JwtTokenService.ACCESS_TOKEN_VALID_TIME
-            )
-        )
+        response: HttpServletResponse,
+        authentication: JwtAuthenticationToken
+    ) {
+        if (authentication.getRefreshTokenString() != null) {
+            val newAccessToken = jwtTokenService.issueAccessToken(authentication.getRefreshTokenString()!!)
+            response.addCookie(getSetAccessTokenCookieContent(newAccessToken))
+        } else {
+            throw JwtTokenException("Can't refresh access token without refresh token")
+        }
+    }
 
     /**
      * Returns cookie with new refresh token
      */
     @PostMapping("/refreshToken")
+    @IsUser
     fun refreshToken(
-        @Validated @CookieValue(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME) refreshToken: String,
-        response: HttpServletResponse
-    ) =
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(
-                JwtTokenService.REFRESH_TOKEN_COOKIE_NAME,
-                jwtTokenService.refreshRefreshToken(refreshToken),
-                JwtTokenService.REFRESH_TOKEN_VALID_TIME
-            )
-        )
-
-    private fun clearCookies(response: HttpServletResponse) {
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME)
-        )
-        response.addHeader(
-            "Set-Cookie",
-            toSetCookieString(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME)
-        )
+        response: HttpServletResponse,
+        authentication: JwtAuthenticationToken
+    ) {
+        if (authentication.getRefreshTokenString() != null) {
+            val refreshToken = authentication.getRefreshTokenString()!!
+            response.addCookie(getSetRefreshTokenCookieContent(jwtTokenService.refreshRefreshToken(refreshToken)))
+        } else {
+            throw JwtTokenException("Can't refresh access token without refresh token")
+        }
     }
 
-    private fun toSetCookieString(name: String, value: String = "null", maxAge: Long = 0): String =
-        SetCookieHeaderValueBuilder(name, value)
-            .withMaxAge(maxAge)
-            .withPath("/")
-            .httpOnly()
-            .build()
+    private fun clearCookies(response: HttpServletResponse) {
+        response.addCookie(getSetEmptyRefreshTokenCookieContent())
+        response.addCookie(getSetEmptyAccessTokenCookieContent())
+    }
 }

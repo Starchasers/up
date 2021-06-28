@@ -39,13 +39,14 @@ internal class AuthenticationControllerTest(
 
         @Test
         @DocumentResponse
-        fun `Given valid data, should return refresh token`() {
+        fun `Given valid data, should return refresh and access token`() {
             mockMvc.post(loginRequestPath) {
                 headers { contentTypeJson() }
                 content(LoginDTO(testUserUsername.value, testUserPassword.value))
             }.andExpect {
                 status { isOk() }
                 cookie { exists(JwtTokenService.REFRESH_TOKEN_COOKIE_NAME) }
+                cookie { exists(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME) }
             }
         }
 
@@ -160,7 +161,7 @@ internal class AuthenticationControllerTest(
         @DocumentResponse
         fun `Given valid refresh token, should return access token`() {
             val refreshToken = jwtTokenService.issueRefreshToken(testUser)
-
+            println(jwtTokenService.parseToken(refreshToken)[JwtTokenService.TOKEN_ID_KEY] as String)
             mockMvc.post(accessTokenRequestPath) {
                 headers { contentTypeJson() }
                 cookie(createRefreshTokenCookie(refreshToken))

@@ -1,6 +1,9 @@
 package pl.starchasers.up.service
 
-import io.jsonwebtoken.*
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.GrantedAuthority
@@ -48,9 +51,8 @@ interface JwtTokenService {
         fun extractGrantedAuthorities(claims: Claims): List<GrantedAuthority> {
             val authorities = mutableListOf<GrantedAuthority>()
             authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
-            if (Role.valueOf(claims[ROLE_KEY] as String) == Role.ADMIN) authorities.add(
-                SimpleGrantedAuthority(Role.ADMIN.roleString())
-            )
+            if (Role.valueOf(claims[ROLE_KEY] as String) == Role.ADMIN)
+                authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
             return authorities
         }
     }
@@ -105,7 +107,7 @@ class JwtTokenServiceImpl(
         val user = userService.getUser(oldClaims.subject.toLong())
 
         verifyRefreshToken(oldClaims.getTokenId(), user)
-//        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId())This breaks 22 tests
+        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId())//This breaks 22 tests
 
         return issueRefreshToken(user)
     }
@@ -130,6 +132,9 @@ class JwtTokenServiceImpl(
     }
 
     override fun verifyRefreshToken(token: RefreshTokenId, user: User) {
+        println(token)
+        println(refreshTokenRepository.findAll()[0].token)
+        println("------------")
         refreshTokenRepository.findFirstByTokenAndUser(token, user) ?: throw JwtTokenException("Invalid refresh token.")
     }
 
@@ -137,7 +142,7 @@ class JwtTokenServiceImpl(
         try {
             return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).body
         } catch (e: ExpiredJwtException) {
-            throw JwtException("Token expired")
+            throw JwtTokenException("Token expired")
         } catch (e: Exception) {
             throw JwtTokenException("Invalid or corrupted token.")
         }
