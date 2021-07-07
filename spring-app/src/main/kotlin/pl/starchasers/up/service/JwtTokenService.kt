@@ -107,7 +107,7 @@ class JwtTokenServiceImpl(
         val user = userService.getUser(oldClaims.subject.toLong())
 
         verifyRefreshToken(oldClaims.getTokenId(), user)
-        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId()) // This breaks 22 tests
+        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId())
 
         return issueRefreshToken(user)
     }
