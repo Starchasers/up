@@ -18,6 +18,7 @@ import pl.starchasers.up.repository.RefreshTokenRepository
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.Util
 import java.sql.Timestamp
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import javax.annotation.PostConstruct
@@ -42,8 +43,10 @@ interface JwtTokenService {
         const val ROLE_KEY = "role"
         const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
         const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
-        const val REFRESH_TOKEN_VALID_TIME: Long = 7 * 24 * 60 * 60 * 1000
-        const val ACCESS_TOKEN_VALID_TIME: Long = 10 * 60 * 1000
+
+        //TODO move to properties file
+        val REFRESH_TOKEN_VALID_TIME: Duration = Duration.ofDays(7)
+        val ACCESS_TOKEN_VALID_TIME: Duration = Duration.ofMinutes(10)
 
         /**
          *  Extracts granted authorities from claims and adds USER role
@@ -88,7 +91,7 @@ class JwtTokenServiceImpl(
             user,
             tokenId,
             Timestamp.valueOf(LocalDateTime.now()),
-            Timestamp.valueOf(LocalDateTime.now().plusNanos(JwtTokenService.REFRESH_TOKEN_VALID_TIME * 1000))
+            Timestamp.valueOf(LocalDateTime.now().plus(JwtTokenService.REFRESH_TOKEN_VALID_TIME))
         )
 
         refreshTokenRepository.save(refreshToken)
@@ -96,7 +99,7 @@ class JwtTokenServiceImpl(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + JwtTokenService.REFRESH_TOKEN_VALID_TIME))
+            .setExpiration(Date(now.time + JwtTokenService.REFRESH_TOKEN_VALID_TIME.toMillis()))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
@@ -126,15 +129,12 @@ class JwtTokenServiceImpl(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + JwtTokenService.ACCESS_TOKEN_VALID_TIME))
+            .setExpiration(Date(now.time + JwtTokenService.ACCESS_TOKEN_VALID_TIME.toMillis()))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
 
     override fun verifyRefreshToken(token: RefreshTokenId, user: User) {
-        println(token)
-        println(refreshTokenRepository.findAll()[0].token)
-        println("------------")
         refreshTokenRepository.findFirstByTokenAndUser(token, user) ?: throw JwtTokenException("Invalid refresh token.")
     }
 

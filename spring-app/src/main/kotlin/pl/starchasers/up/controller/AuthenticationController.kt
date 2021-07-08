@@ -34,8 +34,8 @@ class AuthenticationController(
                 RawPassword(loginDTO.password)
             )
         )
-        response.addCookie(getSetRefreshTokenCookieContent(refreshToken))
-        response.addCookie(getSetAccessTokenCookieContent(jwtTokenService.issueAccessToken(refreshToken)))
+        response.addCookie(getSetRefreshTokenCookie(refreshToken))
+        response.addCookie(getSetAccessTokenCookie(jwtTokenService.issueAccessToken(refreshToken)))
     }
 
     /**
@@ -72,7 +72,7 @@ class AuthenticationController(
     ) {
         if (authentication.getRefreshTokenString() != null) {
             val newAccessToken = jwtTokenService.issueAccessToken(authentication.getRefreshTokenString()!!)
-            response.addCookie(getSetAccessTokenCookieContent(newAccessToken))
+            response.addCookie(getSetAccessTokenCookie(newAccessToken))
         } else {
             throw JwtTokenException("Can't refresh access token without refresh token")
         }
@@ -89,14 +89,14 @@ class AuthenticationController(
     ) {
         if (authentication.getRefreshTokenString() != null) {
             val refreshToken = authentication.getRefreshTokenString()!!
-            response.addCookie(getSetRefreshTokenCookieContent(jwtTokenService.refreshRefreshToken(refreshToken)))
+            response.addCookie(getSetRefreshTokenCookie(jwtTokenService.refreshRefreshToken(refreshToken)))
         } else {
             throw JwtTokenException("Can't refresh access token without refresh token")
         }
     }
 
     private fun clearCookies(response: HttpServletResponse) {
-        response.addCookie(getSetEmptyRefreshTokenCookieContent())
-        response.addCookie(getSetEmptyAccessTokenCookieContent())
+        response.addCookie(getSetEmptyRefreshTokenCookie())
+        response.addCookie(getSetEmptyAccessTokenCookie())
     }
 }

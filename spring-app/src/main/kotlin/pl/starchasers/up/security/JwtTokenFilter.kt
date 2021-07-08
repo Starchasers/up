@@ -5,8 +5,8 @@ import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.util.addCookie
-import pl.starchasers.up.util.getSetAccessTokenCookieContent
-import pl.starchasers.up.util.getSetRefreshTokenCookieContent
+import pl.starchasers.up.util.getSetAccessTokenCookie
+import pl.starchasers.up.util.getSetRefreshTokenCookie
 import pl.starchasers.up.util.isCloseTo
 import java.time.temporal.ChronoUnit
 import javax.servlet.FilterChain
@@ -41,12 +41,12 @@ class JwtTokenFilter(
             )
             if (newAccessTokenString != accessTokenString) {
                 (response as HttpServletResponse).addCookie(
-                    getSetAccessTokenCookieContent(newAccessTokenString)
+                    getSetAccessTokenCookie(newAccessTokenString)
                 )
             }
             if (newRefreshTokenString != refreshTokenString && newRefreshTokenString != null) {
                 (response as HttpServletResponse).addCookie(
-                    getSetRefreshTokenCookieContent(newRefreshTokenString)
+                    getSetRefreshTokenCookie(newRefreshTokenString)
                 )
             }
         } catch (e: Exception) {
