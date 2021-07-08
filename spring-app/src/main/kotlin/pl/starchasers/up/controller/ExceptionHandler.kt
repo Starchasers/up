@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingRequestCookieException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pl.starchasers.up.exception.ApplicationException
@@ -51,6 +52,13 @@ class ExceptionHandler() {
             BasicErrorResponseDTO(
                 "Bad request. Missing or invalid parameter '${exception.parameter.parameterName}.'"
             ),
+            HttpStatus.BAD_REQUEST
+        )
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleArgumentTypeMismatch(exception: MethodArgumentTypeMismatchException): ResponseEntity<BasicErrorResponseDTO> =
+        ResponseEntity(
+            BasicErrorResponseDTO("Bad request. Malformed parameter ${exception.parameter}"),
             HttpStatus.BAD_REQUEST
         )
 

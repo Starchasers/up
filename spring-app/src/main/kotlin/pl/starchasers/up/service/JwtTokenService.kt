@@ -44,7 +44,7 @@ interface JwtTokenService {
         const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
         const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
 
-        //TODO move to properties file
+        // TODO move to properties file
         val REFRESH_TOKEN_VALID_TIME: Duration = Duration.ofDays(7)
         val ACCESS_TOKEN_VALID_TIME: Duration = Duration.ofMinutes(10)
 

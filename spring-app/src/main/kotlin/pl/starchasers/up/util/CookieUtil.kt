@@ -37,6 +37,6 @@ private fun getCookie(name: String, value: String = "null", maxAge: Duration = D
         .path("/")
         .sameSite("Strict")
         .httpOnly(true)
-        //TODO make configurable/disable in dev profile
-        .secure(true)// Comment this to get cookies working in insomnia (or make a https connection to localhost)
+        // TODO make configurable/disable in dev profile
+        .secure(true) // Comment this to get cookies working in insomnia (or make a https connection to localhost)
         .build()

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
+import pl.starchasers.up.data.dto.upload.FileLifetime
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
@@ -41,9 +42,15 @@ class UploadController(
     /**
      * Upload new file
      * @param file Uploaded file content
+     * @param expires Represents the time until the file will be deleted, by default in milliseconds.
+     * Follow it with h to specify the time in hours. w for weeks, m for months, y for years.
      */
     @PostMapping("/api/upload")
-    fun anonymousUpload(@RequestParam file: MultipartFile, principal: Principal?): UploadCompleteResponseDTO {
+    fun upload(
+        @RequestParam file: MultipartFile,
+        @RequestParam expires: FileLifetime?,
+        principal: Principal?
+    ): UploadCompleteResponseDTO {
         val user = userService.fromPrincipal(principal)
         val contentType = ContentType(
             if (file.contentType == null || file.contentType!!.isBlank()) "application/octet-stream"
@@ -55,7 +62,8 @@ class UploadController(
             Filename(file.originalFilename ?: "file"),
             contentType,
             FileSize(file.size),
-            user
+            user,
+            expires
         )
     }
 
@@ -64,7 +72,7 @@ class UploadController(
      * @param fileKey File key obtained during upload
      */
     @GetMapping("/u/{fileKey}")
-    fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
+    fun getUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
         val (fileEntry, stream) = fileStorageService.getStoredFileRaw(FileKey(fileKey))
         response.contentType = fileEntry.contentType.value
 

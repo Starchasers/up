@@ -12,24 +12,14 @@ const Decoration = styled('img')`
   border-radius: ${props => props.theme.border.radius};
   object-fit: cover;
   transition: opacity 500ms ease 0s;
-`
-
-const ImageContainer = styled('div')`
-  position: relative;
-
-  &:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
+  user-select: none;
+  user-focus: none;
+  user-drag: none;
 `
 
 const MainImage = () => (
   <ProgressiveImage src={foreground} placeholder={tinyForeground}>
-    {(src, loading) => <ImageContainer><Decoration src={src} alt='Main image' style={{ opacity: loading ? 0.75 : 1 }}/></ImageContainer>}
+    {(src, loading) => <Decoration src={src} alt='Main image' style={{ opacity: loading ? 0.75 : 1 }} />}
   </ProgressiveImage>
 )
 
