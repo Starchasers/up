@@ -1,13 +1,13 @@
 package pl.starchasers.up.controller.admin
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.configuration.ConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationKey
@@ -18,6 +18,7 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.JwtTokenService
 import pl.starchasers.up.service.UserService
+import javax.servlet.http.Cookie
 
 internal class ConfigurationAdminControllerTest(
     @Autowired private val userService: UserService,
@@ -42,11 +43,14 @@ internal class ConfigurationAdminControllerTest(
         return jwtTokenService.issueAccessToken(refreshToken)
     }
 
+    private fun getUserAccessTokenCookie(): Cookie =
+        Cookie(JwtTokenService.ACCESS_TOKEN_COOKIE_NAME, getUserAccessToken())
+
     @OrderTests
     @Nested
     inner class UpdateConfiguration : MockMvcTestBase() {
 
-        private val requestPath = Path("/api/admin/config")
+        private val requestPath = "/api/admin/config"
 
         private val key1 = ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE
         private val value1 = "123456789"
@@ -56,14 +60,12 @@ internal class ConfigurationAdminControllerTest(
         @Test
         @DocumentResponse
         fun `Given valid request, should update all configuration values`() {
-            mockMvc.patch(
-                path = requestPath,
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                body = ConfigurationDTO(
-                    mapOf(Pair(key1, value1), Pair(key2, value2))
-                )
-            ) {
-                statusIsOk()
+            mockMvc.patch(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(ConfigurationDTO(mapOf(Pair(key1, value1), Pair(key2, value2))))
+            }.andExpect {
+                status { isOk() }
             }
 
             assertEquals(value1, configurationService.getConfigurationOption(key1))
@@ -73,15 +75,14 @@ internal class ConfigurationAdminControllerTest(
         @Test
         fun `Given incorrect key, should return 400 and update nothing`() {
             val incorrectKey = "incorrectKey"
-
-            mockMvc.patch(
-                path = requestPath,
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                body = object {
+            mockMvc.patch(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(object {
                     val options = mapOf(Pair(key1.toString(), value1), Pair(incorrectKey, value2))
-                }
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+                })
+            }.andExpect {
+                status { isBadRequest() }
             }
 
             assertEquals(configurationService.getConfigurationOption(key1), key1.defaultValue)
@@ -89,27 +90,24 @@ internal class ConfigurationAdminControllerTest(
 
         @Test
         fun `Given empty map, should update nothing`() {
-            mockMvc.patch(
-                path = requestPath,
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                body = ConfigurationDTO(mapOf())
-            ) {
-                isSuccess()
+            mockMvc.patch(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(ConfigurationDTO(mapOf()))
+            }.andExpect {
+                status { isOk() }
             }
         }
 
         @Test
         fun `Given incorrect data type, should return 400 and update nothing`() {
             val incorrectValue = "qwe"
-
-            mockMvc.patch(
-                path = requestPath,
-                headers = HttpHeaders().contentTypeJson().authorization(getAdminAccessToken()),
-                body = ConfigurationDTO(
-                    mapOf(Pair(key1, value1), Pair(key2, incorrectValue))
-                )
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+            mockMvc.patch(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+                content(ConfigurationDTO(mapOf(Pair(key1, value1), Pair(key2, incorrectValue))))
+            }.andExpect {
+                status { isBadRequest() }
             }
 
             assertEquals(configurationService.getConfigurationOption(key1), key1.defaultValue)
@@ -118,14 +116,12 @@ internal class ConfigurationAdminControllerTest(
 
         @Test
         fun `Given unauthorized request, should return 403`() {
-            mockMvc.patch(
-                path = requestPath,
-                headers = HttpHeaders().contentTypeJson().authorization(getUserAccessToken()),
-                body = ConfigurationDTO(
-                    mapOf(Pair(key1, value1), Pair(key2, value2))
-                )
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.patch(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getUserAccessTokenCookie())
+                content(ConfigurationDTO(mapOf(Pair(key1, value1), Pair(key2, value2))))
+            }.andExpect {
+                status { isForbidden() }
             }
         }
     }
@@ -134,40 +130,56 @@ internal class ConfigurationAdminControllerTest(
     @Nested
     inner class GetAppConfiguration : MockMvcTestBase() {
 
-        private val requestPath = Path("/api/admin/config")
+        private val requestPath = "/api/admin/config"
 
         @Test
         @DocumentResponse
         fun `Given valid request, should return entire global configuration`() {
-            mockMvc.get(
-                path = requestPath,
-                headers = HttpHeaders().authorization(getAdminAccessToken())
-            ) {
-                isSuccess()
-                responseJsonPath("$.options.ANONYMOUS_MAX_FILE_SIZE")
-                    .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
-                responseJsonPath("$.options.ANONYMOUS_DEFAULT_FILE_LIFETIME")
-                    .equalsValue(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
-                responseJsonPath("$.options.ANONYMOUS_MAX_FILE_LIFETIME")
-                    .equalsValue(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
-                responseJsonPath("$.options.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE")
-                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
-                responseJsonPath("$.options.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE")
-                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
-                responseJsonPath("$.options.DEFAULT_USER_DEFAULT_FILE_LIFETIME")
-                    .equalsValue(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
-                responseJsonPath("$.options.DEFAULT_USER_MAX_FILE_LIFETIME")
-                    .equalsValue(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
+            mockMvc.get(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getAdminAccessTokenCookie())
+            }.andExpect {
+                status { isOk() }
+                content {
+                    responsePath(
+                        "$.options.ANONYMOUS_MAX_FILE_SIZE",
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.ANONYMOUS_DEFAULT_FILE_LIFETIME",
+                        equalTo(ConfigurationKey.ANONYMOUS_DEFAULT_FILE_LIFETIME.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.ANONYMOUS_MAX_FILE_LIFETIME",
+                        equalTo(ConfigurationKey.ANONYMOUS_MAX_FILE_LIFETIME.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE",
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_TEMPORARY_FILE_SIZE.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE",
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_PERMANENT_FILE_SIZE.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.DEFAULT_USER_DEFAULT_FILE_LIFETIME",
+                        equalTo(ConfigurationKey.DEFAULT_USER_DEFAULT_FILE_LIFETIME.defaultValue)
+                    )
+                    responsePath(
+                        "$.options.DEFAULT_USER_MAX_FILE_LIFETIME",
+                        equalTo(ConfigurationKey.DEFAULT_USER_MAX_FILE_LIFETIME.defaultValue)
+                    )
+                }
             }
         }
 
         @Test
         fun `Given unauthorized request, should return 403`() {
-            mockMvc.get(
-                path = requestPath,
-                headers = HttpHeaders().authorization(getUserAccessToken())
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.get(requestPath) {
+                headers { contentTypeJson() }
+                cookie(getUserAccessTokenCookie())
+            }.andExpect {
+                status { isForbidden() }
             }
         }
     }

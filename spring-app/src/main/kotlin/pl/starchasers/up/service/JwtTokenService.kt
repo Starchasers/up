@@ -1,10 +1,13 @@
 package pl.starchasers.up.service
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.model.RefreshToken
@@ -12,14 +15,13 @@ import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.RefreshTokenId
 import pl.starchasers.up.exception.JwtTokenException
 import pl.starchasers.up.repository.RefreshTokenRepository
+import pl.starchasers.up.security.Role
 import pl.starchasers.up.util.Util
 import java.sql.Timestamp
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import javax.annotation.PostConstruct
-
-const val TOKEN_ID_KEY = "tokenId"
-const val ROLE_KEY = "role"
 
 interface JwtTokenService {
     fun issueRefreshToken(user: User): String
@@ -35,6 +37,28 @@ interface JwtTokenService {
     fun invalidateUser(user: User)
 
     fun invalidateRefreshToken(refreshToken: String)
+
+    companion object JwtTokenService {
+        const val TOKEN_ID_KEY = "tokenId"
+        const val ROLE_KEY = "role"
+        const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+        const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
+
+        // TODO move to properties file
+        val REFRESH_TOKEN_VALID_TIME: Duration = Duration.ofDays(7)
+        val ACCESS_TOKEN_VALID_TIME: Duration = Duration.ofMinutes(10)
+
+        /**
+         *  Extracts granted authorities from claims and adds USER role
+         */
+        fun extractGrantedAuthorities(claims: Claims): List<GrantedAuthority> {
+            val authorities = mutableListOf<GrantedAuthority>()
+            authorities.add(SimpleGrantedAuthority(Role.USER.roleString()))
+            if (Role.valueOf(claims[ROLE_KEY] as String) == Role.ADMIN)
+                authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleString()))
+            return authorities
+        }
+    }
 }
 
 @Service
@@ -46,8 +70,6 @@ class JwtTokenServiceImpl(
     @Value("\${up.jwt-secret}")
     private var secret = ""
 
-    private val refreshTokenValidTime: Long = 7 * 24 * 60 * 60 * 1000
-    private val accessTokenValidTime: Long = 15 * 60 * 1000
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostConstruct
@@ -63,13 +85,13 @@ class JwtTokenServiceImpl(
         val now = Date()
         val tokenId = RefreshTokenId(UUID.randomUUID().toString())
 
-        claims[TOKEN_ID_KEY] = tokenId.value
+        claims[JwtTokenService.TOKEN_ID_KEY] = tokenId.value
         val refreshToken = RefreshToken(
             0,
             user,
             tokenId,
             Timestamp.valueOf(LocalDateTime.now()),
-            Timestamp.valueOf(LocalDateTime.now().plusNanos(refreshTokenValidTime * 1000))
+            Timestamp.valueOf(LocalDateTime.now().plus(JwtTokenService.REFRESH_TOKEN_VALID_TIME))
         )
 
         refreshTokenRepository.save(refreshToken)
@@ -77,16 +99,18 @@ class JwtTokenServiceImpl(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + refreshTokenValidTime))
+            .setExpiration(Date(now.time + JwtTokenService.REFRESH_TOKEN_VALID_TIME.toMillis()))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
 
+    @Transactional
     override fun refreshRefreshToken(oldRefreshToken: String): String {
         val oldClaims = parseToken(oldRefreshToken)
         val user = userService.getUser(oldClaims.subject.toLong())
 
         verifyRefreshToken(oldClaims.getTokenId(), user)
+        refreshTokenRepository.deleteAllByToken(oldClaims.getTokenId())
 
         return issueRefreshToken(user)
     }
@@ -96,16 +120,16 @@ class JwtTokenServiceImpl(
         val user = userService.getUser(refreshTokenClaims.subject.toLong())
 
         val claims = Jwts.claims().setSubject(user.id.toString())
-        claims[ROLE_KEY] = user.role
+        claims[JwtTokenService.ROLE_KEY] = user.role
 
-        verifyRefreshToken(RefreshTokenId(refreshTokenClaims[TOKEN_ID_KEY] as String), user)
+        verifyRefreshToken(RefreshTokenId(refreshTokenClaims[JwtTokenService.TOKEN_ID_KEY] as String), user)
 
         val now = Date()
 
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + accessTokenValidTime))
+            .setExpiration(Date(now.time + JwtTokenService.ACCESS_TOKEN_VALID_TIME.toMillis()))
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact()
     }
@@ -117,6 +141,8 @@ class JwtTokenServiceImpl(
     override fun parseToken(token: String): Claims {
         try {
             return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).body
+        } catch (e: ExpiredJwtException) {
+            throw JwtTokenException("Token expired")
         } catch (e: Exception) {
             throw JwtTokenException("Invalid or corrupted token.")
         }
@@ -135,7 +161,7 @@ class JwtTokenServiceImpl(
 }
 
 fun Claims.getTokenId(): RefreshTokenId {
-    val idString = this[TOKEN_ID_KEY]
+    val idString = this[JwtTokenService.TOKEN_ID_KEY]
     if (idString !is String) throw JwtTokenException("Invalid refresh token")
     return RefreshTokenId(idString)
 }

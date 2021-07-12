@@ -8,6 +8,7 @@ import pl.starchasers.up.data.model.User
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.BadRequestException
+import pl.starchasers.up.exception.InvalidCredentialsException
 import pl.starchasers.up.exception.UserException
 import pl.starchasers.up.repository.UserRepository
 import pl.starchasers.up.security.Role
@@ -89,7 +90,7 @@ class UserServiceImpl(
 
     override fun getUserFromCredentials(username: Username, password: RawPassword): User =
         findUser(username)?.takeIf { passwordEncoder.matches(password, it.password) }
-            ?: throw AccessDeniedException("Incorrect username or password")
+            ?: throw InvalidCredentialsException("Incorrect username or password")
 
     override fun listUsers(pageable: Pageable): Page<User> = userRepository.findAll(pageable)
 

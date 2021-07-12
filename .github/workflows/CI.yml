@@ -20,15 +20,18 @@ jobs:
 
     - name: Build Spring app
       run: ./gradlew bootjar
-      
+
     - name: Test
       run: ./gradlew --continue test
-      
+
+    - name: Lint
+      run: ./gradlew --continue ktlintCheck
+
     - name: Publish Test Report
       uses: scacap/action-surefire-report@v1
       with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          report_paths: '**/build/test-results/test/TEST-*.xml'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        report_paths: '**/build/test-results/test/TEST-*.xml'
       if: always()
 
     - name: Generate documentation

@@ -44,7 +44,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
+//    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("capital.scalable:spring-auto-restdocs-core:2.0.9")
 
@@ -67,6 +67,8 @@ ext {
 }
 
 ktlint {
+    verbose.set(true)
+    version.set("0.40.0")
     disabledRules.set(setOf("no-wildcard-imports"))
 }
 
@@ -102,7 +104,6 @@ tasks {
     test {
         useJUnitPlatform()
         dependsOn(dokka)
-        finalizedBy(ktlintCheck)
     }
 
     register("bootRunDev") {
