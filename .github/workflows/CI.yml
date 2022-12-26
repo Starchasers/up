@@ -16,7 +16,10 @@ jobs:
         java-version: 11
 
     - name: Build Gatsby app
-      run: ./gradlew :gatsby-app:build
+      run: |
+        cd gatsby-app
+        npm install
+        npm run build
 
     - name: Build Spring app
       run: ./gradlew bootjar
