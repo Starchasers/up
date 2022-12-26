@@ -1,5 +1,6 @@
 package pl.starchasers.up.repository
 
+import jakarta.annotation.PostConstruct
 import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
@@ -9,7 +10,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Paths
-import javax.annotation.PostConstruct
 
 interface UploadRepository {
     fun save(fileContent: FileContent)

@@ -8,5 +8,5 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
 class PasswordEncoderConfiguration {
 
     @Bean
-    fun getPasswordEncoder(): Pbkdf2PasswordEncoder = Pbkdf2PasswordEncoder()
+    fun getPasswordEncoder(): Pbkdf2PasswordEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
 }

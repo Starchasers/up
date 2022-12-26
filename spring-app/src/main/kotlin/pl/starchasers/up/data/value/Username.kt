@@ -1,8 +1,8 @@
 package pl.starchasers.up.data.value
 
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
 import pl.starchasers.up.util.validate
-import javax.persistence.Column
-import javax.persistence.Embeddable
 
 @Embeddable
 data class Username(

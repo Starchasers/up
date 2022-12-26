@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -19,27 +19,25 @@ import pl.starchasers.up.service.JwtTokenService
 @EnableWebSecurity
 class WebSecurityConfiguration(
     private val jwtTokenService: JwtTokenService
-) : WebSecurityConfigurerAdapter() {
+) {
 
-    private val logger = LoggerFactory.getLogger(WebSecurityConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Value("\${up.dev.cors}")
     private val devCors: Boolean = false
 
-    override fun configure(web: HttpSecurity) {
-        http
-            .csrf().disable()
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        http.addFilterBefore(
-            JwtTokenFilter(jwtTokenService),
-            UsernamePasswordAuthenticationFilter::class.java
-        )
-
-        if (devCors) {
-            logger.info("Development environment set. Enabling CORS for all origins.")
-            http.cors()
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain = http
+        .csrf { it.disable() }
+        .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+        .addFilterBefore(JwtTokenFilter(jwtTokenService), UsernamePasswordAuthenticationFilter::class.java)
+        .also {
+            if (devCors) {
+                logger.info("Development environment set. Enabling CORS for all origins.")
+            }
+            it.cors()
         }
-    }
+        .build()
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {

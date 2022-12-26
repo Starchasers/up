@@ -1,9 +1,9 @@
 package pl.starchasers.up.data.model
 
-import com.sun.istack.NotNull
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import pl.starchasers.up.data.value.RefreshTokenId
 import java.sql.Timestamp
-import javax.persistence.*
 
 @Entity
 class RefreshToken(

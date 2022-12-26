@@ -42,7 +42,6 @@ internal class ConfigurationAdminControllerTest(
         return jwtTokenService.issueAccessToken(refreshToken)
     }
 
-    @OrderTests
     @Nested
     inner class UpdateConfiguration : MockMvcTestBase() {
 
@@ -54,7 +53,6 @@ internal class ConfigurationAdminControllerTest(
         private val value2 = "987654321"
 
         @Test
-        @DocumentResponse
         fun `Given valid request, should update all configuration values`() {
             mockMvc.patch(
                 path = requestPath,
@@ -130,14 +128,12 @@ internal class ConfigurationAdminControllerTest(
         }
     }
 
-    @OrderTests
     @Nested
     inner class GetAppConfiguration : MockMvcTestBase() {
 
         private val requestPath = Path("/api/admin/config")
 
         @Test
-        @DocumentResponse
         fun `Given valid request, should return entire global configuration`() {
             mockMvc.get(
                 path = requestPath,

@@ -1,5 +1,7 @@
 package pl.starchasers.up.controller
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.ContentDisposition
@@ -8,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
@@ -24,15 +25,12 @@ import java.io.BufferedInputStream
 import java.io.IOException
 import java.nio.charset.Charset
 import java.security.Principal
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 class UploadController(
     private val fileStorageService: FileStorageService,
     private val fileService: FileService,
     private val requestRangeParser: RequestRangeParser,
-    private val multipartResolver: CommonsMultipartResolver,
     private val userService: UserService
 ) {
 
@@ -106,28 +104,32 @@ class UploadController(
     @PostMapping("/api/u/{fileKey}/verify")
     fun verifyFileAccess(
         @PathVariable fileKey: String,
-        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
+        @Validated @RequestBody
+        operationDto: AuthorizedOperationDTO?,
         principal: Principal?
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
         val user = userService.fromPrincipal(principal)
-        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user)) {
             throw AccessDeniedException()
+        }
         return BasicResponseDTO()
     }
 
     @DeleteMapping("/api/u/{fileKey}")
     fun deleteFile(
         @PathVariable fileKey: String,
-        @Validated @RequestBody operationDto: AuthorizedOperationDTO?,
+        @Validated @RequestBody
+        operationDto: AuthorizedOperationDTO?,
         principal: Principal?
     ) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
         val user = userService.fromPrincipal(principal)
 
-        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user))
+        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken?.let { FileAccessToken(it) }, user)) {
             throw AccessDeniedException()
+        }
 
         fileService.deleteFile(fileEntry)
     }

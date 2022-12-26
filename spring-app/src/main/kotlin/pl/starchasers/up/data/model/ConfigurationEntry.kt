@@ -1,6 +1,6 @@
 package pl.starchasers.up.data.model
 
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 class ConfigurationEntry(

@@ -26,7 +26,6 @@ import java.time.LocalDateTime
 
 internal class UploadControllerTest : JpaTestBase() {
 
-    @OrderTests
     @Nested
     inner class AnonymousUpload(
         @Autowired private val fileEntryRepository: FileEntryRepository,
@@ -40,7 +39,6 @@ internal class UploadControllerTest : JpaTestBase() {
 
         // TODO integrate access token
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should upload and store file`() {
             val exampleTextFile = MockMultipartFile(
@@ -157,7 +155,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     inner class GetAnonymousUpload(
         @Autowired val fileService: FileService
@@ -173,7 +170,6 @@ internal class UploadControllerTest : JpaTestBase() {
         ).key
 
         @Test
-        @DocumentResponse
         fun `Given valid key, should return raw file`() {
             val key = createFile("application/octet-stream")
 
@@ -242,7 +238,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class VerifyFileAccess(
@@ -271,7 +266,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
-        @DocumentResponse
         fun `Given valid access token, should return 200`() {
             mockMvc.post(
                 path = verifyRequestPath(fileKey),
@@ -326,7 +320,7 @@ internal class UploadControllerTest : JpaTestBase() {
         fun `Given missing access token and no user, should return 403`() {
             mockMvc.post(
                 path = verifyRequestPath(fileKey),
-                headers = HttpHeaders().contentTypeJson(),
+                headers = HttpHeaders().contentTypeJson()
             ) {
                 isError(HttpStatus.FORBIDDEN)
             }
@@ -346,7 +340,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetFileDetails(
@@ -371,7 +364,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
-        @DocumentResponse
         fun `Given correct key, should return file details`() {
             mockMvc.get(path = getRequestPath(fileKey)) {
                 responseJsonPath("$.key").equalsValue(fileKey)
@@ -391,7 +383,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class DeleteFile(
@@ -415,7 +406,6 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
-        @DocumentResponse
         fun `Given valid access token, should delete file`() {
             val response = createTestFile()
             mockMvc.delete(

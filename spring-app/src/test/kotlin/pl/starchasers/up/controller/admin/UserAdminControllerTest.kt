@@ -25,7 +25,6 @@ import pl.starchasers.up.service.UserService
 internal class UserAdminControllerTest : JpaTestBase() {
 
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    @OrderTests
     @Nested
     inner class UsersGetOne : MockMvcTestBase() {
         @Autowired
@@ -50,7 +49,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
 
         private fun getOnePath(id: Long): Path = Path("/api/admin/users/$id")
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should return user details`() {
             mockMvc.get(
@@ -89,7 +87,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
     }
 
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    @OrderTests
     @Nested
     inner class UsersList : MockMvcTestBase() {
         @Autowired
@@ -114,7 +111,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
 
         private val getOnePath: Path = Path("/api/admin/users")
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should return page`() {
             mockMvc.get(
@@ -133,7 +129,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     inner class UsersCreate : MockMvcTestBase() {
 
@@ -142,7 +137,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         @Autowired
         private lateinit var userService: UserService
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should create user`() {
             mockMvc.post(
@@ -189,7 +183,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     inner class UsersUpdate : MockMvcTestBase() {
 
@@ -201,7 +194,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         @Autowired
         private lateinit var passwordEncoder: Pbkdf2PasswordEncoder
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should update user`() {
             val oldUser = userService.createUser(
@@ -331,7 +323,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
                     val role = Role.USER
                 }
             ) {
-
                 isSuccess()
             }
 
@@ -344,7 +335,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         }
     }
 
-    @OrderTests
     @Nested
     inner class UsersDelete : MockMvcTestBase() {
 
@@ -357,7 +347,6 @@ internal class UserAdminControllerTest : JpaTestBase() {
         private fun getDeleteUserPath(id: Long) = Path("/api/admin/users/$id")
 
         @Test
-        @DocumentResponse
         fun `Given valid request, should delete user`() {
             val user = userService.createUser(
                 Username("userToDelete"),

@@ -34,13 +34,11 @@ internal class AuthenticationControllerTest(
         testUser = userService.createUser(testUserUsername, testUserPassword, null, Role.USER)
     }
 
-    @OrderTests
     @Nested
     inner class LogIn : MockMvcTestBase() {
         private val loginRequestPath = Path("/api/auth/login")
 
         @Test
-        @DocumentResponse
         fun `Given valid data, should return refresh token`() {
             mockMvc.post(
                 path = loginRequestPath,
@@ -86,7 +84,6 @@ internal class AuthenticationControllerTest(
         }
     }
 
-    @OrderTests
     @Nested
     inner class LogOut(
         @Autowired private val refreshTokenRepository: RefreshTokenRepository
@@ -106,7 +103,6 @@ internal class AuthenticationControllerTest(
         }
 
         @Test
-        @DocumentResponse
         fun `Given correct access token, should invalidate all refresh tokens`() {
             mockMvc.post(
                 path = logoutRequestPath,
@@ -129,13 +125,11 @@ internal class AuthenticationControllerTest(
         }
     }
 
-    @OrderTests
     @Nested
     inner class GetAccessToken() : MockMvcTestBase() {
         private val getAccessTokenRequestPath = Path("/api/auth/getAccessToken")
 
         @Test
-        @DocumentResponse
         fun `Given valid refresh token, should return access token`() {
             val refreshToken = jwtTokenService.issueRefreshToken(testUser)
 
@@ -166,14 +160,12 @@ internal class AuthenticationControllerTest(
         }
     }
 
-    @OrderTests
     @Nested
     inner class RefreshRefreshToken() : MockMvcTestBase() {
 
         private val refreshTokenRequestPath = Path("/api/auth/refreshToken")
 
         @Test
-        @DocumentResponse
         fun `Given valid refresh token, should return new refresh token`() {
             val refreshToken = jwtTokenService.issueRefreshToken(testUser)
 

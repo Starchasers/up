@@ -11,19 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.*
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.UserService
 import java.lang.IllegalStateException
-import javax.transaction.Transactional
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class UserControllerTest : MockMvcTestBase() {
 
     @Transactional
-    @OrderTests
     @Nested
     inner class ListUserUploadHistory(
         @Autowired private val userService: UserService,
@@ -32,7 +31,6 @@ class UserControllerTest : MockMvcTestBase() {
 
         private val listHistoryRequestPath = Path("/api/user/history")
 
-        @DocumentResponse
         @Test
         fun `Given valid request, should return upload history`() {
             val file = fileService.createFile(

@@ -20,7 +20,6 @@ internal class ConfigurationControllerTest(
 ) : JpaTestBase() {
 
     @Nested
-    @OrderTests
     inner class GetConfiguration() : MockMvcTestBase() {
 
         private val requestPath = Path("/api/configuration")
@@ -43,7 +42,6 @@ internal class ConfigurationControllerTest(
         }
 
         @Test
-        @DocumentResponse
         fun `Given authorized request, should return user-specific details`() {
             val user = requireNotNull(userService.findUser(Username("root")))
             val refreshToken = jwtTokenService.issueRefreshToken(user)

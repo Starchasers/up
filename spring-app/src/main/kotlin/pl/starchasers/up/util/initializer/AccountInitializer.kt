@@ -1,5 +1,6 @@
 package pl.starchasers.up.util.initializer
 
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import pl.starchasers.up.data.value.RawPassword
@@ -7,7 +8,6 @@ import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.UserService
 import pl.starchasers.up.util.Util
-import javax.annotation.PostConstruct
 
 @Component
 class AccountInitializer(

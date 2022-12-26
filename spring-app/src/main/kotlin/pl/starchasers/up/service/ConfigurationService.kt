@@ -1,5 +1,6 @@
 package pl.starchasers.up.service
 
+import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import pl.starchasers.up.data.dto.configuration.UpdateUserConfigurationDTO
 import pl.starchasers.up.data.model.ConfigurationEntry
@@ -10,7 +11,6 @@ import pl.starchasers.up.data.value.Milliseconds
 import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.repository.ConfigurationRepository
 import pl.starchasers.up.repository.UserRepository
-import javax.annotation.PostConstruct
 
 interface ConfigurationService {
     fun applyDefaultConfiguration(user: User)
