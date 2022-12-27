@@ -1,6 +1,6 @@
 package pl.starchasers.up.controller
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
+import io.kotest.matchers.string.shouldNotBeEmpty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -8,78 +8,57 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
+import org.springframework.test.web.servlet.post
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.authentication.LoginDTO
 import pl.starchasers.up.data.dto.authentication.TokenDTO
 import pl.starchasers.up.data.model.User
-import pl.starchasers.up.data.value.RawPassword
-import pl.starchasers.up.data.value.Username
 import pl.starchasers.up.repository.RefreshTokenRepository
-import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.JwtTokenService
-import pl.starchasers.up.service.UserService
+import pl.starchasers.up.testdata.UserTestData
 
 internal class AuthenticationControllerTest(
-    @Autowired private val userService: UserService,
-    @Autowired private val jwtTokenService: JwtTokenService
+    @Autowired private val jwtTokenService: JwtTokenService,
+    @Autowired private val userTestData: UserTestData
 ) : JpaTestBase() {
 
-    private val testUserUsername: Username = Username("testUser")
-    private val testUserPassword: RawPassword = RawPassword("examplePassword")
     private lateinit var testUser: User
 
     @BeforeEach
     fun createTestUser() {
-        testUser = userService.createUser(testUserUsername, testUserPassword, null, Role.USER)
+        testUser = userTestData.createTestUser()
     }
 
     @Nested
     inner class LogIn : MockMvcTestBase() {
-        private val loginRequestPath = Path("/api/auth/login")
+        private val requestPath = "/api/auth/login"
 
         @Test
         fun `Given valid data, should return refresh token`() {
-            mockMvc.post(
-                path = loginRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = LoginDTO(testUserUsername.value, testUserPassword.value)
-            ) {
-                isSuccess()
-                responseJsonPath("$.token").isNotEmpty()
-            }
+            val response: TokenDTO = mockMvc.postJson(requestPath) {
+                jsonContent = LoginDTO(UserTestData.DEFAULT_USERNAME, UserTestData.DEFAULT_PASSWORD)
+            }.andExpect {
+                status { isOk() }
+            }.andReturn().parse()
+
+            response.token.shouldNotBeEmpty()
         }
 
         @Test
         fun `Given incorrect password, should return 403`() {
-            mockMvc.post(
-                path = loginRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = LoginDTO(testUserUsername.value, testUserPassword.value + "qwe")
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.postJson(requestPath) {
+                jsonContent = LoginDTO(UserTestData.DEFAULT_USERNAME, UserTestData.DEFAULT_PASSWORD + "qwe")
+            }.andExpect {
+                status { isForbidden() }
             }
         }
 
         @Test
         fun `Given incorrect username, should return 403`() {
-            mockMvc.post(
-                path = loginRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = LoginDTO(testUserUsername.value + "qwe", testUserPassword.value)
-            ) {
-                isError(HttpStatus.FORBIDDEN)
-            }
-        }
-
-        @Test
-        fun `Given missing fields, should return 400`() {
-            mockMvc.post(
-                path = loginRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = object {}
-            ) {
-                isError(HttpStatus.BAD_REQUEST)
+            mockMvc.postJson(requestPath) {
+                jsonContent = LoginDTO(UserTestData.DEFAULT_USERNAME + "qwe", UserTestData.DEFAULT_PASSWORD)
+            }.andExpect {
+                status { isForbidden() }
             }
         }
     }
@@ -92,7 +71,7 @@ internal class AuthenticationControllerTest(
         private lateinit var refreshToken: String
         private lateinit var accessToken: String
 
-        private val logoutRequestPath = Path("/api/auth/logout")
+        private val requestPath = "/api/auth/logout"
 
         @BeforeEach
         fun createSessions() {
@@ -104,79 +83,41 @@ internal class AuthenticationControllerTest(
 
         @Test
         fun `Given correct access token, should invalidate all refresh tokens`() {
-            mockMvc.post(
-                path = logoutRequestPath,
-                headers = HttpHeaders().authorization(accessToken)
-            ) {
-                isSuccess()
+            mockMvc.post(requestPath) {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+            }.andExpect {
+                status { isOk() }
             }
+
             assertTrue(refreshTokenRepository.findAllByUser(testUser).isEmpty())
         }
 
         @Test
         fun `Given incorrect access token or logged out user, should return 403`() {
-            mockMvc.post(
-                path = logoutRequestPath
-            ) {
-                isError(HttpStatus.FORBIDDEN)
-            }
+            mockMvc.post(requestPath)
+                .andExpect {
+                    status { isForbidden() }
+                }
 
             assertEquals(3, refreshTokenRepository.findAllByUser(testUser).size)
         }
     }
 
     @Nested
-    inner class GetAccessToken() : MockMvcTestBase() {
-        private val getAccessTokenRequestPath = Path("/api/auth/getAccessToken")
+    inner class GetAccessToken : MockMvcTestBase() {
+        private val requestPath = "/api/auth/getAccessToken"
 
         @Test
         fun `Given valid refresh token, should return access token`() {
             val refreshToken = jwtTokenService.issueRefreshToken(testUser)
 
-            mockMvc.post(
-                path = getAccessTokenRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = TokenDTO(refreshToken)
-            ) {
-                isSuccess()
-                responseJsonPath("$.token").isNotEmpty()
-            }
-        }
+            val response: TokenDTO = mockMvc.postJson(requestPath) {
+                jsonContent = TokenDTO(refreshToken)
+            }.andExpect {
+                status { isOk() }
+            }.andReturn().parse()
 
-        @Test
-        fun `Given invalid refresh token, should return 403`() {
-            val refreshToken = jwtTokenService.issueRefreshToken(testUser)
-
-            jwtTokenService.invalidateRefreshToken(
-                refreshToken
-            )
-            mockMvc.post(
-                path = getAccessTokenRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = mapper.writeValueAsString(TokenDTO(refreshToken))
-            ) {
-                isError(HttpStatus.FORBIDDEN)
-            }
-        }
-    }
-
-    @Nested
-    inner class RefreshRefreshToken() : MockMvcTestBase() {
-
-        private val refreshTokenRequestPath = Path("/api/auth/refreshToken")
-
-        @Test
-        fun `Given valid refresh token, should return new refresh token`() {
-            val refreshToken = jwtTokenService.issueRefreshToken(testUser)
-
-            mockMvc.post(
-                path = refreshTokenRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = TokenDTO(refreshToken)
-            ) {
-                isSuccess()
-                responseJsonPath("$.token").isNotEmpty()
-            }
+            response.token.shouldNotBeEmpty()
         }
 
         @Test
@@ -184,12 +125,41 @@ internal class AuthenticationControllerTest(
             val refreshToken = jwtTokenService.issueRefreshToken(testUser)
             jwtTokenService.invalidateRefreshToken(refreshToken)
 
-            mockMvc.post(
-                path = refreshTokenRequestPath,
-                headers = HttpHeaders().contentTypeJson(),
-                body = TokenDTO(refreshToken)
-            ) {
-                isError(HttpStatus.FORBIDDEN)
+            mockMvc.postJson(requestPath) {
+                jsonContent = TokenDTO(refreshToken)
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+    }
+
+    @Nested
+    inner class RefreshRefreshToken : MockMvcTestBase() {
+
+        private val requestPath = "/api/auth/refreshToken"
+
+        @Test
+        fun `Given valid refresh token, should return new refresh token`() {
+            val refreshToken = jwtTokenService.issueRefreshToken(testUser)
+
+            val response: TokenDTO = mockMvc.postJson(requestPath) {
+                jsonContent = TokenDTO(refreshToken)
+            }.andExpect {
+                status { isOk() }
+            }.andReturn().parse()
+
+            response.token.shouldNotBeEmpty()
+        }
+
+        @Test
+        fun `Given invalid refresh token, should return 403`() {
+            val refreshToken = jwtTokenService.issueRefreshToken(testUser)
+            jwtTokenService.invalidateRefreshToken(refreshToken)
+
+            mockMvc.postJson(requestPath) {
+                jsonContent = TokenDTO(refreshToken)
+            }.andExpect {
+                status { isForbidden() }
             }
         }
     }

@@ -1,6 +1,5 @@
 package pl.starchasers.up.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -49,9 +48,6 @@ class FileServiceImpl(
     private val configurationService: ConfigurationService,
     private val charsetDetectionService: CharsetDetectionService
 ) : FileService {
-
-    @Value("\${up.max-file-size}")
-    private val maxUploadSize: Long = 0
 
     private val util = Util()
 

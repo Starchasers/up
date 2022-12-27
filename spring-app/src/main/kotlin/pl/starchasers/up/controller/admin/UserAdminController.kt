@@ -50,7 +50,7 @@ class UserAdminController(
     fun update(@PathVariable userId: Long, @RequestBody userDTO: UpdateUserDTO) {
         userService.updateUser(
             userId,
-            userDTO.username.toUsername(),
+            userDTO.username?.toUsername(),
             if (userDTO.email.isNullOrBlank()) null else Email(userDTO.email),
             if (userDTO.password.isNullOrBlank()) null else RawPassword(userDTO.password),
             userDTO.role,

@@ -109,6 +109,7 @@ class JwtTokenServiceImpl(
                 .parseClaimsJws(token)
                 .body
         } catch (e: Exception) {
+            logger.warn("error parsing jwt token", e)
             throw JwtTokenException("Invalid or corrupted token.")
         }
     }
