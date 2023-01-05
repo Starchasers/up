@@ -1,46 +1,41 @@
 package pl.starchasers.up
 
-import no.skatteetaten.aurora.mockmvc.extensions.*
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.*
 
-fun MockMvcData.isSuccess() {
-    printResponseBody()
-    statusIsOk()
-//    responseJsonPath("$.success").isTrue()
+object DefaultObjectMapper {
+    val objectMapper: ObjectMapper = jacksonObjectMapper()
 }
 
-fun MockMvcData.isError(expectedStatus: HttpStatus) {
-    printResponseBody()
-    status(expectedStatus)
-//    responseJsonPath("$.success").isFalse()
-    responseJsonPath("$.message").isNotEmpty()
-}
+var MockHttpServletRequestDsl.jsonContent: Any?
+    get() = null
+    set(value) {
+        content = DefaultObjectMapper.objectMapper.writeValueAsString(value)
+    }
 
-// TODO make library pull request
-fun MockMvc.multipart(
-    path: Path,
-    headers: HttpHeaders? = null,
-    fnBuilder: MockMultipartHttpServletRequestBuilder.() -> Unit,
-    fn: MockMvcData.() -> Unit
-) {
-    val builder = MockMvcRequestBuilders
-        .multipart(path.url, *path.vars)
-        .apply { addHeaders(headers) }
+inline fun <reified T> MvcResult.parse(): T =
+    DefaultObjectMapper.objectMapper.readValue(this.response.contentAsString)
 
-    fnBuilder(builder)
+fun MockMvc.patchJson(urlTemplate: String, vararg vars: Any?, dsl: MockHttpServletRequestDsl.() -> Unit) =
+    patch(urlTemplate, *vars) {
+        contentType = MediaType.APPLICATION_JSON
+        accept = MediaType.APPLICATION_JSON
+        dsl()
+    }
 
-    val resultActions = this.perform(builder)
-    val mock = MockMvcData(path, resultActions)
-    fn(mock)
+fun MockMvc.postJson(urlTemplate: String, vararg vars: Any?, dsl: MockHttpServletRequestDsl.() -> Unit) =
+    post(urlTemplate, *vars) {
+        contentType = MediaType.APPLICATION_JSON
+        accept = MediaType.APPLICATION_JSON
+        dsl()
+    }
 
-//    mock.setupWireMock(headers, method)
-//            .addDocumentation(method, docsIdentifier)
-}
-
-private fun MockHttpServletRequestBuilder.addHeaders(headers: HttpHeaders?) =
-    headers?.let { this.headers(it) } ?: this
+fun MockMvc.deleteJson(urlTemplate: String, vararg vars: Any?, dsl: MockHttpServletRequestDsl.() -> Unit) =
+    delete(urlTemplate, *vars) {
+        contentType = MediaType.APPLICATION_JSON
+        accept = MediaType.APPLICATION_JSON
+        dsl()
+    }

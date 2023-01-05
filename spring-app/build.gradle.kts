@@ -44,8 +44,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.7")
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("io.kotest:kotest-assertions-core:5.5.4")
 }
 
 tasks.withType<KotlinCompile> {
