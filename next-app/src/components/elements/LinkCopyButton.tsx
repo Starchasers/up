@@ -107,9 +107,16 @@ const LinkCopyButton = (props: ILinkCopyButton) => {
     <>
       <DesktopContainer
         breakpoint={theme.breakpoints.sm}
-        className={css`display: flex; align-items: center;`}
+        className={css`
+          display: flex;
+          align-items: center;
+        `}
       >
-        <Area className={css`width: 100%;`}>
+        <Area
+          className={css`
+            width: 100%;
+          `}
+        >
           <CopyContainer onClick={selectLink}>
             <a href={props.link} onClick={handlePreventClick}>
               <LinkText ref={linkNode}>{props.link}</LinkText>

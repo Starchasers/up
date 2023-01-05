@@ -1,5 +1,5 @@
 import { css } from '@emotion/css'
-import { faAngleLeft, faCopy, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import { faAngleLeft, faCopy } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 import FileUploaded from '../../../components/blocks/Boxes/FileUploadedBox'
 import Button from '../../../components/elements/Button'
@@ -48,7 +48,7 @@ const FileUploadedBoxView = (props: IFileUploadedBoxViewProps) => (
     {/*    }*/}
     {/*  `}*/}
     {/*>*/}
-      {/*<QRCodeElement value={props.link} />*/}
+    {/*<QRCodeElement value={props.link} />*/}
     {/*  <div*/}
     {/*    className={css`*/}
     {/*      display: grid;*/}
