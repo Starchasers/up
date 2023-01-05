@@ -10,6 +10,7 @@ plugins {
     kotlin("jvm") version "1.7.21"
     kotlin("plugin.spring") version "1.7.21"
     kotlin("plugin.jpa") version "1.7.21"
+    kotlin("kapt") version "1.7.21"
 }
 
 group = "pl.starchasers"
@@ -35,6 +36,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.10.2")
     implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.4.0")
     implementation("com.ibm.icu:icu4j:72.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+    implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+    kapt("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
     runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
