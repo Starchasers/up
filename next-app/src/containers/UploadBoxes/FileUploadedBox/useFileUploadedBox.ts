@@ -5,7 +5,7 @@ import { UploadBoxContentContext } from '../../../providers/UploadBoxContentProv
 import { Box } from '../../../../@types/box'
 import { IUploadFileResponse } from '../../../../@types/api-client/uploadFile'
 
-const servingURL = process.env.NEXT_PUBLIC_SERVING_FILE_URL
+const fileServingPath = 'u'
 
 export interface IUseFileUploadedBoxState {
   link: string
@@ -20,7 +20,7 @@ const useFileUploadedBox = (): IUseFileUploadedBoxState => {
 
   const link = useMemo((): string => {
     if (fileUploadContext.uploadFileMutation.data) {
-      return `${servingURL}/${fileUploadContext.uploadFileMutation.data?.data.key}`
+      return `${window.location.origin}/${fileServingPath}/${fileUploadContext.uploadFileMutation.data?.data.key}`
     } else {
       return 'Oopsie woopsie'
     }
