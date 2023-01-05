@@ -45,9 +45,9 @@ const TimerCountdown = (props: ITimerCountdown) => {
         align-items: center;
         user-select: none;
         flex-direction: row;
-        box-shadow: 0 4px 20px 0 rgb(31 34 41 / 30%);
-        border: 2px solid #1f2229;
-        background: #1f2229;
+        //box-shadow: 0 4px 20px 0 rgb(31 34 41 / 30%);
+        //border: 2px solid #1f2229;
+        //background: #1f2229;
         padding: 5px 10px;
         border-radius: 8px;
         transition: all 250ms;

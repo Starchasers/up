@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 const FileUploadedBox = styled('div')`
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr 40px;
+  grid-template-rows: auto 40px;
   grid-row-gap: 20px;
 
   padding: 0 45px;

@@ -89,8 +89,10 @@ const LinkCopyButton = (props: ILinkCopyButton) => {
       range.setStart(linkNode.current, 0)
       range.setEndAfter(linkNode.current)
       const selection = window.getSelection()
-      selection.removeAllRanges()
-      selection.addRange(range)
+      if (selection) {
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
     } catch (e) {
       // Handle warning about browser is outdated to have this feature
       console.log('Your browser is outdated', e)
@@ -103,8 +105,11 @@ const LinkCopyButton = (props: ILinkCopyButton) => {
 
   return (
     <>
-      <DesktopContainer breakpoint={theme.breakpoints.sm}>
-        <Area>
+      <DesktopContainer
+        breakpoint={theme.breakpoints.sm}
+        className={css`display: flex; align-items: center;`}
+      >
+        <Area className={css`width: 100%;`}>
           <CopyContainer onClick={selectLink}>
             <a href={props.link} onClick={handlePreventClick}>
               <LinkText ref={linkNode}>{props.link}</LinkText>

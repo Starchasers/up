@@ -15,7 +15,7 @@ import footerLinks from './footerLinks'
 import ExpandableBalloon from '../../components/elements/ExpandableBalloon'
 import UploadBoxes from '../UploadBoxes'
 import DesktopContainer from '../../components/elements/DesktopContainer'
-import ConfigurationMenu from '../../components/elements/Menu/ConfigurationMenu'
+// import ConfigurationMenu from '../../components/elements/Menu/ConfigurationMenu'
 
 interface IHomePageViewProps extends IHomePageProps, IHomePageStateProps {}
 
@@ -64,9 +64,9 @@ const HomePageView = (props: IHomePageViewProps) => (
           </AlignedDiv>
           <Box.BackgroundBox />
         </Box.TransparentBar>
-        <DesktopContainer breakpoint={theme.breakpoints.xl}>
-          <ConfigurationMenu />
-        </DesktopContainer>
+        {/*<DesktopContainer breakpoint={theme.breakpoints.xl}>*/}
+        {/*  <ConfigurationMenu />*/}
+        {/*</DesktopContainer>*/}
       </Box>
     </Container>
   </HomePage>

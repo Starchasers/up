@@ -12,7 +12,7 @@ export const UploadBoxContentContext = createContext<TUploadBoxContentContext>({
 })
 
 const UploadBoxContentProvider: React.FC = (props) => {
-  const [currentBox, setCurrentBox] = useState<Box>(Box.DefaultUploadBox)
+  const [currentBox, setCurrentBox] = useState<Box>(Box.FileUploadedBox)
 
   return (
     <UploadBoxContentContext.Provider value={{ currentBox, setCurrentBox }}>

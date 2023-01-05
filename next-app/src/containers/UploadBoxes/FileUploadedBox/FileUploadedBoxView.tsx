@@ -8,9 +8,9 @@ import LinkCopyButton from '../../../components/elements/LinkCopyButton'
 import ButtonContainer from '../../../components/elements/ButtonContainer'
 import TimerCountdown from '../../../components/elements/TimerCountdown'
 import theme from '../../../assets/theme'
-import QRCodeElement from '../../../components/elements/QRCodeElement'
+// import QRCodeElement from '../../../components/elements/QRCodeElement'
 import { IUseFileUploadedBoxState } from './useFileUploadedBox'
-import colorVariants from '../../../components/elements/Button/variants/_colorVariants'
+// import colorVariants from '../../../components/elements/Button/variants/_colorVariants'
 import MobileContainer from '../../../components/elements/MobileContainer'
 import DesktopContainer from '../../../components/elements/DesktopContainer'
 
@@ -31,58 +31,55 @@ const FileUploadedBoxView = (props: IFileUploadedBoxViewProps) => (
           </MobileContainer>
         </>
       }
-    />{' '}
-    <div
-      className={css`
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-column-gap: 10px;
-        grid-row-gap: 20px;
+    />
+    {/*<div*/}
+    {/*  className={css`*/}
+    {/*    display: grid;*/}
+    {/*    grid-template-columns: 1fr 1fr;*/}
+    {/*    grid-column-gap: 10px;*/}
+    {/*    grid-row-gap: 20px;*/}
 
-        @media (max-width: ${theme.breakpoints.sm}) {
-          grid-template-columns: 1fr;
+    {/*    @media (max-width: ${theme.breakpoints.sm}) {*/}
+    {/*      grid-template-columns: 1fr;*/}
 
-          > *:first-of-type {
-            grid-row: 2;
-          }
-        }
-      `}
-    >
-      <QRCodeElement value={props.link} />
-      <div
-        className={css`
-          display: grid;
-          grid-row-gap: 10px;
-          grid-auto-rows: 40px;
-        `}
-      >
-        <Button
-          variant='primary'
-          icon={<Icon icon={faTrashAlt} />}
-          iconAlign={'right'}
-          buttonProps={{
-            className: css`
-              opacity: 0.85;
-            `,
-            onClick: props.handleDeleteFileClick
-          }}
-          iconProps={{
-            className: css`
-              > svg {
-                margin: unset;
-                font-size: 18px;
-              }
-            `
-          }}
-          colorStates={colorVariants.dangerous}
-        >
-          Delete file
-        </Button>
-        <TimerCountdown
-          date={props.fileUploadData ? new Date(props.fileUploadData.toDelete) : new Date()}
-        />
-      </div>
-    </div>
+    {/*      > *:first-of-type {*/}
+    {/*        grid-row: 2;*/}
+    {/*      }*/}
+    {/*    }*/}
+    {/*  `}*/}
+    {/*>*/}
+      {/*<QRCodeElement value={props.link} />*/}
+    {/*  <div*/}
+    {/*    className={css`*/}
+    {/*      display: grid;*/}
+    {/*      grid-row-gap: 10px;*/}
+    {/*      grid-auto-rows: 40px;*/}
+    {/*    `}*/}
+    {/*  >*/}
+    {/*    <Button*/}
+    {/*      variant='primary'*/}
+    {/*      icon={<Icon icon={faTrashAlt} />}*/}
+    {/*      iconAlign={'right'}*/}
+    {/*      buttonProps={{*/}
+    {/*        className: css`*/}
+    {/*          opacity: 0.85;*/}
+    {/*        `,*/}
+    {/*        onClick: props.handleDeleteFileClick*/}
+    {/*      }}*/}
+    {/*      iconProps={{*/}
+    {/*        className: css`*/}
+    {/*          > svg {*/}
+    {/*            margin: unset;*/}
+    {/*            font-size: 18px;*/}
+    {/*          }*/}
+    {/*        `*/}
+    {/*      }}*/}
+    {/*      colorStates={colorVariants.dangerous}*/}
+    {/*    >*/}
+    {/*      Delete file*/}
+    {/*    </Button>*/}
+    {/*  </div>*/}
+    {/*</div>*/}
     <ButtonContainer
       columns={'1fr 1fr'}
       className={css`
@@ -118,7 +115,9 @@ const FileUploadedBoxView = (props: IFileUploadedBoxViewProps) => (
       >
         Go back
       </Button>
-      <div />
+      <TimerCountdown
+        date={props.fileUploadData ? new Date(props.fileUploadData.toDelete) : new Date()}
+      />
     </ButtonContainer>
   </FileUploaded>
 )
