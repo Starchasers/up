@@ -43,7 +43,8 @@ const FileUploadProvider: React.FC = (props) => {
 
   const getConfigurationMutation = useMutation(APIClient.getConfiguration, {
     onError: (error: AxiosError<IUpAppUniversalError> | Error) => {
-      handleErrorMessage(error)
+      handleErrorMessage(error, { autoClose: false })
+      uploadBoxContext.setCurrentBox(Box.DefaultUploadBox)
     }
   })
 
@@ -52,7 +53,8 @@ const FileUploadProvider: React.FC = (props) => {
       uploadBoxContext.setCurrentBox(Box.UploadingBox)
     },
     onError: (error: AxiosError<IUpAppUniversalError> | Error) => {
-      handleErrorMessage(error)
+      handleErrorMessage(error, { autoClose: false })
+      uploadBoxContext.setCurrentBox(Box.DefaultUploadBox)
     }
   })
 
