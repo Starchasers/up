@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "pl.starchasers"
-version = "1.2"
+version = "2.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
