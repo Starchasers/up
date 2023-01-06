@@ -58,7 +58,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v1.4.3
         with:
-          java-version: 11
+          java-version: 17
       - name: Lint
         run: ./gradlew --continue ktlintCheck
   test-spring:
@@ -69,7 +69,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v1.4.3
         with:
-          java-version: 11
+          java-version: 17
       - name: Test
         run: ./gradlew --continue test
 
@@ -92,7 +92,7 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v1.4.3
       with:
-        java-version: 11
+        java-version: 17
 
     - name: Download artifacts
       uses: actions/download-artifact@v3
