@@ -3,9 +3,88 @@ name: CI
 on: push
 
 jobs:
+  install-dependencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: cd ./next-app && yarn install --frozen-lockfile
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: './next-app/node_modules'
+          key: ${{ runner.os }}-next-${{ hashFiles('./next-app/yarn.lock') }}
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: './next-app/node_modules'
+          key: ${{ runner.os }}-next-${{ hashFiles('./next-app/yarn.lock') }}
+      - name: Run ESLint
+        run: cd ./next-app && npx eslint @types src
+  build-website:
+    name: Website Build
+    runs-on: ubuntu-latest
+    needs: eslint
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: './next-app/node_modules'
+          key: ${{ runner.os }}-next-${{ hashFiles('./next-app/yarn.lock') }}
+      - name: Build
+        run: cd ./next-app && yarn build && yarn export
+      - name: Package Jar
+        run: cd next-app && ln -s out static && zip -0 -r next-app.jar static
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: next-app.jar
+          path: next-app/next-app.jar
+  ktLint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 17
+      - name: Lint
+        run: ./gradlew --continue ktlintCheck
+  test-spring:
+    name: Test Spring
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 17
+      - name: Test
+        run: ./gradlew --continue test
+
+      - name: Publish Test Report
+        uses: scacap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+        if: always()
   build:
     runs-on: ubuntu-latest
-
+    needs:
+      - ktLint
+      - test-spring
+      - build-website
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
@@ -13,44 +92,37 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v1.4.3
       with:
-        java-version: 11
+        java-version: 17
 
-    - name: Build Gatsby app
-      run: |
-        cd gatsby-app
-        npm install
-        npm run build
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: next-app.jar
+        path: next-app
 
     - name: Build Spring app
       run: ./gradlew bootjar
-      
-    - name: Test
-      run: ./gradlew --continue test
-      
-    - name: Publish Test Report
-      uses: scacap/action-surefire-report@v1
-      with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-      if: always()
 
-    - name: Generate documentation
-      run: ./gradlew asciidoctor
-    
-    - name: Upload artifacts to CD
-      run: |
-        branch=${{ github.ref }}
-        
-        curl 'https://cd.snet.ovh/api/pub/staticfile/create' -i -X POST \
-        -H 'Content-Type: multipart/form-data' \
-        -H 'secret: ${{ secrets.CD_DOCUMENTATION_SECRET }}' \
-        -F 'app=2' \
-        -F "key=${branch#refs/heads/}" \
-        -F 'file=@spring-app/build/generated-docs/index.html;type=text/html'
-        
-        curl 'https://cd.snet.ovh/api/pub/spring/add' -i -X POST \
-        -H 'Content-Type: multipart/form-data' \
-        -H 'secret: ${{ secrets.CD_DEPLOY_SECRET }}' \
-        -F 'app=1' \
-        -F "key=${branch#refs/heads/}" \
-        -F 'file=@spring-app/build/libs/up-1.1.jar;type=application/octet-stream'
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: up.jar
+        path: spring-app/build/libs/up-*.jar
+
+#    - name: Upload artifacts to CD
+#      run: |
+#        branch=${{ github.ref }}
+#
+#        curl 'https://cd.snet.ovh/api/pub/staticfile/create' -i -X POST \
+#        -H 'Content-Type: multipart/form-data' \
+#        -H 'secret: ${{ secrets.CD_DOCUMENTATION_SECRET }}' \
+#        -F 'app=2' \
+#        -F "key=${branch#refs/heads/}" \
+#        -F 'file=@spring-app/build/generated-docs/index.html;type=text/html'
+#
+#        curl 'https://cd.snet.ovh/api/pub/spring/add' -i -X POST \
+#        -H 'Content-Type: multipart/form-data' \
+#        -H 'secret: ${{ secrets.CD_DEPLOY_SECRET }}' \
+#        -F 'app=1' \
+#        -F "key=${branch#refs/heads/}" \
+#        -F 'file=@spring-app/build/libs/up-1.1.jar;type=application/octet-stream'
