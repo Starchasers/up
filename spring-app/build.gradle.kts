@@ -72,6 +72,11 @@ tasks {
 
     test {
         useJUnitPlatform()
+
+        doFirst {
+            environment("spring.profiles.active", "junit")
+        }
+
         finalizedBy(ktlintCheck)
     }
 
