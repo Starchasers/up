@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - ktLint
-      - test-spring
+#      - test-spring
       - build-website
     steps:
       - uses: actions/checkout@v2
