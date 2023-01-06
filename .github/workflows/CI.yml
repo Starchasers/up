@@ -139,6 +139,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags:
-            - "up/up:latest"
-            - "up/up:${{ env.UP_VERSION }}"
+          tags: up/up:latest"
+#            - "up/up:${{ env.UP_VERSION }}"
