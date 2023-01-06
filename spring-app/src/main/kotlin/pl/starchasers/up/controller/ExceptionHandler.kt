@@ -1,6 +1,7 @@
 package pl.starchasers.up.controller
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,7 +19,9 @@ import pl.starchasers.up.exception.BadRangeException
 import pl.starchasers.up.util.BasicErrorResponseDTO
 
 @ControllerAdvice
-class ExceptionHandler() {
+class ExceptionHandler {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(applicationException: ApplicationException): ResponseEntity<BasicErrorResponseDTO> =
@@ -75,8 +78,13 @@ class ExceptionHandler() {
         )
 
     @ExceptionHandler(MultipartException::class)
-    fun handleMultipartException(): ResponseEntity<BasicErrorResponseDTO> =
-        ResponseEntity(BasicErrorResponseDTO("Bad Request. Malformed multipart request."), HttpStatus.BAD_REQUEST)
+    fun handleMultipartException(e: MultipartException): ResponseEntity<BasicErrorResponseDTO> {
+        logger.warn("Malformed multipart request", e)
+        return ResponseEntity(
+            BasicErrorResponseDTO("Bad Request. Malformed multipart request."),
+            HttpStatus.BAD_REQUEST
+        )
+    }
 
     @ExceptionHandler(Exception::class)
     fun handleAll(exception: Exception): ResponseEntity<BasicErrorResponseDTO> {

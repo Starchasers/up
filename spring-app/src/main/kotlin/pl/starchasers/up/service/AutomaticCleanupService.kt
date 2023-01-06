@@ -3,12 +3,12 @@ package pl.starchasers.up.service
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
-import javax.transaction.Transactional
 
 @Service
 class AutomaticCleanupService(

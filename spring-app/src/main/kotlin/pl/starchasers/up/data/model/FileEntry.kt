@@ -1,8 +1,8 @@
 package pl.starchasers.up.data.model
 
+import jakarta.persistence.*
 import pl.starchasers.up.data.value.*
 import java.sql.Timestamp
-import javax.persistence.*
 
 @Entity
 class FileEntry(

@@ -1,8 +1,8 @@
 package pl.starchasers.up.data.value
 
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
 import pl.starchasers.up.util.validate
-import javax.persistence.Column
-import javax.persistence.Embeddable
 
 @Embeddable
 data class Username(
@@ -18,4 +18,4 @@ data class Username(
     }
 }
 
-fun String?.toUsername(): Username? = this?.let { Username(it) }
+fun String.toUsername(): Username = Username(this)

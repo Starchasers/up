@@ -1,9 +1,9 @@
 package pl.starchasers.up.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
@@ -17,7 +17,6 @@ import pl.starchasers.up.util.Util
 import java.io.InputStream
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 interface FileService {
 
@@ -49,9 +48,6 @@ class FileServiceImpl(
     private val configurationService: ConfigurationService,
     private val charsetDetectionService: CharsetDetectionService
 ) : FileService {
-
-    @Value("\${up.max-file-size}")
-    private val maxUploadSize: Long = 0
 
     private val util = Util()
 

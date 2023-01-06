@@ -1,8 +1,8 @@
 package pl.starchasers.up.data.model
 
+import jakarta.persistence.*
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.security.Role
-import javax.persistence.*
 
 @Entity
 class User(
