@@ -144,4 +144,4 @@ jobs:
           push: true
           tags:
             - docker.snet.ovh/up/up:latest
-            - up/up:${{ env.UP_VERSION }}
+            - docker.snet.ovh/up/up:${{ env.UP_VERSION }}
