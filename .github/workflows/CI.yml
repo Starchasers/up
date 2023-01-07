@@ -142,6 +142,4 @@ jobs:
         with:
           context: .
           push: true
-          tags:
-            - docker.snet.ovh/up/up:latest
-            - docker.snet.ovh/up/up:${{ env.UP_VERSION }}
+          tags: docker.snet.ovh/up/up:latest;docker.snet.ovh/up/up:${{ env.UP_VERSION }}
