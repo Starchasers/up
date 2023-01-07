@@ -8,7 +8,7 @@ import LinkCopyButton from '../../../components/elements/LinkCopyButton'
 import ButtonContainer from '../../../components/elements/ButtonContainer'
 import TimerCountdown from '../../../components/elements/TimerCountdown'
 import theme from '../../../assets/theme'
-// import QRCodeElement from '../../../components/elements/QRCodeElement'
+import QRCodeElement from '../../../components/elements/QRCodeElement'
 import { IUseFileUploadedBoxState } from './useFileUploadedBox'
 // import colorVariants from '../../../components/elements/Button/variants/_colorVariants'
 import MobileContainer from '../../../components/elements/MobileContainer'
@@ -18,6 +18,7 @@ interface IFileUploadedBoxViewProps extends IUseFileUploadedBoxState {}
 
 const FileUploadedBoxView = (props: IFileUploadedBoxViewProps) => (
   <FileUploaded>
+    <QRCodeElement value={props.link} />
     <LinkCopyButton
       link={props.link}
       text={
@@ -48,7 +49,6 @@ const FileUploadedBoxView = (props: IFileUploadedBoxViewProps) => (
     {/*    }*/}
     {/*  `}*/}
     {/*>*/}
-    {/*<QRCodeElement value={props.link} />*/}
     {/*  <div*/}
     {/*    className={css`*/}
     {/*      display: grid;*/}
