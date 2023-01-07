@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "pl.starchasers"
-version = "1.2"
+version = "2.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -71,11 +71,16 @@ ktlint {
 tasks {
 
     withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
-        archiveBaseName.set("up")
+        archiveFileName.set("up.jar")
     }
 
     test {
         useJUnitPlatform()
+
+        doFirst {
+            environment("spring.profiles.active", "junit")
+        }
+
         finalizedBy(ktlintCheck)
     }
 

@@ -1,5 +1,8 @@
-FROM openjdk:11
+FROM openjdk:17-alpine
 
-ADD up-1.1.jar up.jar
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+WORKDIR /app
 
-CMD java -jar up.jar
+ADD spring-app/build/libs/up.jar up.jar
+ENTRYPOINT ["java", "-jar", "up.jar"]
