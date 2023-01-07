@@ -14,8 +14,8 @@ interface IRequiredQRElementProps extends IQRCodeElementProps {
 }
 
 const defaultProps: IRequiredQRElementProps = {
-  size: 152,
-  eyeRadius: 8,
+  size: 120,
+  eyeRadius: 0,
   qrStyle: 'squares',
   ecLevel: 'L',
   quietZone: 4
@@ -27,6 +27,7 @@ const QRCodeElement = (props: IQRCodeElementProps) => {
   return (
     <div
       className={css`
+        margin: 0 auto;
         opacity: 0.9;
         border-radius: 8px;
         overflow: hidden;
