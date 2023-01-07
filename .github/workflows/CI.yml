@@ -136,7 +136,7 @@ jobs:
         run: echo "UP_VERSION=$(sed -n 's/^\s*version\s*=\s*"\(.*\)"/\1/p' spring-app/build.gradle.kts)" >> $GITHUB_ENV
 
       - name: qwe
-        run: ls -la spring-app/build/liba
+        run: ls -la spring-app/build/libs
       - name: Build and push docker image
         uses: docker/build-push-action@v3
         with:
