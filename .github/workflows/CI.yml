@@ -111,11 +111,7 @@ jobs:
   build-docker:
     runs-on: ubuntu-latest
     needs: build
-    on:
-      push:
-        branches:
-          - master
-          - develop
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v2
 
