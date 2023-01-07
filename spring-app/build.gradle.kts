@@ -72,7 +72,7 @@ ktlint {
 tasks {
 
     withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
-        archiveBaseName.set("up")
+        archiveFileName.set("up.jar")
     }
 
     test {
