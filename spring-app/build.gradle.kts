@@ -34,6 +34,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     implementation("io.jsonwebtoken:jjwt-gson:0.11.5")
     implementation("org.flywaydb:flyway-core:9.10.2")
+    implementation("org.flywaydb:flyway-mysql:9.10.2")
     implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.4.0")
     implementation("com.ibm.icu:icu4j:72.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
