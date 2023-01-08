@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+servlet:
+  multipart:
+    max-file-size: 100
+    max-request-size: 500
+
+up:
+  datastore: ${DATASTORE_PATH:uploads}
+  jwt:
+    base64-secret: "YTNrWl5idUwqNSFSb2FDZ2lkTmJzdFFMckB4TUdERmU="
+  dev:
+    cors: false

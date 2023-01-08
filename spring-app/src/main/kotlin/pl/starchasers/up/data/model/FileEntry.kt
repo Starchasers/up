@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import pl.starchasers.up.data.value.*
 import java.sql.Timestamp
 
+@Table(name = "file_entry", schema = "public")
 @Entity
 class FileEntry(
     @Id

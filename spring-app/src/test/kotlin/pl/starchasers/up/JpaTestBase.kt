@@ -6,12 +6,30 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
+import org.testcontainers.containers.PostgreSQLContainer
 import pl.starchasers.up.data.model.User
 import pl.starchasers.up.service.JwtTokenService
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class JpaTestBase {
+
+    companion object {
+        init {
+            setupPostgres()
+        }
+
+        private fun setupPostgres() {
+            val postgresContainer = PostgreSQLContainer("postgres:15.1-alpine")
+                .withDatabaseName("up_test")
+
+            postgresContainer.start()
+
+            System.setProperty("spring.datasource.url", postgresContainer.jdbcUrl)
+            System.setProperty("spring.datasource.username", postgresContainer.username)
+            System.setProperty("spring.datasource.password", postgresContainer.password)
+        }
+    }
 
     @Autowired
     private lateinit var databaseCleaner: DatabaseCleaner

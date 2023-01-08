@@ -22,11 +22,11 @@ class DatabaseCleaner(
     private fun clean() {
         val connection = dataSource.connection
 
-        connection.prepareStatement("set foreign_key_checks = 0").execute()
+        connection.prepareStatement("SET session_replication_role = 'replica';").execute()
         repositories.forEach {
             it.deleteAllInBatch()
         }
-        connection.prepareStatement("set foreign_key_checks = 1").execute()
+        connection.prepareStatement("SET session_replication_role = 'origin';").execute()
         connection.close()
     }
 

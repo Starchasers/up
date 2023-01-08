@@ -3,7 +3,6 @@ package pl.starchasers.up.controller
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import org.apache.commons.fileupload.util.Streams
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -25,6 +24,7 @@ import pl.starchasers.up.security.Role
 import pl.starchasers.up.service.ConfigurationService
 import pl.starchasers.up.service.FileService
 import pl.starchasers.up.service.UserService
+import java.nio.charset.Charset
 import java.time.LocalDateTime
 
 internal class UploadControllerTest : JpaTestBase() {
@@ -74,7 +74,7 @@ internal class UploadControllerTest : JpaTestBase() {
             }
 
             uploadRepository.find(fileEntry.key)?.let { fileContent ->
-                assertEquals("example content", Streams.asString(fileContent.data))
+                assertEquals("example content", fileContent.data.readAllBytes().toString(Charset.defaultCharset()))
             } ?: throw RuntimeException()
         }
 
@@ -88,13 +88,6 @@ internal class UploadControllerTest : JpaTestBase() {
 
         @Test
         fun `Given missing file content type, should save file as application octet-stream`() {
-            val exampleTextFile = MockMultipartFile(
-                "file",
-                "exampleTextFile.txt",
-                "",
-                "example content".toByteArray()
-            )
-
             val response: UploadCompleteResponseDTO = mockMvc.multipart(requestPath) {
                 file(getExampleTextFile(contentType = ""))
             }.andExpect {
@@ -119,7 +112,7 @@ internal class UploadControllerTest : JpaTestBase() {
             }
 
             uploadRepository.find(fileEntry.key)?.let { fileContent ->
-                assertEquals("example content", Streams.asString(fileContent.data))
+                assertEquals("example content", fileContent.data.readAllBytes().toString(Charset.defaultCharset()))
             } ?: throw RuntimeException()
         }
 

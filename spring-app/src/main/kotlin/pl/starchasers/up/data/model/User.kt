@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import pl.starchasers.up.data.value.*
 import pl.starchasers.up.security.Role
 
+@Table(name = "user", schema = "public")
 @Entity
 class User(
     @Id

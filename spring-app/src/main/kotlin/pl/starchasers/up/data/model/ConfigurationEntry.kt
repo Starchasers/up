@@ -2,6 +2,7 @@ package pl.starchasers.up.data.model
 
 import jakarta.persistence.*
 
+@Table(name = "configuration_entry", schema = "public")
 @Entity
 class ConfigurationEntry(
     @Id

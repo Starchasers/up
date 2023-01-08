@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull
 import pl.starchasers.up.data.value.RefreshTokenId
 import java.sql.Timestamp
 
+@Table(name = "refresh_token", schema = "public")
 @Entity
 class RefreshToken(
     @Id

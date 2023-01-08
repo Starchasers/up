@@ -30,18 +30,15 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("commons-fileupload:commons-fileupload:1.4")
+    implementation("commons-io:commons-io:2.11.0")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     implementation("io.jsonwebtoken:jjwt-gson:0.11.5")
     implementation("org.flywaydb:flyway-core:9.10.2")
-    implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.4.0")
     implementation("com.ibm.icu:icu4j:72.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")
     kapt("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
-    runtimeOnly("com.h2database:h2:1.4.200")
-    runtimeOnly("mysql:mysql-connector-java")
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    runtimeOnly("org.postgresql:postgresql:42.5.1")
     runtimeOnly(files("../next-app/next-app.jar"))
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -49,6 +46,8 @@ dependencies {
     }
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest:kotest-assertions-core:5.5.4")
+    testImplementation("org.testcontainers:testcontainers:1.17.6")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
 }
 
 tasks.withType<KotlinCompile> {
