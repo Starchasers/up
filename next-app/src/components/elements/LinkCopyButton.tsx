@@ -41,14 +41,13 @@ const CopyContainer = styled('div')`
 `
 
 const LinkText = styled('span')`
-  display: flex;
-  width: 100%;
-  height: 100%;
   color: ${(props) => props.theme.colors.timberwolf};
-  align-items: center;
-  justify-content: center;
   font-size: 16px;
   line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-height: 17px;
 
   @media (min-width: ${(props) => props.theme.breakpoints.md}) and (max-width: ${(props) =>
       props.theme.breakpoints.lg}) {
@@ -60,9 +59,17 @@ const LinkText = styled('span')`
   }
 `
 
+const CopyLink = styled('a')`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  overflow: hidden;
+`
+
 const LinkCopyButton = (props: ILinkCopyButton) => {
   const [setTooltip, Tooltip] = useTooltip('Copied!')
-  const linkNode = useRef(null)
+  const linkNode = useRef<HTMLSpanElement>(null)
 
   const handleDesktopCopyButton: React.MouseEventHandler<HTMLDivElement> = useCallback(
     (event) => {
@@ -85,17 +92,20 @@ const LinkCopyButton = (props: ILinkCopyButton) => {
 
   const selectLink = useCallback(() => {
     try {
-      const range = new Range()
-      range.setStart(linkNode.current, 0)
-      range.setEndAfter(linkNode.current)
-      const selection = window.getSelection()
-      if (selection) {
-        selection.removeAllRanges()
-        selection.addRange(range)
+      const _current = linkNode.current
+      if (_current) {
+        const range = new Range()
+        range.setStart(_current, 0)
+        range.setEndAfter(_current)
+        const selection = window.getSelection()
+        if (selection) {
+          selection.removeAllRanges()
+          selection.addRange(range)
+        }
       }
     } catch (e) {
       // Handle warning about browser is outdated to have this feature
-      console.log('Your browser is outdated', e)
+      console.error('Your browser is outdated', e)
     }
   }, [linkNode.current])
 
@@ -118,9 +128,9 @@ const LinkCopyButton = (props: ILinkCopyButton) => {
           `}
         >
           <CopyContainer onClick={selectLink}>
-            <a href={props.link} onClick={handlePreventClick}>
+            <CopyLink href={props.link} onClick={handlePreventClick}>
               <LinkText ref={linkNode}>{props.link}</LinkText>
-            </a>
+            </CopyLink>
           </CopyContainer>
           <div style={{ position: 'relative', display: 'grid' }}>
             {Tooltip}
