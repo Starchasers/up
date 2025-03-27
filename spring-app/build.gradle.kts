@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("org.springframework.boot") version "3.1.6"
+    id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.asciidoctor.jvm.convert") version "3.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
@@ -9,11 +9,10 @@ plugins {
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.spring") version "2.1.0"
     kotlin("plugin.jpa") version "2.1.0"
-    kotlin("kapt") version "2.1.0"
 }
 
 group = "pl.starchasers"
-version = "2.0.0"
+version = "2.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -33,9 +32,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:11.3.1")
     implementation("org.flywaydb:flyway-database-postgresql:11.3.1")
     implementation("com.ibm.icu:icu4j:72.1")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-    implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")
-    kapt("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     runtimeOnly(files("../next-app/next-app.jar"))
 
     implementation("org.ktorm:ktorm-support-postgresql:4.1.1")
@@ -43,12 +40,12 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:42.7.5")
 
     testImplementation("org.postgresql:postgresql:42.7.5")
-    testImplementation("org.testcontainers:postgresql:1.20.4")
+    testImplementation("org.testcontainers:postgresql:1.20.6")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.kotest:kotest-assertions-core:5.5.4")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
 }
 
 kotlin {
@@ -83,15 +80,5 @@ tasks {
         }
 
         finalizedBy(ktlintCheck)
-    }
-
-    register("bootRunDev") {
-        group = "Application"
-        doFirst {
-            bootRun.configure {
-                args("--spring.profiles.active=localdb")
-            }
-        }
-        finalizedBy("bootRun")
     }
 }

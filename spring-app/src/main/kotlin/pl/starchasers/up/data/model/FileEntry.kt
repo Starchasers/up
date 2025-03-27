@@ -1,32 +1,31 @@
 package pl.starchasers.up.data.model
 
-import org.ktorm.entity.Entity
 import org.ktorm.schema.*
+import org.springframework.util.MimeType
 import java.time.Instant
 
-interface FileEntry : Entity<FileEntry> {
-    companion object : Entity.Factory<FileEntry>()
-    val id: Long
-    var accessToken: String?
-    var contentType: String
-    var createdAt: Instant
-    var encrypted: Boolean
-    var filename: String
-    var key: String
-    var password: String?
-    var size: Long
+data class FileEntry(
+    val id: FileId,
+    var accessToken: FileAccessToken?,
+    var contentType: MimeType,
+    var createdAt: Instant,
+    var encrypted: Boolean,
+    var filename: FileName,
+    var key: FileKey,
+    var password: FilePassword?,
+    var size: FileSize,
     var toDeleteAt: Instant?
-}
+)
 
-object FileEntries : Table<FileEntry>("file_entry") {
-    val id = long("id").primaryKey().bindTo { it.id }
-    val accessToken = text("file_access_token").bindTo { it.accessToken }
-    val contentType = text("content_type").bindTo { it.contentType }
-    val createdAt = timestamp("created_at").bindTo { it.createdAt }
-    val encrypted = boolean("encrypted").bindTo { it.encrypted }
-    val filename = text("filename").bindTo { it.filename }
-    val key = text("file_key").bindTo { it.key }
-    val password = text("file_password").bindTo { it.password }
-    val size = long("file_size").bindTo { it.size }
-    val deleteAt = timestamp("to_delete_at").bindTo { it.toDeleteAt }
+object FileEntries : Table<Nothing>("file_entry") {
+    val id = long("id").primaryKey()
+    val accessToken = text("file_access_token")
+    val contentType = text("content_type")
+    val createdAt = timestamp("created_at")
+    val encrypted = boolean("encrypted")
+    val filename = text("filename")
+    val key = text("file_key")
+    val password = text("file_password")
+    val size = long("file_size")
+    val deleteAt = timestamp("to_delete_at")
 }

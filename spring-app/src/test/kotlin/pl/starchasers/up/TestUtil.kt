@@ -8,7 +8,8 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.*
 
 object DefaultObjectMapper {
-    val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+    val objectMapper: ObjectMapper = jacksonObjectMapper()
+        .registerModule(JavaTimeModule())
 }
 
 var MockHttpServletRequestDsl.jsonContent: Any?

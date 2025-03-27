@@ -30,11 +30,4 @@ class MyPostgresContainer : PostgreSQLContainer<MyPostgresContainer>(IMAGE) {
         val instance by lazy { MyPostgresContainer() }
     }
 
-    override fun start() {
-        super.start()
-        System.setProperty("DATASOURCE_URL", this.jdbcUrl)
-        System.setProperty("DATASOURCE_USERNAME", this.username)
-        System.setProperty("DATASOURCE_PASSWORD", this.password)
-    }
-
 }

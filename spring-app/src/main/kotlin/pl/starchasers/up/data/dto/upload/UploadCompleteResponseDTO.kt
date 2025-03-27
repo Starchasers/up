@@ -1,12 +1,13 @@
 package pl.starchasers.up.data.dto.upload
 
+import pl.starchasers.up.data.model.FileKey
 import java.time.Instant
 
 data class UploadCompleteResponseDTO(
     /**
      * File identifier
      */
-    val key: String,
+    val key: FileKey,
 
     /**
      * File access token, allows modifying file properties after upload

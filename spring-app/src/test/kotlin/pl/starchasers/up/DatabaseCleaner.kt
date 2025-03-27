@@ -10,7 +10,7 @@ import pl.starchasers.up.util.initializer.Initializer
 @Component
 class DatabaseCleaner(
     private val database: Database,
-    private val repositories: List<StandardRepository<*, *>>,
+    private val repositories: List<StandardRepository<*>>,
     private val initializers: List<Initializer>
 ) : BeforeTestExecutionCallback {
 

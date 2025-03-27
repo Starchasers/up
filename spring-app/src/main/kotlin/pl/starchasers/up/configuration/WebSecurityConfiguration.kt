@@ -1,7 +1,6 @@
 package pl.starchasers.up.configuration
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -17,9 +16,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class WebSecurityConfiguration() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-
-    @Value("\${up.dev.cors}")
-    private val devCors: Boolean = false
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain = http

@@ -3,7 +3,8 @@ CREATE TABLE configuration_entry
     id                  bigserial   NOT NULL,
     configuration_key   text        NOT NULL,
     configuration_value text        NOT NULL,
-    CONSTRAINT pk_configuration_entry PRIMARY KEY (id)
+    CONSTRAINT pk_configuration_entry PRIMARY KEY (id),
+    CONSTRAINT uk_configuration_entry_key UNIQUE (configuration_key)
 );
 
 CREATE TABLE file_entry
@@ -18,5 +19,6 @@ CREATE TABLE file_entry
     file_password     text          DEFAULT NULL,
     file_size         bigint        NOT NULL,
     to_delete_at      timestamp     DEFAULT NULL,
-    CONSTRAINT pk_file_entry PRIMARY KEY (id)
+    CONSTRAINT pk_file_entry PRIMARY KEY (id),
+    CONSTRAINT uk_file_entry_key UNIQUE (file_key)
 );
