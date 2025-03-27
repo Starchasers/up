@@ -1,5 +1,8 @@
 package pl.starchasers.up.data.dto.upload
 
+import pl.starchasers.up.data.model.FileKey
+import pl.starchasers.up.data.model.FileName
+import pl.starchasers.up.data.model.FileSize
 import java.time.Instant
 
 data class FileDetailsDTO(
@@ -7,11 +10,11 @@ data class FileDetailsDTO(
     /**
      * File id
      */
-    val key: String,
+    val key: FileKey,
     /**
      * Filesystem filename
      */
-    val name: String,
+    val name: FileName,
     /**
      * Will this file expire after some time
      */
@@ -23,7 +26,7 @@ data class FileDetailsDTO(
     /**
      * File size in bytes
      */
-    val size: Long,
+    val size: FileSize,
     /**
      * Content type, eg. "text/plain"
      */

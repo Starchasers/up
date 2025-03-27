@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile
 import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.model.FileKey
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
@@ -56,8 +57,8 @@ class UploadController(
      */
     @GetMapping("/u/{fileKey}")
     fun getAnonymousUpload(@PathVariable fileKey: String, request: HttpServletRequest, response: HttpServletResponse) {
-        val (fileEntry, stream) = fileStorageService.getStoredFileRaw(fileKey)
-        response.contentType = fileEntry.contentType
+        val (fileEntry, stream) = fileStorageService.getStoredFileRaw(FileKey(fileKey))
+        response.contentType = fileEntry.contentType.toString()
 
         response.addHeader(
             HttpHeaders.ACCEPT_RANGES,
@@ -67,12 +68,12 @@ class UploadController(
             HttpHeaders.CONTENT_DISPOSITION,
             ContentDisposition
                 .builder("inline")
-                .filename(fileEntry.filename.ifBlank { "file" }, Charset.forName("UTF-8"))
+                .filename(fileEntry.filename.value.ifBlank { "file" }, Charset.forName("UTF-8"))
                 .build()
                 .toString()
         )
         try {
-            val range = requestRangeParser(request.getHeader("Range"), fileEntry.size)
+            val range = requestRangeParser(request.getHeader("Range"), fileEntry.size.value)
 
             if (range.partial) {
                 response.addHeader(HttpHeaders.CONTENT_RANGE, "bytes ${range.from}-${range.to}/${fileEntry.size}")
@@ -80,7 +81,7 @@ class UploadController(
                 response.status = HttpStatus.PARTIAL_CONTENT.value()
                 IOUtils.copyLarge(stream, response.outputStream, range.from, range.responseSize)
             } else {
-                response.addHeader(HttpHeaders.CONTENT_LENGTH, fileEntry.size.toString())
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, fileEntry.size.value.toString())
                 IOUtils.copyLarge(stream, response.outputStream)
             }
             response.outputStream.flush()
@@ -100,7 +101,7 @@ class UploadController(
         @Validated @RequestBody
         operationDto: AuthorizedOperationDTO?
     ): BasicResponseDTO {
-        val fileEntry = fileService.findFileEntry(fileKey) ?: throw NotFoundException()
+        val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
         if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken)) {
             throw AccessDeniedException()
@@ -114,7 +115,7 @@ class UploadController(
         @Validated @RequestBody
         operationDto: AuthorizedOperationDTO?
     ) {
-        val fileEntry = fileService.findFileEntry(fileKey) ?: throw NotFoundException()
+        val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
         if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken)) {
             throw AccessDeniedException()
@@ -127,5 +128,5 @@ class UploadController(
      * @return Uploaded file metadata
      */
     @GetMapping("/api/u/{fileKey}/details")
-    fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(fileKey)
+    fun getFileDetails(@PathVariable fileKey: String): FileDetailsDTO = fileService.getFileDetails(FileKey(fileKey))
 }

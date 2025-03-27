@@ -1,6 +1,5 @@
 package pl.starchasers.up.data.model
 
-import org.ktorm.entity.Entity
 import org.ktorm.schema.Table
 import org.ktorm.schema.enum
 import org.ktorm.schema.long
@@ -8,17 +7,16 @@ import org.ktorm.schema.text
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-interface ConfigurationEntry : Entity<ConfigurationEntry> {
-    companion object : Entity.Factory<ConfigurationEntry>()
-    val id: Long
-    var key: ConfigurationKey
+data class ConfigurationEntry(
+    val id: Long,
+    var key: ConfigurationKey,
     var value: String
-}
+)
 
-object ConfigurationEntries : Table<ConfigurationEntry>("configuration_entry") {
-    val id      = long("id").primaryKey().bindTo { it.id }
-    val key     = enum<ConfigurationKey>("configuration_key").bindTo { it.key }
-    val value   = text("configuration_value").bindTo { it.value }
+object ConfigurationEntries : Table<Nothing>("configuration_entry") {
+    val id      = long("id").primaryKey()
+    val key     = enum<ConfigurationKey>("configuration_key")
+    val value   = text("configuration_value")
 }
 
 enum class ConfigurationKey(val defaultValue: String) {

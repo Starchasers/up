@@ -1,5 +1,6 @@
 package pl.starchasers.up.controller
 
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -14,10 +15,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.multipart
+import org.springframework.util.MimeType
 import pl.starchasers.up.*
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.model.ConfigurationKey
+import pl.starchasers.up.data.model.FileKey
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.ConfigurationService
@@ -35,7 +38,7 @@ internal class UploadControllerTest : JpaTestBase() {
 
         private val requestPath = "/api/upload"
 
-        private fun getExampleTextFile(contentType: String = "text/plain; charset=UTF-8") = MockMultipartFile(
+        private fun getExampleTextFile(contentType: String = "text/plain;charset=UTF-8") = MockMultipartFile(
             "file",
             "exampleTextFile.txt",
             contentType,
@@ -55,15 +58,15 @@ internal class UploadControllerTest : JpaTestBase() {
             assertEquals(1, fileEntryRepository.count())
             val fileEntry = fileEntryRepository.findAll()[0]
             with(response) {
-                key shouldBe fileEntry.key
-                accessToken shouldBe fileEntry.accessToken
+                key shouldBeEqual fileEntry.key
+                accessToken shouldBeEqual fileEntry.accessToken!!.value
                 toDelete.shouldNotBeNull()
             }
 
             with(fileEntry) {
-                contentType shouldBe "text/plain; charset=UTF-8"
+                contentType shouldBeEqual MimeType.valueOf("text/plain;charset=UTF-8")
                 encrypted shouldBe false
-                filename shouldBe "exampleTextFile.txt"
+                filename.value shouldBeEqual "exampleTextFile.txt"
                 password.shouldBeNull()
                 toDeleteAt.shouldNotBeNull()
                 fileEntry.toDeleteAt!!.isAfter(Instant.now()) shouldBe true
@@ -99,18 +102,18 @@ internal class UploadControllerTest : JpaTestBase() {
 
             val fileEntry = fileEntryRepository.findAll()[0]
             with(response) {
-                key shouldBe fileEntry.key
-                accessToken shouldBe fileEntry.accessToken
+                key shouldBeEqual fileEntry.key
+                accessToken shouldBeEqual fileEntry.accessToken!!.value
                 toDelete.shouldNotBeNull()
             }
 
             with(fileEntry) {
-                fileEntry.contentType shouldBe "application/octet-stream"
+                fileEntry.contentType shouldBeEqual MimeType.valueOf("application/octet-stream")
                 encrypted shouldBe false
-                filename shouldBe "exampleTextFile.txt"
+                filename.value shouldBeEqual "exampleTextFile.txt"
                 password.shouldBeNull()
                 toDeleteAt.shouldNotBeNull()
-                toDeleteAt!!.isAfter(Instant.now()) shouldBe true
+                toDeleteAt!!.isAfter(Instant.now()) shouldBeEqual true
             }
 
             uploadRepository.find(fileEntry.key)?.let { fileContent ->
@@ -147,7 +150,7 @@ internal class UploadControllerTest : JpaTestBase() {
             "fileName.txt",
             contentType,
             fileContent.byteInputStream().readAllBytes().size.toLong()
-        ).key
+        ).key.value
 
         @Test
         fun `Given valid key, should return raw file`() {
@@ -209,7 +212,7 @@ internal class UploadControllerTest : JpaTestBase() {
             val response: String = mockMvc.get(requestPath, key).andExpect {
                 status { isOk() }
                 header {
-                    string("Content-Type", "text/plain; charset=UTF-8")
+                    string("Content-Type", "text/plain;charset=UTF-8")
                 }
             }.andReturn().response.contentAsString
 
@@ -218,7 +221,7 @@ internal class UploadControllerTest : JpaTestBase() {
 
         @Test
         fun `Given specified text file encoding, should preserve it`() {
-            val contentType = "text/plain; charset=us-ascii"
+            val contentType = "text/plain;charset=us-ascii"
             val key = createFile(contentType = contentType)
 
             val response: String = mockMvc.get(requestPath, key).andExpect {
@@ -241,7 +244,7 @@ internal class UploadControllerTest : JpaTestBase() {
         private val requestPath = "/api/u/{key}/verify"
         private val content = "example content"
 
-        private lateinit var fileKey: String
+        private var fileKey: FileKey = FileKey("")
         private lateinit var fileAccessToken: String
 
         @BeforeEach
@@ -253,7 +256,7 @@ internal class UploadControllerTest : JpaTestBase() {
                 content.byteInputStream().readAllBytes().size.toLong()
             ).key
 
-            fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken
+            fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken?.value
                 ?: throw IllegalStateException()
         }
 
@@ -320,7 +323,7 @@ internal class UploadControllerTest : JpaTestBase() {
         private val content = "example content"
         private lateinit var fileKey: String
         private val filename: String = "filename.txt"
-        private val contentType: String = "text/plain; charset=UTF-8"
+        private val contentType: String = "text/plain;charset=UTF-8"
 
         @BeforeEach
         fun setup() {
@@ -329,7 +332,7 @@ internal class UploadControllerTest : JpaTestBase() {
                 filename,
                 contentType,
                 content.byteInputStream().readAllBytes().size.toLong()
-            ).key
+            ).key.value
         }
 
         @Test
@@ -340,11 +343,11 @@ internal class UploadControllerTest : JpaTestBase() {
             }.andReturn().parse()
 
             with(response) {
-                key shouldBe fileKey
-                name shouldBe filename
-                permanent shouldBe false // TODO support permanent files
-                size shouldBe content.byteInputStream().readAllBytes().size.toLong()
-                type shouldBe contentType
+                key.value shouldBeEqual fileKey
+                name.value shouldBeEqual filename
+                permanent shouldBeEqual false // TODO support permanent files
+                size.value shouldBeEqual content.byteInputStream().readAllBytes().size.toLong()
+                type shouldBeEqual contentType
             }
         }
 

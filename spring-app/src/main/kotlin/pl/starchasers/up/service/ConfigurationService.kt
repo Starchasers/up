@@ -2,7 +2,6 @@ package pl.starchasers.up.service
 
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
-import pl.starchasers.up.data.model.ConfigurationEntry
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.exception.BadRequestException
 import pl.starchasers.up.repository.ConfigurationRepository
@@ -30,8 +29,7 @@ class ConfigurationServiceImpl(
 
     override fun setConfigurationOption(key: ConfigurationKey, value: String) {
         if (value.toLongOrNull() == null) throw BadRequestException("Value must be of type Long.") // TODO change if more data types are required
-        configurationRepository.findFirstByKey(key)?.apply { this.value = value }?.flushChanges()
-            ?: configurationRepository.insert(ConfigurationEntry { this.key = key; this.value = value })
+        configurationRepository.upsertValue(key, value)
     }
 
     override fun getConfigurationOption(key: ConfigurationKey): String {
@@ -66,8 +64,10 @@ class ConfigurationServiceImpl(
             val entry = configurationRepository.findFirstByKey(key)
 
             if (entry == null) {
-                val defaultEntry = ConfigurationEntry { this.key = key; this.value = key.defaultValue }
-                configurationRepository.insert(defaultEntry)
+                configurationRepository.insert {
+                    set(it.key, key)
+                    set(it.value, key.defaultValue)
+                }
             }
         }
     }
