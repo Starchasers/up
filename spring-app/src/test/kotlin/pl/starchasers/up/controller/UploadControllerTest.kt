@@ -21,6 +21,8 @@ import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.model.ConfigurationKey
 import pl.starchasers.up.data.model.FileKey
+import pl.starchasers.up.data.model.FileName
+import pl.starchasers.up.data.model.FileSize
 import pl.starchasers.up.repository.FileEntryRepository
 import pl.starchasers.up.repository.UploadRepository
 import pl.starchasers.up.service.ConfigurationService
@@ -147,9 +149,9 @@ internal class UploadControllerTest : JpaTestBase() {
 
         private fun createFile(contentType: String, fileContent: String = content): String = fileService.createFile(
             fileContent.byteInputStream(),
-            "fileName.txt",
+            FileName("fileName.txt"),
             contentType,
-            fileContent.byteInputStream().readAllBytes().size.toLong()
+            FileSize(fileContent.byteInputStream().readAllBytes().size.toLong())
         ).key.value
 
         @Test
@@ -251,9 +253,9 @@ internal class UploadControllerTest : JpaTestBase() {
         fun setup() {
             fileKey = fileService.createFile(
                 content.byteInputStream(),
-                "filename.txt",
+                FileName("filename.txt"),
                 "text/plain",
-                content.byteInputStream().readAllBytes().size.toLong()
+                FileSize(content.byteInputStream().readAllBytes().size.toLong())
             ).key
 
             fileAccessToken = fileEntryRepository.findExistingFileByKey(fileKey)?.accessToken?.value
@@ -294,10 +296,10 @@ internal class UploadControllerTest : JpaTestBase() {
         }
 
         @Test
-        fun `Given missing access token and no user, should return 403`() {
+        fun `Given missing access token and no user, should return 400`() {
             mockMvc.postJson(requestPath, fileKey) {
             }.andExpect {
-                status { isForbidden() }
+                status { isBadRequest() }
             }
         }
 
@@ -322,7 +324,7 @@ internal class UploadControllerTest : JpaTestBase() {
         private val requestPath = "/api/u/{key}/details"
         private val content = "example content"
         private lateinit var fileKey: String
-        private val filename: String = "filename.txt"
+        private val filename: FileName = FileName("filename.txt")
         private val contentType: String = "text/plain;charset=UTF-8"
 
         @BeforeEach
@@ -331,7 +333,7 @@ internal class UploadControllerTest : JpaTestBase() {
                 content.byteInputStream(),
                 filename,
                 contentType,
-                content.byteInputStream().readAllBytes().size.toLong()
+                FileSize(content.byteInputStream().readAllBytes().size.toLong())
             ).key.value
         }
 
@@ -344,7 +346,7 @@ internal class UploadControllerTest : JpaTestBase() {
 
             with(response) {
                 key.value shouldBeEqual fileKey
-                name.value shouldBeEqual filename
+                name shouldBeEqual filename
                 permanent shouldBeEqual false // TODO support permanent files
                 size.value shouldBeEqual content.byteInputStream().readAllBytes().size.toLong()
                 type shouldBeEqual contentType
@@ -374,9 +376,9 @@ internal class UploadControllerTest : JpaTestBase() {
             val fileContent = "fileContent"
             return fileService.createFile(
                 fileContent.byteInputStream(),
-                "file",
+                FileName("file"),
                 "text/plain",
-                fileContent.length.toLong()
+                FileSize(fileContent.length.toLong())
             )
         }
 

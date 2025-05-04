@@ -4,11 +4,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
+import pl.starchasers.up.data.model.*
 import pl.starchasers.up.data.model.ConfigurationKey.ANONYMOUS_MAX_FILE_SIZE
-import pl.starchasers.up.data.model.FileAccessToken
-import pl.starchasers.up.data.model.FileEntry
-import pl.starchasers.up.data.model.FileKey
-import pl.starchasers.up.data.model.FileName
 import pl.starchasers.up.exception.FileTooLargeException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.repository.FileEntryRepository
@@ -21,14 +18,14 @@ interface FileService {
 
     fun createFile(
         tmpFile: InputStream,
-        filename: String,
+        filename: FileName,
         contentType: String,
-        size: Long
+        size: FileSize
     ): UploadCompleteResponseDTO
 
-    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?): Boolean
+    fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean
 
-    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?): Boolean
+    fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean
 
     fun findFileEntry(fileKey: FileKey): FileEntry?
 
@@ -50,9 +47,9 @@ class FileServiceImpl(
     @Transactional
     override fun createFile(
         tmpFile: InputStream,
-        filename: String,
+        filename: FileName,
         contentType: String,
-        size: Long
+        size: FileSize
     ): UploadCompleteResponseDTO {
         val actualContentType = when {
             contentType.isBlank() -> "application/octet-stream"
@@ -61,9 +58,9 @@ class FileServiceImpl(
         }
         val personalLimit: Long = configurationService.getConfigurationOption(ANONYMOUS_MAX_FILE_SIZE).toLong()
 
-        if (size > personalLimit) throw FileTooLargeException()
+        if (size.value > personalLimit) throw FileTooLargeException()
 
-        val key = fileStorageService.storeNonPermanentFile(tmpFile, FileName(filename))
+        val key = fileStorageService.storeNonPermanentFile(tmpFile, filename)
         // TODO check key already used
         val accessToken = generateFileAccessToken()
         val toDeleteAt = Instant.now().plus(1, ChronoUnit.DAYS)
@@ -73,24 +70,24 @@ class FileServiceImpl(
             set(it.contentType, actualContentType)
             set(it.createdAt, Instant.now())
             set(it.encrypted, false)
-            set(it.filename, filename)
+            set(it.filename, filename.value)
             set(it.key, key.value)
             set(it.password, null)
-            set(it.size, size)
+            set(it.size, size.value)
             set(it.deleteAt, toDeleteAt)
         }
 
         return UploadCompleteResponseDTO(key, accessToken, toDeleteAt)
     }
 
-    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken?): Boolean {
+    override fun verifyFileAccess(fileEntry: FileEntry, accessToken: FileAccessToken): Boolean {
         return (fileEntry.accessToken != null) && fileEntry.accessToken == accessToken
     }
 
-    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken?): Boolean =
+    override fun verifyFileAccess(fileKey: FileKey, accessToken: FileAccessToken): Boolean =
         fileEntryRepository
             .findExistingFileByKey(fileKey)
-            ?.let { verifyFileAccess(it, accessToken) } == true
+            ?.let { verifyFileAccess(it, accessToken) } ?: throw NotFoundException()
 
     override fun findFileEntry(fileKey: FileKey): FileEntry? = fileEntryRepository.findExistingFileByKey(fileKey)
 
