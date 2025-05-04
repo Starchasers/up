@@ -20,9 +20,9 @@ class MvcConfiguration : WebMvcConfigurer {
             .addResourceLocations("classpath:static/manifest.webmanifest")
             .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
 
-//        registry.addResourceHandler("/**")
-//            .addResourceLocations("classpath:static/")
-//            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
+        registry.addResourceHandler("/**")
+            .addResourceLocations("classpath:static/")
+            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
 
         super.addResourceHandlers(registry)
     }

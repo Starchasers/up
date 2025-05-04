@@ -14,6 +14,8 @@ import pl.starchasers.up.data.dto.upload.AuthorizedOperationDTO
 import pl.starchasers.up.data.dto.upload.FileDetailsDTO
 import pl.starchasers.up.data.dto.upload.UploadCompleteResponseDTO
 import pl.starchasers.up.data.model.FileKey
+import pl.starchasers.up.data.model.FileName
+import pl.starchasers.up.data.model.FileSize
 import pl.starchasers.up.exception.AccessDeniedException
 import pl.starchasers.up.exception.NotFoundException
 import pl.starchasers.up.service.FileService
@@ -45,9 +47,9 @@ class UploadController(
 
         return fileService.createFile(
             BufferedInputStream(file.inputStream),
-            file.originalFilename ?: "file",
+            FileName(file.originalFilename ?: "file"),
             contentType,
-            file.size
+            FileSize(file.size)
         )
     }
 
@@ -99,11 +101,11 @@ class UploadController(
     fun verifyFileAccess(
         @PathVariable fileKey: String,
         @Validated @RequestBody
-        operationDto: AuthorizedOperationDTO?
+        operationDto: AuthorizedOperationDTO
     ): BasicResponseDTO {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
-        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken)) {
+        if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) {
             throw AccessDeniedException()
         }
         return BasicResponseDTO()
@@ -113,11 +115,11 @@ class UploadController(
     fun deleteFile(
         @PathVariable fileKey: String,
         @Validated @RequestBody
-        operationDto: AuthorizedOperationDTO?
+        operationDto: AuthorizedOperationDTO
     ) {
         val fileEntry = fileService.findFileEntry(FileKey(fileKey)) ?: throw NotFoundException()
 
-        if (!fileService.verifyFileAccess(fileEntry, operationDto?.accessToken)) {
+        if (!fileService.verifyFileAccess(fileEntry, operationDto.accessToken)) {
             throw AccessDeniedException()
         }
 
