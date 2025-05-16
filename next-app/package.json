@@ -27,7 +27,7 @@
     "imagemin-optipng": "^8.0.0",
     "imagemin-svgo": "^10.0.0",
     "lodash": "^4.17.21",
-    "next": "^12.0.7",
+    "next": "^14.2.26",
     "next-optimized-images": "^2.6.2",
     "react": "^17.0.2",
     "react-circular-progressbar": "^2.0.4",
